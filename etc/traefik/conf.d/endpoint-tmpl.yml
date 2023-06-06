@@ -1,0 +1,34 @@
+http:
+  routers:
+    ${PROJECT_NAME}-http:
+      rule: Host(`${PROJECT_NAME}.rooter.test`)
+      service: ${PROJECT_NAME}-http
+      entrypoints:
+        - http
+    ${PROJECT_NAME}-https:
+      rule: Host(`${PROJECT_NAME}.rooter.test`)
+      service: ${PROJECT_NAME}-https
+      tls: true
+      entrypoints:
+        - https
+
+    ${PROJECT_NAME}-mailhog:
+      rule: Host(`${PROJECT_NAME}-mailhog.rooter.test`)
+      service: ${PROJECT_NAME}-mailhog
+      entrypoints:
+        - http
+  
+  services:
+    ${PROJECT_NAME}-http:
+      loadbalancer:
+        servers:
+          - url: http://127.0.0.1:8081
+    ${PROJECT_NAME}-https:
+      loadbalancer:
+        servers:
+          - url: https://${PROJECT_NAME}.rooter.test:8443
+    
+    ${PROJECT_NAME}-mailhog:
+      loadbalancer:
+        servers:
+          - url: http://127.0.0.1:8025

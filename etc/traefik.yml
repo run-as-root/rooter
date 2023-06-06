@@ -1,0 +1,40 @@
+---
+api:
+  dashboard: true
+  insecure: true
+providers:
+  file:
+    directory: ${ROOTER_HOME_DIR}/traefik/conf.d/
+    watch: true
+entryPoints:
+  http:
+    address: ":80"
+    #http:
+    #  redirections:
+    #    entryPoint:
+    #      to: https
+    #      scheme: https
+  https:
+    address: ":443"
+
+# Redirect to https (enable to enforce https)
+#http:
+#  middlewares:
+#    redirectAllTrafficToHttps:
+#      redirectScheme:
+#        scheme: https
+#        permanent: true
+#        port: "443"
+
+## Main Log
+log:
+  level: INFO
+#  filePath: ${ROOTER_HOME_DIR}/traefik/logs/traefik.log
+#  level: DEBUG
+## Access Logs (enable for debugging)
+#accessLog: 
+#  filePath: ${ROOTER_HOME_DIR}/traefik/logs/access.log
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false

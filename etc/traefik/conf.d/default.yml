@@ -1,0 +1,9 @@
+tls:
+  certificates:
+    - certFile: {{ env "HOME" }}/.rooter/ssl/certs/rooter.test.crt.pem
+      keyFile: {{ env "HOME" }}/.rooter/ssl/certs/rooter.test.key.pem
+  stores:
+    default:
+      defaultCertificate:
+        certFile: {{ env "HOME" }}/.rooter/ssl/certs/rooter.test.crt.pem
+        keyFile: {{ env "HOME" }}/.rooter/ssl/certs/rooter.test.key.pem
