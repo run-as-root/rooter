@@ -5,6 +5,27 @@ rooter is a local environment manager that helps orchestrating local developer e
 It brings a traefik instance that manages routing to the projects.  
 Alongside that is has a lot of commands to solve day-to-day repetitive tasks.  
 
+## Installation
+
+```bash
+./rooter install
+```
+
+in project set ``PROJECT_NAME`` env variable needs to be set through devenv.nix in project.  
+Then run:
+
+```bash
+$ROOTER_BIN traefik:config-register
+```
+
+## Usage
+
+### Print Help
+```bash
+$ROOTER_BIN --help
+$ROOTER_BIN --help <command>
+```
+
 ## Issues
 
 ### macOS Upgrade breaks nix installation

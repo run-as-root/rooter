@@ -3,8 +3,10 @@
 # Summary: Register a project specific traefik config
 # Group: traefik
 # Help:
-# - uses "${ROOTER_DIR}/etc/traefik/conf.d/endpoint-tmpl.yml" as template
-# - to render a config to "${ROOTER_HOME_DIR}/traefik/conf.d/${PROJECT_NAME}.yml"
+# uses "${ROOTER_DIR}/etc/traefik/conf.d/endpoint-tmpl.yml" as template
+# to render a config to "${ROOTER_HOME_DIR}/traefik/conf.d/${PROJECT_NAME}.yml"
+# :Help
+
 set -x
 
 envVars="$(printf '${%s} ' $(env | cut -d'=' -f1))" # determine all env vars

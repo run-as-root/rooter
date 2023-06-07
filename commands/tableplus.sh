@@ -3,6 +3,7 @@
 # Summary: launch Tableplus MacOS App
 # Help:
 #  - set TABLEPLUS_BIN to custom bin e.g. TABLEPLUS_BIN=/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus
+# :Help
 
 TABLEPLUS_BIN=${TABLEPLUS_BIN:-/Applications/TablePlus.app/Contents/MacOS/TablePlus}
 

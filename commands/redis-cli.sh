@@ -6,5 +6,6 @@
 # redis-cli KEYS *
 # redis-cli INFO
 # redis-cli --version
+# :Help
 
 redis-cli -p ${DEVENV_REDIS_PORT} -h 127.0.0.1 ${@:2}

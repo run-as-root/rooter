@@ -3,6 +3,7 @@
 # Summary: summary about environment
 # Help:
 # This will print out an extensive summary about the project
+# :Help
 
 if [[ "${PROJECT_NAME}" == "" ]]; then
     echo "This command should be executed in a project context. PROJECT_NAME is empty" && exit 1
