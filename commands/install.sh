@@ -14,6 +14,7 @@
 [[ ! ${ROOTER_DIR} ]] && >&2 echo -e "\033[31mThis script is not intended to be run directly!\033[0m" && exit 1
 
 mkdir -p "${ROOTER_HOME_DIR}/commands/"
+touch  "${ROOTER_HOME_DIR}/commands/empty.sh"
 
 #############################################################################
 ## Generate ROOT CA and trust ROOT CA

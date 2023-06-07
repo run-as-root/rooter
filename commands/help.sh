@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# Usage: help [options] [arguments]
+# Summary: Show help for rooter or a command
+# Help:
+#   Example: "help info"
+# :Help
+
 set -e
 
 printCommandList() {
