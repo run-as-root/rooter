@@ -15,8 +15,7 @@ targetFile="${ROOTER_HOME_DIR}/traefik/conf.d/${PROJECT_NAME}.yml"
 
 envsubst "${envVars}" < "$sourceFile" > "$targetFile"
 
-echo "
-Registered traefik configuration for $PROJECT_NAME
+echo "Registered traefik configuration for $PROJECT_NAME
 
 $(cat $targetFile)
 "
