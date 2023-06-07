@@ -18,17 +18,28 @@ http:
       entrypoints:
         - http
   
+    ${PROJECT_NAME}-rabbitmq:
+      rule: Host(`${PROJECT_NAME}-rabbitmq.rooter.test`)
+      service: ${PROJECT_NAME}-rabbitmq
+      entrypoints:
+        - http
+
   services:
     ${PROJECT_NAME}-http:
       loadbalancer:
         servers:
-          - url: http://127.0.0.1:8081
+          - url: http://127.0.0.1:${DEVENV_NGINX_HTTP_PORT}
     ${PROJECT_NAME}-https:
       loadbalancer:
         servers:
-          - url: https://${PROJECT_NAME}.rooter.test:8443
+          - url: https://${PROJECT_HOST}:${DEVENV_NGINX_HTTPS_PORT}
     
     ${PROJECT_NAME}-mailhog:
       loadbalancer:
         servers:
-          - url: http://127.0.0.1:8025
+          - url: http://127.0.0.1:${DEVENV_MAILHOG_UI_PORT}
+
+    ${PROJECT_NAME}-rabbitmq:
+      loadbalancer:
+        servers:
+          - url: http://127.0.0.1:${DEVENV_AMQP_MANAGEMENT_PORT}

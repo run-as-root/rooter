@@ -11,8 +11,9 @@ fi
 
 echo "PROJECT: ${PROJECT_NAME}"
 echo "
-app:            http://${PROJECT_NAME}.rooter.test
+app:            http://${PROJECT_HOST}
 mailhog:        http://${PROJECT_NAME}-mailhog.rooter.test
+AMQP-admin:     http://${PROJECT_NAME}-rabbitmq.rooter.test  u: ${DEVENV_AMQP_USER} p:${DEVENV_AMQP_PASS}
 
 nginx:          http($NGINX_HTTP_PORT) https($NGINX_HTTPS_PORT)
 php-fpm:        $DEVENV_PHPFPM_SOCKET
