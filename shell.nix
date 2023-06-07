@@ -5,5 +5,6 @@
 pkgs.mkShell {
   buildInputs = with pkgs; [
     traefik
+    gettext
   ];
 }
