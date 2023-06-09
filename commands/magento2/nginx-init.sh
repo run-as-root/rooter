@@ -17,10 +17,10 @@ if [[ "${DEVENV_STATE_NGINX}" == "" ]]; then
 fi
 
 nginxVarsAllowed=(
-    '$DEVENV_STATE_NGINX'
     '$NGINX_DIR_SSL_CERTS'
-    '$NGINX_HTTP_PORT'
-    '$NGINX_HTTPS_PORT'
+    '$DEVENV_STATE_NGINX'
+    '$DEVENV_HTTP_PORT'
+    '$DEVENV_HTTPS_PORT'
     '$DEVENV_PHPFPM_SOCKET'
     '$DEVENV_ROOT'
     '$NGINX_PKG_ROOT'
