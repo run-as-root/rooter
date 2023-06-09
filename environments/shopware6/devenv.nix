@@ -132,7 +132,8 @@ in {
     # Mailhog
     services.mailhog = {
         enable = true;
-        uiListenAddress = "127.0.0.1:${mailhogUiPort}";
+        uiListenAddress   = "127.0.0.1:${mailhogUiPort}";
+        apiListenAddress  = "127.0.0.1:${mailhogUiPort}";
         smtpListenAddress = "127.0.0.1:${mailhogSmtpPort}";
     };
 
