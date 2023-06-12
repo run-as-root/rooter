@@ -10,8 +10,7 @@
 set -xe
 
 mysqlParams="-u${DEVENV_DB_USER} -p${DEVENV_DB_PASS} --host=localhost --port=${DEVENV_DB_PORT}"
-echo $mysqlParams;
-exit;
+
 mysql ${mysqlParams} -e "DROP DATABASE IF EXISTS ${DEVENV_DB_NAME}; CREATE DATABASE IF NOT EXISTS ${DEVENV_DB_NAME};"
 
 bin/magento setup:install \
