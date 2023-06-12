@@ -14,6 +14,7 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\Traefik\InitTraefikConfigCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Traefik\RegisterTraefikConfigCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Traefik\StartTraefikCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\Magento2\InitMagento2NginxCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlCliCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlDumpCommand(),
             new \RunAsRoot\Rooter\Cli\Command\AmqpAdminCommand(),
