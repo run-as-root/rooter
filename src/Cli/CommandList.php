@@ -18,6 +18,7 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\AmqpAdminCommand(),
             new \RunAsRoot\Rooter\Cli\Command\MailhogCommand(),
             new \RunAsRoot\Rooter\Cli\Command\InfoCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\InstallCommand(),
             new \RunAsRoot\Rooter\Cli\Command\QueriousCommand(),
             new \RunAsRoot\Rooter\Cli\Command\RedisCliCommand(),
             new \RunAsRoot\Rooter\Cli\Command\TablePlusCommand(),
