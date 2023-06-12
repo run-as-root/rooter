@@ -9,7 +9,7 @@
 - If Laravel is already installed
   - Make sure `.devenv/state/mysql` is cleaned of any db
 - Configure hosts entry
-- Run `$ROOTER_BIN traefik:config-register`
+- Run `$ROOTER_BIN traefik:config:register`
 - Add the follwing entries to the .gitignore file:
   ```
   .devenv.flake.nix
