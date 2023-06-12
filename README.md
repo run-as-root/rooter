@@ -9,7 +9,7 @@ Alongside that is has a lot of commands to solve day-to-day repetitive tasks.
 
 ```bash
 ./rooter install
-./rooter traefik:config-init
+./rooter traefik:config:init
 ```
 
 in project set ``PROJECT_NAME`` env variable needs to be set through devenv.nix in project.  
@@ -36,7 +36,7 @@ DEVENV_ELASTICSEARCH_PORT=9200
 Then register the nginx of the project to traefik so traefik can route requests
 
 ```bash
-$ROOTER_BIN traefik:config-register
+$ROOTER_BIN traefik:config:register
 ```
 
 Update ``/etc/hosts`` with the paths to the frontend, mailhog, rabbitmq, what ever it supports
