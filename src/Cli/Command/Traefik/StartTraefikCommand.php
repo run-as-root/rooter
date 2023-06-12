@@ -22,6 +22,6 @@ class StartTraefikCommand extends Command
 
         $command = "traefik --configfile=$traefikConf";
 
-        return Process::fromShellCommandline($command)->setTty(true)->run();
+        return Process::fromShellCommandline($command)->setTimeout(0)->setTty(true)->run();
     }
 }
