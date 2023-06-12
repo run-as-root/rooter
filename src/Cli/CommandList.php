@@ -15,10 +15,12 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\Traefik\RegisterTraefikConfigCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlCliCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlDumpCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\AmqpAdminCommand(),
             new \RunAsRoot\Rooter\Cli\Command\MailhogCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\InfoCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\QueriousCommand(),
             new \RunAsRoot\Rooter\Cli\Command\RedisCliCommand(),
             new \RunAsRoot\Rooter\Cli\Command\TablePlusCommand(),
-            new \RunAsRoot\Rooter\Cli\Command\QueriousCommand(),
         ];
     }
 }
