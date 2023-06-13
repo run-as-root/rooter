@@ -13,7 +13,7 @@ class StartTraefikCommand extends Command
     public function configure()
     {
         $this->setName('traefik:start');
-        $this->setDescription('Run Traefik in foreground');
+        $this->setDescription('Run Traefik in background');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -22,6 +22,18 @@ class StartTraefikCommand extends Command
 
         $command = "traefik --configfile=$traefikConf";
 
-        return Process::fromShellCommandline($command)->setTimeout(0)->setTty(true)->run();
+        $process = Process::fromShellCommandline($command);
+        $process->setTimeout(0);
+        $process->setOptions(['create_new_console' => 1]);
+
+        $process->start();
+
+        sleep(2); # we need to wait a moment here
+
+        $pid = $process->getPid();
+
+        file_put_contents(ROOTER_HOME_DIR . '/traefik/traefik.pid', $pid);
+
+        return 0;
     }
 }

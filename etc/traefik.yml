@@ -29,7 +29,7 @@ entryPoints:
 ## Main Log
 log:
   level: INFO
-#  filePath: ${ROOTER_HOME_DIR}/traefik/logs/traefik.log
+  filePath: ${ROOTER_HOME_DIR}/traefik/logs/traefik.log
 #  level: DEBUG
 ## Access Logs (enable for debugging)
 #accessLog: 
