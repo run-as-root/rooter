@@ -21,6 +21,7 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\Magento2\InitMagento2NginxCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Magento2\InstallMagento2DbCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Magento2\RefreshMagento2DbCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\Shopware6\InitShopware6NginxCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Laravel\InitLaravelNginxCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlCliCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlDumpCommand(),
