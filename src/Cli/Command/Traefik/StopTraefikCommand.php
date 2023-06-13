@@ -17,7 +17,12 @@ class StopTraefikCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pid = file_get_contents(ROOTER_HOME_DIR . '/traefik/traefik.pid');
+        $pidFile = ROOTER_HOME_DIR . '/traefik/traefik.pid';
+
+        $pid = null;
+        if (is_file($pidFile)) {
+            $pid = file_get_contents($pidFile);
+        }
         if ($pid <= 0) {
             $output->writeln("<error>There is no traefik running for PID:$pid</error>");
 
@@ -34,7 +39,7 @@ class StopTraefikCommand extends Command
             $output->writeln("Traefik process with PID:$pid was stopped");
         }
 
-        file_put_contents(ROOTER_HOME_DIR . '/traefik/traefik.pid', '');
+        file_put_contents($pidFile, '');
 
         return 0;
     }

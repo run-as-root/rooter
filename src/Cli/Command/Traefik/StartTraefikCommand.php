@@ -18,8 +18,13 @@ class StartTraefikCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pid = file_get_contents(ROOTER_HOME_DIR . '/traefik/traefik.pid');
-        if ($pid >= 0) {
+        $pidFile = ROOTER_HOME_DIR . '/traefik/traefik.pid';
+
+        $pid = null;
+        if (is_file($pidFile)) {
+            $pid = file_get_contents($pidFile);
+        }
+        if ($pid > 0) {
             $output->writeln("<error>traefik is already running with PID:$pid</error>");
 
             return 1;
@@ -39,7 +44,7 @@ class StartTraefikCommand extends Command
 
         $pid = $process->getPid();
 
-        file_put_contents(ROOTER_HOME_DIR . '/traefik/traefik.pid', $pid);
+        file_put_contents($pidFile, $pid);
 
         return 0;
     }
