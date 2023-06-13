@@ -18,6 +18,13 @@ class StartTraefikCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $pid = file_get_contents(ROOTER_HOME_DIR . '/traefik/traefik.pid');
+        if ($pid >= 0) {
+            $output->writeln("<error>traefik is already running with PID:$pid</error>");
+
+            return 1;
+        }
+
         $traefikConf = ROOTER_HOME_DIR . '/traefik/traefik.yml';
 
         $command = "traefik --configfile=$traefikConf";

@@ -18,13 +18,18 @@ class StopTraefikCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $pid = file_get_contents(ROOTER_HOME_DIR . '/traefik/traefik.pid');
+        if ($pid <= 0) {
+            $output->writeln("<error>There is no traefik running for PID:$pid</error>");
+
+            return 1;
+        }
 
         if ($ok = proc_open(sprintf('kill -%d %d', 9, $pid), [2 => ['pipe', 'w']], $pipes)) {
             $ok = false === fgets($pipes[2]);
         }
 
         if (!$ok) {
-            $output->writeln("<error>Error stopping traefik with PID:$pid</error>");
+            $output->writeln("<error>Could not stop traefik with PID:$pid</error>");
         } else {
             $output->writeln("Traefik process with PID:$pid was stopped");
         }
