@@ -17,6 +17,7 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\Traefik\StopTraefikCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Traefik\ShowTraefikLogCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Traefik\ShowTraefikStatusCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\Traefik\OpenTraefikDashboardCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Magento2\InitMagento2NginxCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Magento2\InstallMagento2DbCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Magento2\RefreshMagento2DbCommand(),
