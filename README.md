@@ -10,6 +10,7 @@ Alongside that is has a lot of commands to solve day-to-day repetitive tasks.
 ```bash
 ./rooter install
 ./rooter traefik:config:init
+./rooter dnsmasq:config:init
 ```
 
 in project set ``PROJECT_NAME`` env variable needs to be set through devenv.nix in project.  
@@ -38,14 +39,6 @@ Then register the nginx of the project to traefik so traefik can route requests
 ```bash
 $ROOTER_BIN traefik:config:register
 ```
-
-Update ``/etc/hosts`` with the paths to the frontend, mailhog, rabbitmq, what ever it supports
-
-Example:
-``` 
-127.0.0.1 exocad-shop.rooter.test exocad-shop-mailhog.rooter.test exocad-shop-rabbitmq.rooter.test
-```
-
 ## Usage
 
 ### Print Help
