@@ -27,7 +27,7 @@ class StartDnsmasqCommand extends Command
             $pid = file_get_contents($pidFile);
         }
         if ($pid > 0) {
-            $output->writeln("<error>dnsmasq is already running with PID:$pid</error>");
+            $output->writeln("dnsmasq is already running with PID:$pid");
 
             return 1;
         }
@@ -45,6 +45,8 @@ class StartDnsmasqCommand extends Command
         $pid = $process->getPid();
 
         file_put_contents($pidFile, $pid);
+
+        $output->writeln("<info>dnsmasq is running with PID:$pid</info>");
 
         return 0;
     }

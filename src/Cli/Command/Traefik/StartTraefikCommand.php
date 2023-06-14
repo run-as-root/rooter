@@ -27,7 +27,7 @@ class StartTraefikCommand extends Command
             $pid = file_get_contents($pidFile);
         }
         if ($pid > 0) {
-            $output->writeln("<error>traefik is already running with PID:$pid</error>");
+            $output->writeln("traefik is already running with PID:$pid");
 
             return 1;
         }
@@ -45,6 +45,8 @@ class StartTraefikCommand extends Command
         $pid = $process->getPid();
 
         file_put_contents($pidFile, $pid);
+
+        $output->writeln("<info>traefik is running with PID:$pid</info>");
 
         return 0;
     }
