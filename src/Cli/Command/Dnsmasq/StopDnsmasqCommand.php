@@ -13,6 +13,7 @@ class StopDnsmasqCommand extends Command
     {
         $this->setName('dnsmasq:stop');
         $this->setDescription('Stop dnsmasq');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

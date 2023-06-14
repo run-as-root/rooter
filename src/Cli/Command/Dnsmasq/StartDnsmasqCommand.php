@@ -14,6 +14,7 @@ class StartDnsmasqCommand extends Command
     {
         $this->setName('dnsmasq:start');
         $this->setDescription('Run dnsmasq in background');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

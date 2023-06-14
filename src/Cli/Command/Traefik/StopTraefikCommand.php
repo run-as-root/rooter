@@ -13,6 +13,7 @@ class StopTraefikCommand extends Command
     {
         $this->setName('traefik:stop');
         $this->setDescription('Stop Traefik');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -13,6 +13,7 @@ class ShowTraefikStatusCommand extends Command
     {
         $this->setName('traefik:status');
         $this->setDescription('Show Traefik status');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

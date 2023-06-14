@@ -13,6 +13,7 @@ class ShowDnsmasqStatusCommand extends Command
     {
         $this->setName('dnsmasq:status');
         $this->setDescription('Show dnsmasq status');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -14,6 +14,7 @@ class StartTraefikCommand extends Command
     {
         $this->setName('traefik:start');
         $this->setDescription('Run Traefik in background');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
