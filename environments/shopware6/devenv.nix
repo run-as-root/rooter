@@ -4,6 +4,7 @@ let
     user = builtins.getEnv "USER";
     # variables from .env are not available in config.env atm
     httpPort = builtins.getEnv "DEVENV_HTTP_PORT";
+    httpsPort = builtins.getEnv "DEVENV_HTTPS_PORT";
     mailhogSmtpPort = builtins.getEnv "DEVENV_MAILHOG_SMTP_PORT";
     mailhogUiPort = builtins.getEnv "DEVENV_MAILHOG_UI_PORT";
     mysqlPort = builtins.getEnv "DEVENV_DB_PORT";
@@ -15,6 +16,11 @@ in {
     env = {
         PROJECT_NAME = "shopware-tmp";
         PROJECT_HOST = "shopware-tmp.rooter.test";
+
+        NGINX_PKG_ROOT = pkgs.nginx;
+        DEVENV_STATE_NGINX = "${config.env.DEVENV_STATE}/nginx";
+
+        DEVENV_PHPFPM_SOCKET = "${config.env.DEVENV_STATE}/php-fpm.sock";
 
         DEVENV_DB_NAME = "app";# shopware
         DEVENV_DB_USER = "app";# shopware
@@ -44,6 +50,7 @@ in {
     # Shell welcome message
     enterShell = ''
         ${rooterBin} info
+        ${rooterBin} shopware6:nginx-init
     '';
 
     # PHP
@@ -72,6 +79,7 @@ in {
             '';
         };
         fpm.pools.web = {
+            listen = "${config.env.DEVENV_PHPFPM_SOCKET}";
             settings = {
                 "clear_env" = "no";
                 "pm" = "dynamic";
@@ -88,21 +96,10 @@ in {
         enable = true;
     };
 
-    services.caddy = {
-        enable = lib.mkDefault true;
-        virtualHosts.":${httpPort}" = lib.mkDefault {
-            extraConfig = ''
-                root * public
-                php_fastcgi unix/${config.languages.php.fpm.pools.web.socket}
-                encode zstd gzip
-                file_server
-                log {
-                  output stderr
-                  format console
-                  level ERROR
-                }
-            '';
-        };
+    # nginx
+    services.nginx = {
+        enable = true;
+        configFile = "${config.env.DEVENV_STATE_NGINX}/nginx.conf";
     };
 
 
