@@ -35,6 +35,7 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\InstallCommand(),
             new \RunAsRoot\Rooter\Cli\Command\QueriousCommand(),
             new \RunAsRoot\Rooter\Cli\Command\RedisCliCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\StatusCommand(),
             new \RunAsRoot\Rooter\Cli\Command\TablePlusCommand(),
         ];
     }
