@@ -19,14 +19,18 @@ in
     pkgs.mkShell {
         buildInputs = with pkgs; [
             traefik
-            gettext
+            dnsmasq
             php_custom
             php_custom.packages.composer
             rooter
         ];
         shellHook = ''
-            echo ${PROJECT_ROOT}
             rm ./rooter
             ln -s ${rooter}/bin/rooter.sh ./rooter
+
+            # init links to bin in ROOTER_HOME_DIR
+            mkdir -p $HOME/.rooter/bin
+            rm $HOME/.rooter/bin/traefik; ln -s `which traefik` $HOME/.rooter/bin/traefik
+            rm $HOME/.rooter/bin/dnsmasq; ln -s `which dnsmasq` $HOME/.rooter/bin/dnsmasq
         '';
     }

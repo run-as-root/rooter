@@ -21,13 +21,10 @@ class InstallCommand extends Command
         $rooterHomeDir = ROOTER_HOME_DIR;
         $rooterSslDir = ROOTER_SSL_DIR;
 
-        $output->writeln('==> Creating commands directory');
-        if (!mkdir("$rooterHomeDir/commands") && !is_dir("$rooterHomeDir/commands")) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', "$rooterHomeDir/commands"));
+        $output->writeln('==> Creating bin directory');
+        if (!mkdir("$rooterHomeDir/bin") && !is_dir("$rooterHomeDir/bin")) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', "$rooterHomeDir/bin"));
         }
-
-        $output->writeln('==> Creating empty.sh file');
-        touch("$rooterHomeDir/commands/empty.sh");
 
         // Generate ROOT CA and trust ROOT CA
         $rootCaDir = "$rooterSslDir/rootca";
