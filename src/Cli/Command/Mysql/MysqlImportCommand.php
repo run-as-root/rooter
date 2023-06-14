@@ -17,6 +17,8 @@ class MysqlImportCommand extends Command
         $this->setDescription('import mysql database dump');
         $this->addArgument('file', InputArgument::REQUIRED, 'path to db dump');
         $this->addOption('drop', '', InputOption::VALUE_NONE, 'Drop and recreate database before import');
+        $this->addUsage('dump-1686574009.sql');
+        $this->addUsage('dump-1686574009.sql --drop');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
