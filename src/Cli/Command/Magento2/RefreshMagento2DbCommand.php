@@ -39,7 +39,7 @@ class RefreshMagento2DbCommand extends Command
         $DEVENV_DB_PORT = getenv('DEVENV_DB_PORT');
         $DEVENV_DB_NAME = getenv('DEVENV_DB_NAME');
 
-        $mysqlParams = "-u{$DEVENV_DB_USER} -p{$DEVENV_DB_PASS} --host=localhost --port={$DEVENV_DB_PORT}";
+        $mysqlParams = "-u$DEVENV_DB_USER -p$DEVENV_DB_PASS --host=localhost --port=$DEVENV_DB_PORT";
 
         exec("mysql $mysqlParams -e \"DROP DATABASE IF EXISTS $DEVENV_DB_NAME; CREATE DATABASE IF NOT EXISTS $DEVENV_DB_NAME;\"");
 

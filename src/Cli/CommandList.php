@@ -29,6 +29,7 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\Laravel\InitLaravelNginxCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlCliCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlDumpCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\Mysql\MysqlImportCommand(),
             new \RunAsRoot\Rooter\Cli\Command\AmqpAdminCommand(),
             new \RunAsRoot\Rooter\Cli\Command\MailhogCommand(),
             new \RunAsRoot\Rooter\Cli\Command\InfoCommand(),

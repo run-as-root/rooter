@@ -39,6 +39,7 @@ Then register the nginx of the project to traefik so traefik can route requests
 ```bash
 $ROOTER_BIN traefik:config:register
 ```
+
 ## Usage
 
 ### Print Help
