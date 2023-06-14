@@ -21,6 +21,9 @@ class MysqlImportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $PV_BIN = ROOTER_HOME_DIR . "/bin/pv";
+        $GZIP_BIN = ROOTER_HOME_DIR . "/bin/gzip";
+
         $dbDumpFile = $input->getArgument('file');
 
         $DEVENV_DB_USER = getenv('DEVENV_DB_USER');
@@ -28,14 +31,40 @@ class MysqlImportCommand extends Command
         $DEVENV_DB_PORT = getenv('DEVENV_DB_PORT');
         $DEVENV_DB_NAME = getenv('DEVENV_DB_NAME');
 
+        // Validate
+        if (!is_file($dbDumpFile)) {
+            $output->writeln("<error>File does not exist: $dbDumpFile</error>");
+
+            return 1;
+        }
+
         $mysqlParams = "-u$DEVENV_DB_USER -p$DEVENV_DB_PASS --host=localhost --port=$DEVENV_DB_PORT";
 
+        // Drop Database
         if ($input->getOption('drop')) {
             exec("mysql $mysqlParams -e \"DROP DATABASE IF EXISTS $DEVENV_DB_NAME; CREATE DATABASE IF NOT EXISTS $DEVENV_DB_NAME;\"");
         }
 
-        exec("mysql $mysqlParams --database=$DEVENV_DB_NAME < $dbDumpFile");
+        // Build Mysql Command
+        $ext = pathinfo($dbDumpFile, PATHINFO_EXTENSION);
+        if ($ext === 'gz') {
+            $mySqlCommand = "mysql $mysqlParams --database=$DEVENV_DB_NAME";
+            $command = "$PV_BIN -cN gzip " . escapeshellarg($dbDumpFile) . " | $GZIP_BIN -d | $PV_BIN -cN mysql | " . $mySqlCommand;
+        } elseif ($ext === 'sql') {
+            $command = "mysql $mysqlParams --database=$DEVENV_DB_NAME < $dbDumpFile";
+        } else {
+            $output->writeln("<error>Unsupported file type '$ext'</error>");
 
+            return 1;
+        }
+
+        // Import
+        $output->writeln("Starting Database Import of $dbDumpFile");
+        $output->writeln("\n");
+
+        exec($command);
+
+        $output->writeln('');
         $output->writeln("import finished");
 
         return 0;
