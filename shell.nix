@@ -20,6 +20,8 @@ in
         buildInputs = with pkgs; [
             traefik
             dnsmasq
+            pv
+            gzip
             php_custom
             php_custom.packages.composer
             rooter
@@ -32,5 +34,7 @@ in
             mkdir -p $HOME/.rooter/bin
             rm $HOME/.rooter/bin/traefik; ln -s `which traefik` $HOME/.rooter/bin/traefik
             rm $HOME/.rooter/bin/dnsmasq; ln -s `which dnsmasq` $HOME/.rooter/bin/dnsmasq
+            rm $HOME/.rooter/bin/pv; ln -s `which pv` $HOME/.rooter/bin/pv
+            rm $HOME/.rooter/bin/gzip; ln -s `which gzip` $HOME/.rooter/bin/gzip
         '';
     }
