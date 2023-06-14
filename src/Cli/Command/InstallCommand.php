@@ -23,17 +23,20 @@ class InstallCommand extends Command
         $rooterDir = ROOTER_DIR;
         $rooterHomeDir = ROOTER_HOME_DIR;
         $rooterSslDir = ROOTER_SSL_DIR;
+        $rooterHomeBinDir = "$rooterHomeDir/bin";
 
         $output->writeln('==> Creating bin directory');
-        if (!mkdir("$rooterHomeDir/bin") && !is_dir("$rooterHomeDir/bin")) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', "$rooterHomeDir/bin"));
+        if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir) && !is_dir($rooterHomeBinDir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
         }
 
         // Init dnsmasq
+        $output->writeln('==> Initialising dnsmasq');
         $initDnsmasq = new InitDnsmasqConfigCommand();
         $initDnsmasq->run(new ArrayInput([]), $output);
 
         // Init traefik
+        $output->writeln('==> Initialising traefik');
         $initTraefik = new InitTraefikConfigCommand();
         $initTraefik->run(new ArrayInput([]), $output);
 
