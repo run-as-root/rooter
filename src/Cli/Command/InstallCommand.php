@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command;
 
+use RunAsRoot\Rooter\Cli\Command\Dnsmasq\InitDnsmasqConfigCommand;
+use RunAsRoot\Rooter\Cli\Command\Traefik\InitTraefikConfigCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -25,6 +28,14 @@ class InstallCommand extends Command
         if (!mkdir("$rooterHomeDir/bin") && !is_dir("$rooterHomeDir/bin")) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', "$rooterHomeDir/bin"));
         }
+
+        // Init dnsmasq
+        $initDnsmasq = new InitDnsmasqConfigCommand();
+        $initDnsmasq->run(new ArrayInput([]), $output);
+
+        // Init traefik
+        $initTraefik = new InitTraefikConfigCommand();
+        $initTraefik->run(new ArrayInput([]), $output);
 
         // Generate ROOT CA and trust ROOT CA
         $rootCaDir = "$rooterSslDir/rootca";
