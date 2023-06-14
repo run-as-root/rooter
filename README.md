@@ -9,8 +9,6 @@ Alongside that is has a lot of commands to solve day-to-day repetitive tasks.
 
 ```bash
 ./rooter install
-./rooter traefik:config:init
-./rooter dnsmasq:config:init
 ```
 
 in project set ``PROJECT_NAME`` env variable needs to be set through devenv.nix in project.  
