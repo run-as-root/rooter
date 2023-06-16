@@ -20,10 +20,12 @@ class InstallCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $rooterDir = ROOTER_DIR;
-        $rooterHomeDir = ROOTER_HOME_DIR;
-        $rooterSslDir = ROOTER_SSL_DIR;
-        $rooterHomeBinDir = "$rooterHomeDir/bin";
+        $rooterHomeBinDir = ROOTER_HOME_DIR . "/bin";
+
+        if (ROOTER_DIR !== getcwd()) {
+            $output->writeln("This command can only be executed in the rooter dir");
+            return 1;
+        }
 
         $output->writeln('==> Creating bin directory');
         if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir) && !is_dir($rooterHomeBinDir)) {
@@ -41,11 +43,11 @@ class InstallCommand extends Command
         $initTraefik->run(new ArrayInput([]), $output);
 
         // Generate ROOT CA and trust ROOT CA
-        $rootCaDir = "$rooterSslDir/rootca";
+        $rootCaDir = ROOTER_SSL_DIR . "/rootca";
         $caKeyPemFile = "$rootCaDir/private/ca.key.pem";
         $caCertPemFile = "$rootCaDir/certs/ca.cert.pem";
 
-        if (!is_dir("$rootCaDir")) {
+        if (!is_dir($rootCaDir)) {
             mkdir("$rootCaDir/certs", 0755, true);
             mkdir("$rootCaDir/crl", 0755, true);
             mkdir("$rootCaDir/newcerts", 0755, true);
@@ -62,7 +64,7 @@ class InstallCommand extends Command
         if (!file_exists($caCertPemFile)) {
             $hostname = gethostname();
             $output->writeln("==> Signing root certificate 'ROOTER Proxy Local CA ('$hostname')'");
-            $rootCaConf = "$rooterDir/etc/openssl/rootca.conf";
+            $rootCaConf = ROOTER_DIR . "/etc/openssl/rootca.conf";
             $subject = "/C=US/O=rooter.run-as-root.sh/CN=ROOTER Proxy Local CA ($hostname)";
             $command = "openssl req -new -x509 -days 7300 -sha256 -extensions v3_ca -config $rootCaConf -key $caKeyPemFile -out $caCertPemFile -subj \"$subject\"";
             exec($command);
@@ -105,7 +107,7 @@ class InstallCommand extends Command
         }
 
         // Certs
-        $certsDir = $rooterSslDir . '/certs';
+        $certsDir = ROOTER_SSL_DIR . '/certs';
         if (!is_dir($certsDir)) {
             mkdir($certsDir, 0755, true);
         }
@@ -115,9 +117,6 @@ class InstallCommand extends Command
         $certificateKeyPemFile = "$certsDir/$certificateName.key.pem";
         $certificateCsrPemFile = "$certsDir/$certificateName.csr.pem";
         $certificatePemFile = "$certsDir/$certificateName.crt.pem";
-        $certificateKey = "$rooterSslDir/certs/$certificateName.key.pem";
-        $certificateCsr = "$rooterSslDir/certs/$certificateName.csr.pem";
-
         if (file_exists($certificateKeyPemFile)) {
             $output->writeln("<comment>Warning: Certificate for $certificateName already exists! Overwriting...</comment>");
         }
@@ -129,14 +128,14 @@ class InstallCommand extends Command
 
         $output->writeln("==> Generating signing req $certificateName.crt.pem");
 
-        $opensslConfig = file_get_contents("$rooterDir/etc/openssl/certificate.conf");
+        $opensslConfig = file_get_contents("" . (ROOTER_DIR) . "/etc/openssl/certificate.conf");
         $opensslConfig .= "\nextendedKeyUsage = serverAuth,clientAuth\nsubjectAltName = $certificateSanList";
         $subject = "/C=US/O=rooter.run-as-root.sh/CN=$certificateName";
 
         $tmpConfigFile = tempnam(sys_get_temp_dir(), 'cert_conf');
         file_put_contents($tmpConfigFile, $opensslConfig);
 
-        $command = "openssl req -new -sha256 -config '$tmpConfigFile' -key $certificateKey -out $certificateCsr -subj $subject";
+        $command = "openssl req -new -sha256 -config '$tmpConfigFile' -key $certificateKeyPemFile -out $certificateCsrPemFile -subj $subject";
         exec($command);
 
         $output->writeln("==> Generating certificate $certificateName.crt.pem");
