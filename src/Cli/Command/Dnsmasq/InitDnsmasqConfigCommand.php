@@ -3,41 +3,51 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Dnsmasq;
 
+use RunAsRoot\Rooter\Config\DnsmasqConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class InitDnsmasqConfigCommand extends Command
 {
+    private DnsmasqConfig $dnsmasqConfig;
+
     public function configure()
     {
         $this->setName('dnsmasq:config:init');
         $this->setDescription('Initialise rooter dnsmasq configuration for user in $HOME');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->dnsmasqConfig = new DnsmasqConfig();
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dnsmasqConfDir = ROOTER_HOME_DIR . '/dnsmasq';
-        $dnsmasqConf = $dnsmasqConfDir . '/dnsmasq.conf';
 
+        $dnsmasqConfDir = $this->dnsmasqConfig->getHomeDir();
         if (!is_dir($dnsmasqConfDir)) {
             mkdir($dnsmasqConfDir, 0755, true);
         }
-        if (!is_dir("$dnsmasqConfDir/logs/")) {
-            mkdir("$dnsmasqConfDir/logs/", 0755, true);
+
+        $logDir = $this->dnsmasqConfig->getLogDir();
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
         }
 
+        $dnsmasqConf = $this->dnsmasqConfig->getDnsmasqConf();
         if (file_exists($dnsmasqConf)) {
             unlink($dnsmasqConf);
         }
 
-        # @todo allow port adjustment
-        copy(ROOTER_DIR . '/etc/dnsmasq/dnsmasq.conf', $dnsmasqConf);
+        # @todo allow port adjustment?
+        copy($this->dnsmasqConfig->getConfTmpl(), $dnsmasqConf);
 
-        $resolverConfTmpl = ROOTER_DIR . '/etc/resolver/rooter.test';
-        $resolverConf = '/etc/resolver/rooter.test';
+        $resolverConfTmpl = $this->dnsmasqConfig->getResolverTmpl();
+        $resolverConf = $this->dnsmasqConfig->getResolverConf();
         if (!is_file($resolverConf)) {
-            # @todo allow port adjustment
             exec("sudo cp $resolverConfTmpl $resolverConf");
         }
 

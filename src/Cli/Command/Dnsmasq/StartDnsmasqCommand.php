@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Dnsmasq;
 
+use RunAsRoot\Rooter\Config\DnsmasqConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,18 +11,25 @@ use Symfony\Component\Process\Process;
 
 class StartDnsmasqCommand extends Command
 {
+    private DnsmasqConfig $dnsmasqConfig;
+
     public function configure()
     {
         $this->setName('dnsmasq:start');
         $this->setDescription('Run dnsmasq in background');
         $this->setHidden();
     }
+    
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->dnsmasqConfig = new DnsmasqConfig();
+    }
+
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $DNSMASQ_BIN = ROOTER_HOME_DIR . "/bin/dnsmasq";
-        $pidFile = ROOTER_HOME_DIR . '/dnsmasq/dnsmasq.pid';
-        $dnsmasqConf = ROOTER_HOME_DIR . '/dnsmasq/dnsmasq.conf';
+        $pidFile = $this->dnsmasqConfig->getPidFile();
 
         $pid = null;
         if (is_file($pidFile)) {
@@ -33,6 +41,8 @@ class StartDnsmasqCommand extends Command
             return 1;
         }
 
+        $DNSMASQ_BIN = $this->dnsmasqConfig->getDnsmasqkBin();
+        $dnsmasqConf = $this->dnsmasqConfig->getDnsmasqConf();
         $command = "$DNSMASQ_BIN --conf-file=$dnsmasqConf --no-daemon";
 
         $process = Process::fromShellCommandline($command);
