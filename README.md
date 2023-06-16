@@ -8,6 +8,10 @@ Alongside that is has a lot of commands to solve day-to-day repetitive tasks.
 ## Installation
 
 ```bash
+git clone
+nix shell
+direnv allow
+composer install
 ./rooter install
 ```
 

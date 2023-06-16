@@ -14,7 +14,6 @@ $autoloadDirs = [
 foreach ($autoloadDirs as $file) {
     if (file_exists($file)) {
         \define('ROOTER_COMPOSER_INSTALL', $file);
-
         break;
     }
 }
@@ -26,7 +25,8 @@ if (!\defined('ROOTER_COMPOSER_INSTALL')) {
         STDERR,
         'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
         '    composer install' . PHP_EOL . PHP_EOL .
-        'You can learn all about Composer on https://getcomposer.org/.' . PHP_EOL
+        'After that for a first time installation run.' . PHP_EOL . PHP_EOL .
+        '    rooter install' . PHP_EOL . PHP_EOL
     );
 
     die(1);

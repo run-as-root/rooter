@@ -12,7 +12,7 @@ let
 
     PROJECT_ROOT = builtins.getEnv "PWD";
 
-    rooter = pkgs.writeShellScriptBin "rooter.sh" ''
+    rooter = pkgs.writeShellScriptBin "rooter" ''
         ${php_custom}/bin/php ${PROJECT_ROOT}/rooter.php "$@"
     '';
 in
@@ -27,14 +27,8 @@ in
             rooter
         ];
         shellHook = ''
-            rm ./rooter
-            ln -s ${rooter}/bin/rooter.sh ./rooter
+            ln -sf ${rooter}/bin/rooter ./rooter
 
-            # init links to bin in ROOTER_HOME_DIR
-            mkdir -p $HOME/.rooter/bin
-            rm $HOME/.rooter/bin/traefik; ln -s `which traefik` $HOME/.rooter/bin/traefik
-            rm $HOME/.rooter/bin/dnsmasq; ln -s `which dnsmasq` $HOME/.rooter/bin/dnsmasq
-            rm $HOME/.rooter/bin/pv; ln -s `which pv` $HOME/.rooter/bin/pv
-            rm $HOME/.rooter/bin/gzip; ln -s `which gzip` $HOME/.rooter/bin/gzip
+            ${rooter}/bin/rooter init
         '';
     }

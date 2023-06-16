@@ -26,7 +26,6 @@ class InitDnsmasqConfigCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
         $dnsmasqConfDir = $this->dnsmasqConfig->getHomeDir();
         if (!is_dir($dnsmasqConfDir)) {
             mkdir($dnsmasqConfDir, 0755, true);

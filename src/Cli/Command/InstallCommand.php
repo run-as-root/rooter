@@ -6,6 +6,7 @@ namespace RunAsRoot\Rooter\Cli\Command;
 use RunAsRoot\Rooter\Cli\Command\Dnsmasq\InitDnsmasqConfigCommand;
 use RunAsRoot\Rooter\Cli\Command\Traefik\InitTraefikConfigCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,19 +19,27 @@ class InstallCommand extends Command
         $this->setDescription('Main installation of rooter');
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $rooterHomeBinDir = ROOTER_HOME_DIR . "/bin";
-
         if (ROOTER_DIR !== getcwd()) {
             $output->writeln("This command can only be executed in the rooter dir");
             return 1;
         }
 
+        $rooterHomeBinDir = ROOTER_HOME_DIR . "/bin";
         $output->writeln('==> Creating bin directory');
         if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir) && !is_dir($rooterHomeBinDir)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
         }
+
+        // Init executables
+        $output->writeln('==> Initialising executables');
+        $init = new InitCommand();
+        $init->run(new ArrayInput([]), $output);
+
 
         // Init dnsmasq
         $output->writeln('==> Initialising dnsmasq');
