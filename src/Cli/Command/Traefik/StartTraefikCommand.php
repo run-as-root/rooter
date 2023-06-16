@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Traefik;
 
+use RunAsRoot\Rooter\Config\TraefikConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,6 +11,8 @@ use Symfony\Component\Process\Process;
 
 class StartTraefikCommand extends Command
 {
+    private TraefikConfig $traefikConfig;
+
     public function configure()
     {
         $this->setName('traefik:start');
@@ -17,11 +20,15 @@ class StartTraefikCommand extends Command
         $this->setHidden();
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->traefikConfig = new TraefikConfig();
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pidFile = ROOTER_HOME_DIR . '/traefik/traefik.pid';
-        $traefikConf = ROOTER_HOME_DIR . '/traefik/traefik.yml';
-        $TRAEFIK_BIN = ROOTER_HOME_DIR . "/bin/traefik";
+        $pidFile = $this->traefikConfig->getPidFile();
 
         $pid = null;
         if (is_file($pidFile)) {
@@ -32,6 +39,9 @@ class StartTraefikCommand extends Command
 
             return 1;
         }
+
+        $traefikConf = $this->traefikConfig->getTraefikConf();
+        $TRAEFIK_BIN = $this->traefikConfig->getTraefikBin();
 
         $command = "$TRAEFIK_BIN --configfile=$traefikConf";
 
