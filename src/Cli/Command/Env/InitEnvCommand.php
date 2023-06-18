@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class InitEnvCommand extends Command
 {
@@ -34,7 +35,7 @@ class InitEnvCommand extends Command
         $envTmplDir = $envDir . $type;
         if (!is_dir($envTmplDir)) {
             $output->writeln("<error>unknown environment type: $type</error>");
-            $this->renderAvailableEnvironments($output);
+            $this->renderAvailableEnvironments($input, $output);
 
             return Command::FAILURE;
         }
@@ -86,18 +87,22 @@ class InitEnvCommand extends Command
         return 0;
     }
 
-    private function renderAvailableEnvironments(OutputInterface $output): void
+    private function renderAvailableEnvironments(InputInterface $input, OutputInterface $output): void
     {
         $envDir = ROOTER_DIR . '/environments/';
 
         $availableEnvTmpls = scandir($envDir);
 
-        $output->writeln("Available environments:");
+        $types=[];
         foreach ($availableEnvTmpls as $name) {
             if ($name === '.' || $name === '..') {
                 continue;
             }
-            $output->writeln("- $name");
+            $types[] = $name;
         }
+
+        $output->writeln("Available environments:");
+        $io = new SymfonyStyle($input, $output);
+        $io->listing($types);
     }
 }
