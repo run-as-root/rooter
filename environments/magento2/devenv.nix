@@ -13,8 +13,8 @@ let
     rooterBin = builtins.getEnv "ROOTER_BIN";
 in {
     env = {
-        PROJECT_NAME = "run-as-root-shop";
-        PROJECT_HOST = "run-as-root-shop.rooter.test";
+        PROJECT_NAME = "${PROJECT_NAME}";
+        PROJECT_HOST = "${PROJECT_HOST}";
 
         NGINX_PKG_ROOT = pkgs.nginx;
         DEVENV_STATE_NGINX = "${config.env.DEVENV_STATE}/nginx";

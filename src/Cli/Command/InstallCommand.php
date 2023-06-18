@@ -35,6 +35,12 @@ class InstallCommand extends Command
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
         }
 
+        $rooterEnvDir = ROOTER_HOME_DIR . "/environments";
+        $output->writeln('==> Creating environments directory');
+        if (!is_dir($rooterEnvDir) && !mkdir($rooterEnvDir) && !is_dir($rooterEnvDir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterEnvDir));
+        }
+
         // Init executables
         $output->writeln('==> Initialising executables');
         $init = new InitCommand();
