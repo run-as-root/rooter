@@ -1,11 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace RunAsRoot\Rooter\Cli\Command;
+namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -13,26 +12,23 @@ class StatusCommand extends Command
 {
     public function configure()
     {
-        $this->setName('status');
-        $this->setDescription('show status of rooter');
+        $this->setName('env:status');
+        $this->setDescription('show status of env');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dnsmasqPid = $this->getPidFromFile(ROOTER_HOME_DIR . '/dnsmasq/dnsmasq.pid');
-        $dnsmasqStatus = $this->isProcessRunning($dnsmasqPid) ? 'running' : 'stopped';
+        $pidFile = ROOTER_PROJECT_ROOT . '/.devenv/state/devenv.pid';
 
-        $traefikPid = $this->getPidFromFile(ROOTER_HOME_DIR . '/traefik/traefik.pid');
-        $traefikStatus = $this->isProcessRunning($traefikPid) ? 'running' : 'stopped';
+        $pid = $this->getPidFromFile($pidFile);
+
+        $status = $this->isProcessRunning($pid) ? 'running' : 'stopped';
 
         $table = new Table($output);
         $table->setStyle('box');
         $table->setHeaders(['name', 'status', 'pid']);
         $table->setRows([
-            ['dnsmasq', $dnsmasqStatus, $dnsmasqPid],
-            new TableSeparator(),
-            ['traefik', $traefikStatus, $traefikPid],
-
+            ['devenv', $status, $pid],
         ]);
         $table->render();
 
