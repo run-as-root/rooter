@@ -1,31 +1,45 @@
 <?php
 declare(strict_types=1);
 
-namespace RunAsRoot\Rooter\Cli\Command\Magento2;
+namespace RunAsRoot\Rooter\Cli\Command\Nginx;
 
+use RunAsRoot\Rooter\Cli\Output\EnvironmentsRenderer;
 use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InitMagento2NginxCommand extends Command
+class InitNginxCommand extends Command
 {
     private RooterConfig $rooterConfig;
+    private EnvironmentsRenderer $environmentsRenderer;
 
     public function configure()
     {
-        $this->setName('magento2:nginx-init');
-        $this->setDescription('Initialise nginx config for Magento2');
+        $this->setName('nginx:init');
+        $this->setDescription('Initialise nginx config for a provided environment type');
+        $this->addArgument('type', InputArgument::REQUIRED, 'The system you want to initialise');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
         $this->rooterConfig = new RooterConfig();
+        $this->environmentsRenderer = new EnvironmentsRenderer($this->rooterConfig);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $envType = $input->getArgument('type');
+
+        $envTmplDir = "{$this->rooterConfig->getEnvironmentTemplatesDir()}/$envType";
+        if (!is_dir($envTmplDir)) {
+            $output->writeln("<error>unknown environment type: $envType</error>");
+            $this->environmentsRenderer->render($input, $output);
+            return Command::FAILURE;
+        }
+
         $nginxStateDir = getenv("DEVENV_STATE_NGINX");
         if ($nginxStateDir === false || $nginxStateDir === "") {
             $output->writeln("DEVENV_STATE_NGINX is required");
@@ -56,26 +70,27 @@ class InitMagento2NginxCommand extends Command
         // Prepare
         unlink($nginxStateDir . "/nginx.conf");
 
-        if (!is_dir($nginxStateDir . "/tmp")) {
-            mkdir($nginxStateDir . "/tmp", 0755, true);
+        $nginxTmpDir = $nginxStateDir . "/tmp";
+        if (!is_dir($nginxTmpDir) && !mkdir($nginxTmpDir, 0755, true) && !is_dir($nginxTmpDir)) {
+            throw new \RuntimeException("Directory '$nginxTmpDir' was not created");
         }
 
-        $nginxTmplDir = getenv("DEVENV_CONFIG_NGINX") ?: $this->rooterConfig->getEnvironmentTemplatesDir() . "/magento2/nginx";
+        $nginxTmplDir = getenv("DEVENV_CONFIG_NGINX") ?: $this->rooterConfig->getEnvironmentTemplatesDir() . "/$envType/nginx";
 
         // Read and modify nginx-template.conf
         $nginxTemplate = file_get_contents("$nginxTmplDir/nginx-template.conf");
         $nginxConfig = str_replace($searchStrings, $replaceStrings, $nginxTemplate);
 
-        // Read and modify magento2-template.conf
-        $magento2Template = file_get_contents("$nginxTmplDir/magento2-template.conf");
-        $magento2Config = str_replace($searchStrings, $replaceStrings, $magento2Template);
+        // Read and modify $type-template.conf
+        $envTypeTemplate = file_get_contents("$nginxTmplDir/$envType-template.conf");
+        $envTypeConfig = str_replace($searchStrings, $replaceStrings, $envTypeTemplate);
 
         // Write configs
         file_put_contents("$nginxStateDir/nginx.conf", $nginxConfig);
-        file_put_contents("$nginxStateDir/magento2.conf", $magento2Config);
+        file_put_contents("$nginxStateDir/$envType.conf", $envTypeConfig);
 
         $output->writeln("nginx.conf placed at $nginxStateDir/nginx.conf");
-        $output->writeln("magento2.conf placed at $nginxStateDir/magento2.conf");
+        $output->writeln("$envType.conf placed at $nginxStateDir/$envType.conf");
 
         return 0;
     }

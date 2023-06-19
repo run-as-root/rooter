@@ -50,7 +50,7 @@ in {
     # Shell welcome message
     enterShell = ''
         ${rooterBin} info
-        ${rooterBin} shopware6:nginx-init
+        ${rooterBin} nginx:init shopware6
     '';
 
     # PHP

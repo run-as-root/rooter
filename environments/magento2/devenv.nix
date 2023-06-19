@@ -42,7 +42,7 @@ in {
     # Shell welcome message
     enterShell = ''
         ${rooterBin} info
-        ${rooterBin} magento2:nginx-init
+        ${rooterBin} nginx:init magento2
     '';
 
     # PHP

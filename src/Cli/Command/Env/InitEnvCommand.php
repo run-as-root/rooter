@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Cli\Output\EnvironmentsRenderer;
 use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class InitEnvCommand extends Command
 {
     private RooterConfig $rooterConfig;
+    private EnvironmentsRenderer $environmentsRenderer;
 
     public function configure()
     {
@@ -33,6 +35,7 @@ class InitEnvCommand extends Command
     {
         parent::initialize($input, $output);
         $this->rooterConfig = new RooterConfig();
+        $this->environmentsRenderer = new EnvironmentsRenderer($this->rooterConfig);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -43,7 +46,7 @@ class InitEnvCommand extends Command
         $envTmplDir = "{$this->rooterConfig->getEnvironmentTemplatesDir()}/$type";
         if (!is_dir($envTmplDir)) {
             $output->writeln("<error>unknown environment type: $type</error>");
-            $this->renderAvailableEnvironments($input, $output);
+            $this->environmentsRenderer->render($input, $output);
             return Command::FAILURE;
         }
 
@@ -106,20 +109,4 @@ class InitEnvCommand extends Command
         return true;
     }
 
-    private function renderAvailableEnvironments(InputInterface $input, OutputInterface $output): void
-    {
-        $availableEnvTmpls = scandir($this->rooterConfig->getEnvironmentTemplatesDir());
-
-        $types = [];
-        foreach ($availableEnvTmpls as $name) {
-            if ($name === '.' || $name === '..') {
-                continue;
-            }
-            $types[] = $name;
-        }
-
-        $output->writeln("Available environments:");
-        $io = new SymfonyStyle($input, $output);
-        $io->listing($types);
-    }
 }

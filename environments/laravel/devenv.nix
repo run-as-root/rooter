@@ -34,7 +34,7 @@ in {
     # Shell welcome message
     enterShell = ''
         ${rooterBin} info
-        ${rooterBin} laravel:nginx-init
+        ${rooterBin} nginx:init laravel
     '';
 
     # PHP
