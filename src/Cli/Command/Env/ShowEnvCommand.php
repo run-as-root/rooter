@@ -12,11 +12,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ShowEnvCommand extends Command
 {
-    protected static $defaultName = 'env:show';
     private RooterConfig $rooterConfig;
 
     protected function configure()
     {
+        $this->setName('env:show');
         $this->setDescription('Show env settings');
         $this->addArgument('name', InputArgument::REQUIRED, 'The name of the env');
     }
