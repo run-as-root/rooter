@@ -26,7 +26,7 @@ class RefreshMagento2DbCommand extends Command
     {
         $phpBin = exec('which php');
         $this->phpBin = realpath($phpBin);
-        $this->phpIniScanDir = dirname($phpBin, 2) . "/lib";
+        $this->phpIniScanDir = dirname($this->phpBin, 2) . "/lib";
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
