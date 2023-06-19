@@ -3,16 +3,25 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Shopware6;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class InitShopware6NginxCommand extends Command
 {
+    private RooterConfig $rooterConfig;
+
     public function configure()
     {
         $this->setName('shopware6:nginx-init');
         $this->setDescription('Initialise nginx config for Shopware6');
+    }
+
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->rooterConfig = new RooterConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -51,7 +60,7 @@ class InitShopware6NginxCommand extends Command
             mkdir($nginxStateDir . "/tmp", 0755, true);
         }
 
-        $nginxTmplDir = getenv("DEVENV_CONFIG_NGINX") ?: ROOTER_DIR . "/environments/shopware6/nginx";
+        $nginxTmplDir = getenv("DEVENV_CONFIG_NGINX") ?: $this->rooterConfig->getEnvironmentTemplatesDir() . "/shopware6/nginx";
 
         // Read and modify nginx-template.conf
         $nginxTemplate = file_get_contents("$nginxTmplDir/nginx-template.conf");

@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RegisterEnvCommand extends Command
 {
+    private RooterConfig $rooterConfig;
 
     public function configure()
     {
@@ -19,6 +21,7 @@ class RegisterEnvCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
+        $this->rooterConfig = new RooterConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -53,7 +56,7 @@ class RegisterEnvCommand extends Command
 
         }
 
-        $envConfigFile = ROOTER_HOME_DIR . '/environments/' . $projectName . '.json';
+        $envConfigFile = "{$this->rooterConfig->getEnvironmentDir()}/{$projectName}.json";
         file_put_contents($envConfigFile, $configAsString);
 
         $configRaw = file_get_contents($envConfigFile);

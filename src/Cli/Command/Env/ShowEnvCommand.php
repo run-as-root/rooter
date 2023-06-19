@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ShowEnvCommand extends Command
 {
     protected static $defaultName = 'env:show';
+    private RooterConfig $rooterConfig;
 
     protected function configure()
     {
@@ -19,11 +21,16 @@ class ShowEnvCommand extends Command
         $this->addArgument('name', InputArgument::REQUIRED, 'The name of the env');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->rooterConfig = new RooterConfig();
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $filename = $input->getArgument('name');
-        $environmentsDir = ROOTER_HOME_DIR . '/environments';
-        $envFile = "$environmentsDir/$filename.json";
+        $envFile = "{$this->rooterConfig->getEnvironmentDir()}/$filename.json";
 
         if (!file_exists($envFile)) {
             $output->writeln("<error>Unknown environment $filename</error>");

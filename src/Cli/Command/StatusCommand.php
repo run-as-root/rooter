@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command;
 
+use RunAsRoot\Rooter\Config\DnsmasqConfig;
+use RunAsRoot\Rooter\Config\TraefikConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
@@ -11,18 +13,28 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StatusCommand extends Command
 {
+    private DnsmasqConfig $dnsmasqConfig;
+    private TraefikConfig $traefikConfig;
+
     public function configure()
     {
         $this->setName('status');
         $this->setDescription('show status of rooter');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->traefikConfig = new TraefikConfig();
+        $this->dnsmasqConfig = new DnsmasqConfig();
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dnsmasqPid = $this->getPidFromFile(ROOTER_HOME_DIR . '/dnsmasq/dnsmasq.pid');
+        $dnsmasqPid = $this->getPidFromFile($this->dnsmasqConfig->getPidFile());
         $dnsmasqStatus = $this->isProcessRunning($dnsmasqPid) ? 'running' : 'stopped';
 
-        $traefikPid = $this->getPidFromFile(ROOTER_HOME_DIR . '/traefik/traefik.pid');
+        $traefikPid = $this->getPidFromFile($this->traefikConfig->getPidFile());
         $traefikStatus = $this->isProcessRunning($traefikPid) ? 'running' : 'stopped';
 
         $table = new Table($output);

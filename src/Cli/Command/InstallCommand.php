@@ -5,6 +5,7 @@ namespace RunAsRoot\Rooter\Cli\Command;
 
 use RunAsRoot\Rooter\Cli\Command\Dnsmasq\InitDnsmasqConfigCommand;
 use RunAsRoot\Rooter\Cli\Command\Traefik\InitTraefikConfigCommand;
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -13,12 +14,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InstallCommand extends Command
 {
+    private RooterConfig $rooterConfig;
+
     public function configure()
     {
         $this->setName('install');
         $this->setDescription('Main installation of rooter');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->rooterConfig = new RooterConfig();
+    }
     /**
      * @throws ExceptionInterface
      */
@@ -29,13 +37,13 @@ class InstallCommand extends Command
             return 1;
         }
 
-        $rooterHomeBinDir = ROOTER_HOME_DIR . "/bin";
+        $rooterHomeBinDir = $this->rooterConfig->getBinDir();
         $output->writeln('==> Creating bin directory');
         if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir) && !is_dir($rooterHomeBinDir)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
         }
 
-        $rooterEnvDir = ROOTER_HOME_DIR . "/environments";
+        $rooterEnvDir = $this->rooterConfig->getEnvironmentDir();
         $output->writeln('==> Creating environments directory');
         if (!is_dir($rooterEnvDir) && !mkdir($rooterEnvDir) && !is_dir($rooterEnvDir)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterEnvDir));
@@ -58,6 +66,13 @@ class InstallCommand extends Command
         $initTraefik->run(new ArrayInput([]), $output);
 
         // Generate ROOT CA and trust ROOT CA
+        $this->generateCertificates($output);
+
+        return 0;
+    }
+
+    private function generateCertificates(OutputInterface $output): void
+    {
         $rootCaDir = ROOTER_SSL_DIR . "/rootca";
         $caKeyPemFile = "$rootCaDir/private/ca.key.pem";
         $caCertPemFile = "$rootCaDir/certs/ca.cert.pem";
@@ -158,7 +173,5 @@ class InstallCommand extends Command
         exec($command);
 
         unlink($tmpConfigFile);
-
-        return 0;
     }
 }

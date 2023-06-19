@@ -3,16 +3,25 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class InitCommand extends Command
 {
+    private RooterConfig $rooterConfig;
+
     public function configure()
     {
         $this->setName('init');
         $this->setDescription('initialise rooter executables');
+    }
+
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->rooterConfig = new RooterConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -22,9 +31,10 @@ class InitCommand extends Command
             return 1;
         }
 
-        $rooterBinDir = ROOTER_HOME_DIR . '/bin';
-        if (!is_dir($rooterBinDir)) {
-            mkdir($rooterBinDir, 0755, true);
+        $rooterBinDir = $this->rooterConfig->getBinDir();
+        if (!is_dir($rooterBinDir)
+            && !mkdir($rooterBinDir, 0755, true) && !is_dir($rooterBinDir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterBinDir));
         }
 
         $bins = ['traefik', 'dnsmasq', 'pv', 'gzip',];
@@ -37,7 +47,7 @@ class InitCommand extends Command
 
     private function initBin(string $binName): void
     {
-        $binTarget = ROOTER_HOME_DIR . "/bin/$binName";
+        $binTarget = "{$this->rooterConfig->getBinDir()}/$binName";
 
         if (is_file($binTarget)) {
             unlink($binTarget);

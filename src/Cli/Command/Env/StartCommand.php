@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Config\DevenvConfig;
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -12,18 +14,24 @@ use Symfony\Component\Process\Process;
 
 class StartCommand extends Command
 {
+    private DevenvConfig $devenvConfig;
+
     public function configure()
     {
         $this->setName('env:start');
         $this->setDescription('start environment process');
     }
-
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->devenvConfig = new DevenvConfig();
+    }
     /**
      * @throws ExceptionInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pidFile = ROOTER_PROJECT_ROOT . '/.devenv/state/devenv.pid';
+        $pidFile = $this->devenvConfig->getPidFile();
 
         $pid = null;
         if (is_file($pidFile)) {
@@ -39,8 +47,7 @@ class StartCommand extends Command
             throw new \RuntimeException(sprintf('Directory "%s" was not created', ROOTER_PROJECT_DIR));
         }
 
-        $outputFile = ROOTER_PROJECT_ROOT . '/.devenv/state/devenv.log';
-        $command = sprintf('devenv up > %s 2>&1', $outputFile);
+        $command = sprintf('devenv up > %s 2>&1', $this->devenvConfig->getLogFile());
 
         // Activate for debugging:
         // $process = new Process(['devenv', 'up']);

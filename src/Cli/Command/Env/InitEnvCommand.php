@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,6 +13,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class InitEnvCommand extends Command
 {
+    private RooterConfig $rooterConfig;
+
     public function configure()
     {
         $this->setName('env:init');
@@ -26,40 +29,22 @@ class InitEnvCommand extends Command
         $this->addOption('force', 'f', InputOption::VALUE_NONE, 'force');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->rooterConfig = new RooterConfig();
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // Prepare
         $type = $input->getArgument('type');
 
-        $envDir = ROOTER_DIR . '/environments/';
-        $envTmplDir = $envDir . $type;
+        $envTmplDir = "{$this->rooterConfig->getEnvironmentTemplatesDir()}/$type";
         if (!is_dir($envTmplDir)) {
             $output->writeln("<error>unknown environment type: $type</error>");
             $this->renderAvailableEnvironments($input, $output);
-
             return Command::FAILURE;
-        }
-
-        $isForce = (bool)$input->getOption('force');
-        if (!$isForce && file_exists(ROOTER_PROJECT_ROOT . "/devenv.nix")) {
-            $output->writeln("<info>Seems like the environment was already initialised.</info>");
-            $output->writeln("<info>If you still want to continue please use --force.</info>");
-
-            return Command::FAILURE;
-        }
-
-        $projectName = $input->getOption('name') ?? basename(ROOTER_PROJECT_ROOT);
-        $projectHost = "$projectName.rooter.test";
-        $vars = [
-            'PROJECT_NAME' => $projectName,
-            'PROJECT_HOST' => $projectHost,
-        ];
-
-        $searchStrings = [];
-        $replaceStrings = [];
-        foreach ($vars as $variable => $value) {
-            $searchStrings[] = '${' . $variable . '}';
-            $replaceStrings[] = $value;
         }
 
         // files to copy to project
@@ -71,6 +56,28 @@ class InitEnvCommand extends Command
             "devenv.yaml" => "devenv.yaml",
         ];
 
+        $isForce = (bool)$input->getOption('force');
+        if (!$isForce && !$this->canInitialiseEnvironment($files)) {
+            $output->writeln("<info>Seems like the environment was already initialised.</info>");
+            $output->writeln("<info>If you still want to continue please use --force.</info>");
+            return Command::FAILURE;
+        }
+
+        $projectName = $input->getOption('name') ?? basename(ROOTER_PROJECT_ROOT);
+
+        $vars = [
+            'PROJECT_NAME' => $projectName,
+            'PROJECT_HOST' => "$projectName.rooter.test",
+        ];
+
+        $searchStrings = [];
+        $replaceStrings = [];
+        foreach ($vars as $variable => $value) {
+            $searchStrings[] = '${' . $variable . '}';
+            $replaceStrings[] = $value;
+        }
+
+        // Copy files to project replacing placeholders
         foreach ($files as $sourceFile => $targetFile) {
             $sourcePath = "$envTmplDir/$sourceFile";
             $targetPath = ROOTER_PROJECT_ROOT . "/$targetFile";
@@ -87,13 +94,23 @@ class InitEnvCommand extends Command
         return 0;
     }
 
+    private function canInitialiseEnvironment(array $files): bool
+    {
+        foreach ($files as $targetFile) {
+            $targetPath = ROOTER_PROJECT_ROOT . "/" . $targetFile;
+            // If one file is found we will not initialise
+            if (is_file($targetPath)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private function renderAvailableEnvironments(InputInterface $input, OutputInterface $output): void
     {
-        $envDir = ROOTER_DIR . '/environments/';
+        $availableEnvTmpls = scandir($this->rooterConfig->getEnvironmentTemplatesDir());
 
-        $availableEnvTmpls = scandir($envDir);
-
-        $types=[];
+        $types = [];
         foreach ($availableEnvTmpls as $name) {
             if ($name === '.' || $name === '..') {
                 continue;

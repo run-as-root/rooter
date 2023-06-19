@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Config\DevenvConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StopCommand extends Command
 {
+    private DevenvConfig $devenvConfig;
 
     public function configure()
     {
@@ -16,9 +18,14 @@ class StopCommand extends Command
         $this->setDescription('Stop environment');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->devenvConfig = new DevenvConfig();
+    }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pidFile = ROOTER_PROJECT_ROOT . '/.devenv/state/devenv.pid';
+        $pidFile = $this->devenvConfig->getPidFile();
 
         $pid = $this->getPidFromFile($pidFile);
         if ($pid <= 0) {

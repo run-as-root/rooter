@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
@@ -12,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ListEnvCommand extends Command
 {
+
+    private RooterConfig $rooterConfig;
 
     public function configure()
     {
@@ -23,15 +26,14 @@ class ListEnvCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
+        $this->rooterConfig = new RooterConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $showPorts = $input->getOption('ports');
 
-        $environmentsDir = ROOTER_HOME_DIR . '/environments';
-
-        $jsonFiles = glob("$environmentsDir/*.json");
+        $jsonFiles = glob("{$this->rooterConfig->getEnvironmentDir()}/*.json");
 
         $jsonFiles = $jsonFiles === false ? [] : $jsonFiles;
 

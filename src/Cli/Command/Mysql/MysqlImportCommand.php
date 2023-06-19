@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Mysql;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MysqlImportCommand extends Command
 {
+    private RooterConfig $rooterConfig;
+
     public function configure()
     {
         $this->setName('mysql:import');
@@ -21,10 +24,15 @@ class MysqlImportCommand extends Command
         $this->addUsage('dump-1686574009.sql --drop');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->rooterConfig = new RooterConfig();
+    }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $PV_BIN = ROOTER_HOME_DIR . "/bin/pv";
-        $GZIP_BIN = ROOTER_HOME_DIR . "/bin/gzip";
+        $PV_BIN = "{$this->rooterConfig->getBinDir()}/pv";
+        $GZIP_BIN = "{$this->rooterConfig->getBinDir()}/gzip";
 
         $dbDumpFile = $input->getArgument('file');
 
