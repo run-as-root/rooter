@@ -18,6 +18,7 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\Env\StartCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\StopCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\StatusCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\Env\ShowLogsCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Nginx\InitNginxCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Traefik\InitTraefikConfigCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Traefik\RegisterTraefikConfigCommand(),
