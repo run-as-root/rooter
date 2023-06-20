@@ -35,7 +35,7 @@ if (!\defined('ROOTER_COMPOSER_INSTALL')) {
 \define('ROOTER_DIR', __DIR__);
 \define('ROOTER_HOME_DIR', getenv("HOME") . "/.rooter");
 \define('ROOTER_SSL_DIR', ROOTER_HOME_DIR . "/ssl");
-\define('ROOTER_PROJECT_ROOT', getcwd());
+\define('ROOTER_PROJECT_ROOT', (string)getcwd());
 \define('ROOTER_PROJECT_DIR', ROOTER_PROJECT_ROOT . "/.rooter");
 
 require ROOTER_COMPOSER_INSTALL;

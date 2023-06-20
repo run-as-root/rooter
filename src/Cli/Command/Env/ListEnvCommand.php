@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -13,8 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ListEnvCommand extends Command
 {
-
     private RooterConfig $rooterConfig;
+    private DevenvConfig $devenvConfig;
 
     public function configure()
     {
@@ -27,6 +28,7 @@ class ListEnvCommand extends Command
     {
         parent::initialize($input, $output);
         $this->rooterConfig = new RooterConfig();
+        $this->devenvConfig = new DevenvConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -48,10 +50,13 @@ class ListEnvCommand extends Command
                 continue;
             }
 
+            $pid = $this->getPidFromFile($this->devenvConfig->getPidFile($envData['path']));
+            $status = $this->isProcessRunning($pid) ? 'running' : 'stopped';
+
             $project = [
                 'Name' => $envData['name'] ?? '',
                 'Host' => $envData['host'] ?? '',
-                'Status' => '',
+                'Status' => $status,
             ];
 
             if ($showPorts) {
@@ -82,5 +87,21 @@ class ListEnvCommand extends Command
         $table->render();
 
         return self::SUCCESS;
+    }
+
+    private function getPidFromFile(string $pidFile): string
+    {
+        if (!is_file($pidFile)) {
+            return "";
+        }
+        return trim(file_get_contents($pidFile));
+    }
+
+    private function isProcessRunning(string $pid): bool
+    {
+        if (empty($pid)) {
+            return false;
+        }
+        return posix_kill((int)$pid, 0);
     }
 }

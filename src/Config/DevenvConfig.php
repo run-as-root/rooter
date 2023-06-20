@@ -5,16 +5,18 @@ namespace RunAsRoot\Rooter\Config;
 
 class DevenvConfig
 {
-    private string $pidFile = ROOTER_PROJECT_ROOT . '/.devenv/state/devenv.pid';
-    private string $logFile = ROOTER_PROJECT_ROOT . '/.devenv/state/devenv.log';
+    private const DEVENV_STATE_DEVENV_PID = '%s/.devenv/state/devenv.pid';
+    private const DEVENV_STATE_DEVENV_LOG = '%s/.devenv/state/devenv.log';
 
-    public function getPidFile(): string
+    public function getPidFile(string $path = null): string
     {
-        return $this->pidFile;
+        $path = $path ?? ROOTER_PROJECT_ROOT;
+        return sprintf(self::DEVENV_STATE_DEVENV_PID, $path);
     }
 
-    public function getLogFile(): string
+    public function getLogFile(string $path = null): string
     {
-        return $this->logFile;
+        $path = $path ?? ROOTER_PROJECT_ROOT;
+        return sprintf(self::DEVENV_STATE_DEVENV_LOG, $path);
     }
 }
