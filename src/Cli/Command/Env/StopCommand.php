@@ -23,6 +23,7 @@ class StopCommand extends Command
         parent::initialize($input, $output);
         $this->devenvConfig = new DevenvConfig();
     }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $pidFile = $this->devenvConfig->getPidFile();
@@ -58,6 +59,9 @@ class StopCommand extends Command
 
     private function getPidFromFile(string $pidFile): string
     {
+        if (!is_file($pidFile)) {
+            return "";
+        }
         return trim(file_get_contents($pidFile));
     }
 }

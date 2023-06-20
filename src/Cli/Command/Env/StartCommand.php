@@ -22,7 +22,7 @@ class StartCommand extends Command
     {
         $this->setName('env:start');
         $this->setDescription('start environment process');
-        $this->addOption('debug','', InputOption::VALUE_NONE, 'activate debug mode');
+        $this->addOption('debug', '', InputOption::VALUE_NONE, 'activate debug mode');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -95,6 +95,9 @@ class StartCommand extends Command
 
     private function getPidFromFile(string $pidFile): string
     {
+        if (!is_file($pidFile)) {
+            return "";
+        }
         return trim(file_get_contents($pidFile));
     }
 

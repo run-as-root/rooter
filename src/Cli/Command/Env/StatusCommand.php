@@ -18,6 +18,7 @@ class StatusCommand extends Command
         $this->setName('env:status');
         $this->setDescription('show status of env');
     }
+
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
@@ -43,6 +44,9 @@ class StatusCommand extends Command
 
     private function getPidFromFile(string $pidFile): string
     {
+        if (!is_file($pidFile)) {
+            return "";
+        }
         return trim(file_get_contents($pidFile));
     }
 
