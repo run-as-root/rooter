@@ -49,8 +49,7 @@ in {
 
     # Shell welcome message
     enterShell = ''
-        ${rooterBin} info
-        ${rooterBin} nginx:init shopware6
+        [[ -z $ROOTER_INIT_SKIP ]] && ${rooterBin} nginx:init magento2
     '';
 
     # PHP
@@ -60,6 +59,9 @@ in {
             extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
             extraConfig = ''
               memory_limit = -1
+              display_errors = On
+              display_startup_errors = On
+              error_reporting=E_ALL
               xdebug.mode = coverage,debug
               sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${mailhogSmtpPort}
 
