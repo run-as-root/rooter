@@ -82,6 +82,7 @@ class ListEnvCommand extends Command
 
         $table = new Table($output);
         $table->setStyle('box');
+        $table->setHeaderTitle('project list');
         $table->setHeaders($headers);
         $table->setRows($projects);
         $table->render();
