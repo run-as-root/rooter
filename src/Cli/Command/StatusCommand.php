@@ -6,6 +6,7 @@ namespace RunAsRoot\Rooter\Cli\Command;
 use RunAsRoot\Rooter\Cli\Command\Env\ListEnvCommand;
 use RunAsRoot\Rooter\Config\DnsmasqConfig;
 use RunAsRoot\Rooter\Config\TraefikConfig;
+use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
@@ -17,6 +18,7 @@ class StatusCommand extends Command
 {
     private DnsmasqConfig $dnsmasqConfig;
     private TraefikConfig $traefikConfig;
+    private ProcessManager $processManager;
 
     public function configure()
     {
@@ -29,15 +31,16 @@ class StatusCommand extends Command
         parent::initialize($input, $output);
         $this->traefikConfig = new TraefikConfig();
         $this->dnsmasqConfig = new DnsmasqConfig();
+        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dnsmasqPid = $this->getPidFromFile($this->dnsmasqConfig->getPidFile());
-        $dnsmasqStatus = $this->isProcessRunning($dnsmasqPid) ? 'running' : 'stopped';
+        $dnsmasqPid = $this->processManager->getPidFromFile($this->dnsmasqConfig->getPidFile());
+        $dnsmasqStatus = $this->processManager->isRunningByPid($dnsmasqPid) ? 'running' : 'stopped';
 
-        $traefikPid = $this->getPidFromFile($this->traefikConfig->getPidFile());
-        $traefikStatus = $this->isProcessRunning($traefikPid) ? 'running' : 'stopped';
+        $traefikPid = $this->processManager->getPidFromFile($this->traefikConfig->getPidFile());
+        $traefikStatus = $this->processManager->isRunningByPid($traefikPid) ? 'running' : 'stopped';
 
         $table = new Table($output);
         $table->setStyle('box');
@@ -57,16 +60,4 @@ class StatusCommand extends Command
         return 0;
     }
 
-    private function getPidFromFile(string $pidFile): string
-    {
-        return trim(file_get_contents($pidFile));
-    }
-
-    private function isProcessRunning(string $pid): bool
-    {
-        if (empty($pid)) {
-            return false;
-        }
-        return posix_kill((int)$pid, 0);
-    }
 }

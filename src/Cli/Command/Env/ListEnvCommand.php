@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Config\DevenvConfig;
-use RunAsRoot\Rooter\Config\RooterConfig;
+use RunAsRoot\Rooter\Manager\ProcessManager;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -17,6 +17,7 @@ class ListEnvCommand extends Command
 {
     private DevenvConfig $devenvConfig;
     private EnvironmentRepository $envRepository;
+    private ProcessManager $processManager;
 
     public function configure()
     {
@@ -30,6 +31,7 @@ class ListEnvCommand extends Command
         parent::initialize($input, $output);
         $this->devenvConfig = new DevenvConfig();
         $this->envRepository = new EnvironmentRepository();
+        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -40,8 +42,8 @@ class ListEnvCommand extends Command
 
         $projects = [];
         foreach ($envList as $envData) {
-            $pid = $this->getPidFromFile($this->devenvConfig->getPidFile($envData['path']));
-            $status = $this->isProcessRunning($pid) ? 'running' : 'stopped';
+            $pidFile = $this->devenvConfig->getPidFile($envData['path']);
+            $status = $this->processManager->isRunning($pidFile) ? 'running' : 'stopped';
 
             $project = [
                 'Name' => $envData['name'] ?? '',
@@ -80,19 +82,4 @@ class ListEnvCommand extends Command
         return self::SUCCESS;
     }
 
-    private function getPidFromFile(string $pidFile): string
-    {
-        if (!is_file($pidFile)) {
-            return "";
-        }
-        return trim(file_get_contents($pidFile));
-    }
-
-    private function isProcessRunning(string $pid): bool
-    {
-        if (empty($pid)) {
-            return false;
-        }
-        return posix_kill((int)$pid, 0);
-    }
 }
