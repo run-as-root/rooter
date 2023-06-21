@@ -5,6 +5,7 @@ namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Config\RooterConfig;
+use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
@@ -14,8 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ListEnvCommand extends Command
 {
-    private RooterConfig $rooterConfig;
     private DevenvConfig $devenvConfig;
+    private EnvironmentRepository $envRepository;
 
     public function configure()
     {
@@ -27,29 +28,18 @@ class ListEnvCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
-        $this->rooterConfig = new RooterConfig();
         $this->devenvConfig = new DevenvConfig();
+        $this->envRepository = new EnvironmentRepository();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $showPorts = $input->getOption('ports');
 
-        $jsonFiles = glob("{$this->rooterConfig->getEnvironmentDir()}/*.json");
-
-        $jsonFiles = $jsonFiles === false ? [] : $jsonFiles;
+        $envList = $this->envRepository->getList();
 
         $projects = [];
-        foreach ($jsonFiles as $jsonFile) {
-            $jsonData = file_get_contents($jsonFile);
-
-            try {
-                $envData = json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
-            } catch (\JsonException $e) {
-                $output->writeln("<error>Could not decode '$jsonFile' : '{$e->getMessage()}'</error>");
-                continue;
-            }
-
+        foreach ($envList as $envData) {
             $pid = $this->getPidFromFile($this->devenvConfig->getPidFile($envData['path']));
             $status = $this->isProcessRunning($pid) ? 'running' : 'stopped';
 
@@ -82,7 +72,7 @@ class ListEnvCommand extends Command
 
         $table = new Table($output);
         $table->setStyle('box');
-        $table->setHeaderTitle('project list');
+        $table->setHeaderTitle('environments');
         $table->setHeaders($headers);
         $table->setRows($projects);
         $table->render();
