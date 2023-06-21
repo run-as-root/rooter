@@ -4,6 +4,9 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Config\DevenvConfig;
+use RunAsRoot\Rooter\Exception\FailedToStopProcessException;
+use RunAsRoot\Rooter\Exception\ProcessNotRunningException;
+use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class StopCommand extends Command
 {
     private DevenvConfig $devenvConfig;
+    private ProcessManager $processManager;
 
     public function configure()
     {
@@ -22,46 +26,28 @@ class StopCommand extends Command
     {
         parent::initialize($input, $output);
         $this->devenvConfig = new DevenvConfig();
+        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pidFile = $this->devenvConfig->getPidFile();
+        $result = true;
 
-        $pid = $this->getPidFromFile($pidFile);
-        if ($pid <= 0) {
-            $output->writeln("<error>environment is not running for PID:$pid</error>");
-
-            return 1;
+        try {
+            $pidFile = $this->devenvConfig->getPidFile();
+            $this->processManager->stop($pidFile);
+            $output->writeln("<info>environment was stopped</info>");
+        } catch (ProcessNotRunningException $e) {
+            $output->writeln("environment already stopped");
+        } catch (FailedToStopProcessException $e) {
+            $output->writeln("<error>environment could not be stopped: {$e->getMessage()}</error>");
+            $result = false;
+        } catch (\Exception $e) {
+            $output->writeln("<error>environment unknown error: {$e->getMessage()}</error>");
+            $result = false;
         }
 
-        $output->writeln("environment process with PID:$pid stopping");
-
-        if ($ok = proc_open(sprintf('kill -%d %d', 2, $pid), [2 => ['pipe', 'w']], $pipes)) {
-            $ok = false === fgets($pipes[2]);
-        }
-
-        if (!$ok) {
-            $output->writeln("<error>Could not stop environment with PID:$pid</error>");
-            return Command::FAILURE;
-        }
-
-        sleep(2);
-
-        if (is_file($pidFile)) {
-            file_put_contents($pidFile, '');
-        }
-
-        $output->writeln("environment process with PID:$pid was stopped");
-
-        return 0;
+        return $result ? Command::SUCCESS : Command::FAILURE;
     }
 
-    private function getPidFromFile(string $pidFile): string
-    {
-        if (!is_file($pidFile)) {
-            return "";
-        }
-        return trim(file_get_contents($pidFile));
-    }
 }

@@ -3,35 +3,81 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command;
 
-use RunAsRoot\Rooter\Cli\Command\Dnsmasq\StartDnsmasqCommand;
-use RunAsRoot\Rooter\Cli\Command\Dnsmasq\StopDnsmasqCommand;
-use RunAsRoot\Rooter\Cli\Command\Traefik\StartTraefikCommand;
-use RunAsRoot\Rooter\Cli\Command\Traefik\StopTraefikCommand;
+use RunAsRoot\Rooter\Config\DevenvConfig;
+use RunAsRoot\Rooter\Config\DnsmasqConfig;
+use RunAsRoot\Rooter\Config\TraefikConfig;
+use RunAsRoot\Rooter\Exception\FailedToStopProcessException;
+use RunAsRoot\Rooter\Exception\ProcessNotRunningException;
+use RunAsRoot\Rooter\Manager\ProcessManager;
+use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StopCommand extends Command
 {
+    private EnvironmentRepository $envRepository;
+    private DevenvConfig $devenvConfig;
+    private ProcessManager $processManager;
+    private DnsmasqConfig $dnsmasqConfig;
+    private TraefikConfig $traefikConfig;
+
     public function configure()
     {
         $this->setName('stop');
         $this->setDescription('stop rooter processes');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->devenvConfig = new DevenvConfig();
+        $this->dnsmasqConfig = new DnsmasqConfig();
+        $this->traefikConfig = new TraefikConfig();
+        $this->envRepository = new EnvironmentRepository();
+        $this->processManager = new ProcessManager();
+    }
+
     /**
      * @throws ExceptionInterface
+     * @throws \JsonException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dnsmasqCommand = new StopDnsmasqCommand();
-        $dnsmasqCommand->run(new ArrayInput([]), $output);
+        $result = true;
 
-        $traefikCommand = new StopTraefikCommand();
-        $traefikCommand->run(new ArrayInput([]), $output);
+        $result &= $this->stopProcess($this->dnsmasqConfig->getPidFile(), 'dnsmasq', $output);
 
-        return 0;
+        $result &= $this->stopProcess($this->traefikConfig->getPidFile(), 'traefik', $output);
+
+        foreach ($this->envRepository->getList() as $envData) {
+            $name = $envData['name'];
+            $path = $envData['path'];
+
+            $pidFile = $this->devenvConfig->getPidFile($path);
+
+            $result &= $this->stopProcess($pidFile, $name, $output);
+        }
+
+        return $result ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    private function stopProcess(string $pidFile, string $name, OutputInterface $output): bool
+    {
+        $result = true;
+        try {
+            $this->processManager->stop($pidFile);
+            $output->writeln("<info>$name was stopped</info>");
+        } catch (ProcessNotRunningException $e) {
+            $output->writeln("$name already stopped");
+        } catch (FailedToStopProcessException $e) {
+            $output->writeln("<error>$name could not be stopped: {$e->getMessage()}</error>");
+            $result = false;
+        } catch (\Exception $e) {
+            $output->writeln("<error>$name unknown error: {$e->getMessage()}</error>");
+            $result = false;
+        }
+        return $result;
     }
 }

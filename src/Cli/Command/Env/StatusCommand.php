@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Config\DevenvConfig;
+use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class StatusCommand extends Command
 {
     private DevenvConfig $devenvConfig;
+    private ProcessManager $processManager;
 
     public function configure()
     {
@@ -23,13 +25,14 @@ class StatusCommand extends Command
     {
         parent::initialize($input, $output);
         $this->devenvConfig = new DevenvConfig();
+        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pid = $this->getPidFromFile($this->devenvConfig->getPidFile());
+        $pid = $this->processManager->getPidFromFile($this->devenvConfig->getPidFile());
 
-        $status = $this->isProcessRunning($pid) ? 'running' : 'stopped';
+        $status = $this->processManager->isRunning($pid) ? 'running' : 'stopped';
 
         $table = new Table($output);
         $table->setStyle('box');
@@ -42,19 +45,4 @@ class StatusCommand extends Command
         return 0;
     }
 
-    private function getPidFromFile(string $pidFile): string
-    {
-        if (!is_file($pidFile)) {
-            return "";
-        }
-        return trim(file_get_contents($pidFile));
-    }
-
-    private function isProcessRunning(string $pid): bool
-    {
-        if (empty($pid)) {
-            return false;
-        }
-        return posix_kill((int)$pid, 0);
-    }
 }
