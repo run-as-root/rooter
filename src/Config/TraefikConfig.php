@@ -16,6 +16,14 @@ class TraefikConfig
     private string $endpointTmpl = ROOTER_DIR . '/etc/traefik/conf.d/endpoint-tmpl.yml';
     private string $endpointDefault = ROOTER_DIR . '/etc/traefik/conf.d/default.yml';
 
+    public function getTraefikCommand(): string
+    {
+        $traefikConf = $this->getTraefikConf();
+        $TRAEFIK_BIN = $this->getTraefikBin();
+
+        return "$TRAEFIK_BIN --configfile=$traefikConf";
+    }
+
     public function getTraefikBin(): string
     {
         return $this->traefikBin;

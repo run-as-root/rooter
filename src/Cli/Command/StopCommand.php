@@ -13,6 +13,7 @@ use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StopCommand extends Command
@@ -27,6 +28,7 @@ class StopCommand extends Command
     {
         $this->setName('stop');
         $this->setDescription('stop rooter processes');
+        $this->addOption('all', '', InputOption::VALUE_NONE, 'Stop all environments');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -51,6 +53,16 @@ class StopCommand extends Command
 
         $result &= $this->stopProcess($this->traefikConfig->getPidFile(), 'traefik', $output);
 
+        if ($input->getOption('all')) {
+            $result &= $this->stopEnvironments($output);
+        }
+
+        return $result ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    private function stopEnvironments(OutputInterface $output): bool
+    {
+        $result = true;
         foreach ($this->envRepository->getList() as $envData) {
             $name = $envData['name'];
             $path = $envData['path'];
@@ -59,8 +71,7 @@ class StopCommand extends Command
 
             $result &= $this->stopProcess($pidFile, $name, $output);
         }
-
-        return $result ? Command::SUCCESS : Command::FAILURE;
+        return $result;
     }
 
     private function stopProcess(string $pidFile, string $name, OutputInterface $output): bool

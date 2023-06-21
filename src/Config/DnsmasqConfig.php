@@ -14,7 +14,14 @@ class DnsmasqConfig
     private string $confTmpl = ROOTER_DIR . '/etc/dnsmasq/dnsmasq.conf';
     private string $resolverTmpl = ROOTER_DIR . '/etc/resolver/rooter.test';
 
-    public function getDnsmasqkBin(): string
+    public function getDnsmasqCommand(): string
+    {
+        $DNSMASQ_BIN = $this->getDnsmasqBin();
+        $dnsmasqConf = $this->getDnsmasqConf();
+        return "$DNSMASQ_BIN --conf-file=$dnsmasqConf --no-daemon";
+    }
+
+    public function getDnsmasqBin(): string
     {
         return $this->dnsmasqkBin;
     }

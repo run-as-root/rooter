@@ -3,32 +3,51 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command;
 
-use RunAsRoot\Rooter\Cli\Command\Dnsmasq\StartDnsmasqCommand;
-use RunAsRoot\Rooter\Cli\Command\Traefik\StartTraefikCommand;
+use RunAsRoot\Rooter\Config\DnsmasqConfig;
+use RunAsRoot\Rooter\Config\TraefikConfig;
+use RunAsRoot\Rooter\Exception\ProcessAlreadyRunningException;
+use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\ExceptionInterface;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StartCommand extends Command
 {
+    private TraefikConfig $traefikConfig;
+    private ProcessManager $processManager;
+    private DnsmasqConfig $dnsmasqConfig;
+
     public function configure()
     {
         $this->setName('start');
         $this->setDescription('start rooter processes');
     }
 
-    /**
-     * @throws ExceptionInterface
-     */
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->traefikConfig = new TraefikConfig();
+        $this->dnsmasqConfig = new DnsmasqConfig();
+        $this->processManager = new ProcessManager();
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dnsmasqCommand = new StartDnsmasqCommand();
-        $dnsmasqCommand->run(new ArrayInput([]), $output);
+        // Dnsmasq
+        try {
+            $this->processManager->startWithPid($this->dnsmasqConfig->getDnsmasqCommand(), $this->dnsmasqConfig->getPidFile());
+            $output->writeln("<info>dnsmasq started.</info>");
+        } catch (ProcessAlreadyRunningException $e) {
+            $output->writeln("dnsmasq is already running ({$e->getMessage()})");
+        }
 
-        $traefikCommand = new StartTraefikCommand();
-        $traefikCommand->run(new ArrayInput([]), $output);
+        // Traefik
+        try {
+            $this->processManager->startWithPid($this->traefikConfig->getTraefikCommand(), $this->traefikConfig->getPidFile());
+            $output->writeln("<info>traefik started.</info>");
+        } catch (ProcessAlreadyRunningException $e) {
+            $output->writeln("traefik is already running ({$e->getMessage()})");
+        }
 
         return 0;
     }
