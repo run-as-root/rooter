@@ -49,6 +49,10 @@ class StartCommand extends Command
             throw new \RuntimeException(sprintf('Directory "%s" was not created', ROOTER_PROJECT_DIR));
         }
 
+        // Initialisation
+        // @todo register traefik conf
+        // @todo if nginx is enabled run nginx init
+
         // ROOTER assumes the nginx config has been placed
         $command = "devenv up";
         if (!$debug) {

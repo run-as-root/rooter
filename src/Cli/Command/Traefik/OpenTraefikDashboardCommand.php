@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Traefik;
 
 use RunAsRoot\Rooter\Config\TraefikConfig;
+use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class OpenTraefikDashboardCommand extends Command
 {
     private TraefikConfig $traefikConfig;
+    private ProcessManager $processManager;
 
     public function configure()
     {
@@ -22,12 +24,13 @@ class OpenTraefikDashboardCommand extends Command
     {
         parent::initialize($input, $output);
         $this->traefikConfig = new TraefikConfig();
+        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pid = file_get_contents($this->traefikConfig->getPidFile());
-        if ($pid <= 0) {
+        $traefikPid = $this->processManager->getPidFromFile($this->traefikConfig->getPidFile());
+        if (!($this->processManager->isRunningByPid($traefikPid))) {
             $output->writeln("traefik is stopped, you need to start if first");
 
             return 1;

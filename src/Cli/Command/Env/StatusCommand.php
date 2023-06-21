@@ -32,7 +32,7 @@ class StatusCommand extends Command
     {
         $pid = $this->processManager->getPidFromFile($this->devenvConfig->getPidFile());
 
-        $status = $this->processManager->isRunning($pid) ? 'running' : 'stopped';
+        $status = $this->processManager->isRunningByPid($pid) ? 'running' : 'stopped';
 
         $table = new Table($output);
         $table->setStyle('box');
