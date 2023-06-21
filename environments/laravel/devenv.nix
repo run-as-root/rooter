@@ -6,7 +6,7 @@ let
     mailhogSmtpPort = builtins.getEnv "DEVENV_MAILHOG_SMTP_PORT";
     mailhogUiPort = builtins.getEnv "DEVENV_MAILHOG_UI_PORT";
     mysqlPort = builtins.getEnv "DEVENV_DB_PORT";
-    rooterBin = builtins.getEnv "ROOTER_BIN";
+    rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
     env = {
         PROJECT_NAME = "laravel-example";

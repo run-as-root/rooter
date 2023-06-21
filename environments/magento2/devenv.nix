@@ -10,7 +10,7 @@ let
     amqpPort = lib.strings.toInt ( builtins.getEnv "DEVENV_AMQP_PORT" );
     amqpManagementPort = lib.strings.toInt ( builtins.getEnv "DEVENV_AMQP_MANAGEMENT_PORT" );
     elasticsearchPort = lib.strings.toInt ( builtins.getEnv "DEVENV_ELASTICSEARCH_PORT" );
-    rooterBin = builtins.getEnv "ROOTER_BIN";
+    rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
     env = {
         PROJECT_NAME = "${PROJECT_NAME}";

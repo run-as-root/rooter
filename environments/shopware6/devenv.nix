@@ -11,7 +11,7 @@ let
     redisPort = lib.strings.toInt ( builtins.getEnv "DEVENV_REDIS_PORT" );
     redisSocket = "tcp://127.0.0.1:" + builtins.getEnv "DEVENV_REDIS_PORT" ;
     elasticsearchPort = builtins.getEnv "DEVENV_ELASTICSEARCH_PORT";
-    rooterBin = builtins.getEnv "ROOTER_BIN";
+    rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
     env = {
         PROJECT_NAME = "${PROJECT_NAME}";
