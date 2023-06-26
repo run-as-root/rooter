@@ -35,4 +35,45 @@ class EnvironmentRepository
         return $projects;
     }
 
+    /**
+     * @throws \RuntimeException
+     */
+    public function register(string $projectName): void
+    {
+        $data = [
+            'name' => $projectName,
+            'path' => ROOTER_PROJECT_ROOT,
+            'host' => getenv('PROJECT_HOST') ?? '',
+            'httpPort' => getenv('DEVENV_HTTP_PORT') ?? '',
+            'httpsPort' => getenv('DEVENV_HTTPS_PORT') ?? '',
+            'dbPort' => getenv('DEVENV_DB_PORT') ?? '',
+            'mailhogSmtpPort' => getenv('DEVENV_MAILHOG_SMTP_PORT') ?? '',
+            'mailhogUiPort' => getenv('DEVENV_MAILHOG_UI_PORT') ?? '',
+            'redisPort' => getenv('DEVENV_REDIS_PORT') ?? '',
+            'amqpPort' => getenv('DEVENV_AMQP_PORT') ?? '',
+            'amqpManagementPort' => getenv('DEVENV_AMQP_MANAGEMENT_PORT') ?? '',
+            'elasticsearchPort' => getenv('DEVENV_ELASTICSEARCH_PORT') ?? '',
+        ];
+
+        $this->save($data);
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    public function save(array $data): void
+    {
+        try {
+            $configAsString = json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+        } catch (\JsonException $e) {
+            throw new \RuntimeException('error during json encode', $e->getCode(), $e);
+        }
+
+        $envConfigFile = "{$this->rooterConfig->getEnvironmentDir()}/{$data['name']}.json";
+        file_put_contents($envConfigFile, $configAsString);
+
+        if (file_get_contents($envConfigFile) === false) {
+            throw new \RuntimeException('environment configuration file is empty');
+        }
+    }
 }

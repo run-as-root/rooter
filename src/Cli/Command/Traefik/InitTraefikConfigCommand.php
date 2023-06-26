@@ -25,21 +25,9 @@ class InitTraefikConfigCommand extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
-        $traefikConfDir = $this->traefikConfig->getTraefikHomeDir();
-        if (!is_dir($traefikConfDir)) {
-            mkdir($traefikConfDir, 0755, true);
-        }
-
-        $confDir = $this->traefikConfig->getConfDir();
-        if (!is_dir($confDir)) {
-            mkdir($confDir, 0755, true);
-        }
-
-        $logDir = $this->traefikConfig->getLogDir();
-        if (!is_dir($logDir)) {
-            mkdir($logDir, 0755, true);
-        }
+        $this->ensureDir($this->traefikConfig->getTraefikHomeDir());
+        $this->ensureDir($this->traefikConfig->getConfDir());
+        $this->ensureDir($this->traefikConfig->getLogDir());
 
         $traefikConf = $this->traefikConfig->getTraefikConf();
         if (file_exists($traefikConf)) {
@@ -65,8 +53,16 @@ class InitTraefikConfigCommand extends Command
 
         file_put_contents($traefikConf, $traefikYml);
 
-        copy($this->traefikConfig->getEndpointDefault(), "$confDir/default.yml");
+        copy($this->traefikConfig->getEndpointDefault(), "{$this->traefikConfig->getConfDir()}/default.yml");
 
         return 0;
+    }
+
+    private function ensureDir(string $dirname): void
+    {
+        if (!is_dir($dirname)
+            && !mkdir($dirname, 0755, true) && !is_dir($dirname)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dirname));
+        }
     }
 }
