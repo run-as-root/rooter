@@ -12,20 +12,47 @@ This guide assumes you have successfully installed:
 - devenv https://devenv.sh/getting-started/
 - direnv https://direnv.net/docs/installation.html
   - you can use HomeBrew: https://formulae.brew.sh/formula/direnv#default
+  - make sure to hook it into your shell: https://direnv.net/docs/hook.html
 
 What exactly is being installed on macOS is documented here: https://nixos.org/manual/nix/stable/installation/installing-binary.html#macos-installation.
 
+Clone the rooter repository to your local and change directory to rooter
 ```bash
 git clone git@gitlab.com:run_as_root/internal/rooter.git rooter
 cd rooter
+```
+No we need to download all dependencies using nix.  
+This can be triggered using direnv or using nix.  
+Choose one:
+
+1. direnv
+```bash
+direnv allow .
+```
+
+2. nix
+```bash 
 nix-shell
-direnv allow
+# … wait for the process to finish, it will take quite a few minutes if executed for the first time
+exit # exit the shell
+```
+
+Install Composer dependencies required to executed rooter
+```bash
 composer install
+```
+
+Now that all dependencies are installed, we can continue with the rooter installation.  
+It will initialise directories, configurations, process, ssl certs, etc.  
+```bash
 ./rooter install
 ```
-We suggest to either create 
-- an alias for rooter in you `~/.basrc` or `~/.zshrc` or
-- create a symlink in any dir that is included in your path
+
+Last but not least, we suggest to make sure rooter binary is globally available.  
+For that you should either create 
+- an alias for rooter in you `~/.basrc` or `~/.zshrc` e.g. `alias rooter=/<path-to-rooter>/rooter`
+- or create a symlink in any dir that is included in your path
+- or add the rooter directory to the PATH `export $PATH="$PATH:/<path-to-rooter>/rooter"`
 
 ## Project setup
 
@@ -49,6 +76,7 @@ If you are not sure what ports you have used in other rooter projects, you can u
 ```bash
 rooter env:list --ports
 ```
+If you run this command for the very first time the list should be empty and show nothing.
 
 ### Register Environment
 
@@ -60,11 +88,17 @@ rooter env:register
 
 ### Register Traefik
 
-:::tip
-
 Register the nginx of the project to traefik so traefik can route requests.  
 ```bash
 rooter traefik:config:register
+```
+
+### Start rooter
+
+To start rooter with dnsmasq and traefik in the background run:
+
+```bash
+rooter start
 ```
 
 ### Start the environment
@@ -110,33 +144,4 @@ TABLEPLUS_BIN=/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus
 Or Globally in .zshrc or .bashrc
 ```
 export TABLEPLUS_BIN=/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus
-```
-
-## Known Issues
-
-### macOS Upgrade breaks nix installation
-
-- check `/etc/zshrc` 
-- it should include the following peace of code
-
-```sh
-# Nix
-if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-fi
-# End Nix
-```
-
-## devenv.sh templates
-
-### OpenSearch Magento > 2.4.6 required (Elastic v8 = OpenSearch v2)
-
-```nix
-    services.opensearch = {
-        enable = true;
-        settings = {
-            "http.port" = elasticsearchPort;
-            "transport.port" = 9300;
-        };
-    };
 ```
