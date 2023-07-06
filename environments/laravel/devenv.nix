@@ -33,7 +33,7 @@ in {
 
     # Shell welcome message
     enterShell = ''
-        [[ -z $ROOTER_INIT_SKIP ]] && ${rooterBin} nginx:init magento2
+        [[ -z $ROOTER_INIT_SKIP ]] && ${rooterBin} nginx:init laravel
     '';
 
     # PHP
