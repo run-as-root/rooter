@@ -15,7 +15,7 @@ This guide assumes you have successfully installed:
 What exactly is being installed on macOS is documented here: https://nixos.org/manual/nix/stable/installation/installing-binary.html#macos-installation.
 
 ```bash
-git clone <rooter-repo> rooter
+git clone git@gitlab.com:run_as_root/internal/rooter.git rooter
 cd rooter
 nix shell
 direnv allow
@@ -58,6 +58,8 @@ rooter env:register
 ```
 
 ### Register Traefik
+
+:::tip
 
 Register the nginx of the project to traefik so traefik can route requests.  
 ```bash
