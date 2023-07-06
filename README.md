@@ -17,7 +17,7 @@ What exactly is being installed on macOS is documented here: https://nixos.org/m
 ```bash
 git clone git@gitlab.com:run_as_root/internal/rooter.git rooter
 cd rooter
-nix shell
+nix-shell
 direnv allow
 composer install
 ./rooter install

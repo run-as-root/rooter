@@ -27,6 +27,7 @@ class InstallCommand extends Command
         parent::initialize($input, $output);
         $this->rooterConfig = new RooterConfig();
     }
+
     /**
      * @throws ExceptionInterface
      */
@@ -39,13 +40,13 @@ class InstallCommand extends Command
 
         $rooterHomeBinDir = $this->rooterConfig->getBinDir();
         $output->writeln('==> Creating bin directory');
-        if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir) && !is_dir($rooterHomeBinDir)) {
+        if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir, 0755, true) && !is_dir($rooterHomeBinDir)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
         }
 
         $rooterEnvDir = $this->rooterConfig->getEnvironmentDir();
         $output->writeln('==> Creating environments directory');
-        if (!is_dir($rooterEnvDir) && !mkdir($rooterEnvDir) && !is_dir($rooterEnvDir)) {
+        if (!is_dir($rooterEnvDir) && !mkdir($rooterEnvDir, 0755, true) && !is_dir($rooterEnvDir)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterEnvDir));
         }
 
@@ -53,7 +54,6 @@ class InstallCommand extends Command
         $output->writeln('==> Initialising executables');
         $init = new InitCommand();
         $init->run(new ArrayInput([]), $output);
-
 
         // Init dnsmasq
         $output->writeln('==> Initialising dnsmasq');
