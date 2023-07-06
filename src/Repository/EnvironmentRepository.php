@@ -76,4 +76,14 @@ class EnvironmentRepository
             throw new \RuntimeException('environment configuration file is empty');
         }
     }
+
+    public function delete(string $projectName): void
+    {
+        $envConfigFile = "{$this->rooterConfig->getEnvironmentDir()}/$projectName.json";
+        if (!is_file($envConfigFile)) {
+            throw new \RuntimeException("file does not exist '$envConfigFile'");
+        }
+
+        unlink($envConfigFile);
+    }
 }

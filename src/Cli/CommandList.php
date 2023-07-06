@@ -13,6 +13,7 @@ class CommandList
         return [
             new \RunAsRoot\Rooter\Cli\Command\Env\InitEnvCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\RegisterEnvCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\Env\RemoveEnvCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\ListEnvCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\ShowEnvCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\StartCommand(),
