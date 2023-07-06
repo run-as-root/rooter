@@ -9,8 +9,8 @@ let
     rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
     env = {
-        PROJECT_NAME = "laravel-example";
-        PROJECT_HOST = "laravel-example.rooter.test";
+        PROJECT_NAME = "${PROJECT_NAME}";
+        PROJECT_HOST = "${PROJECT_HOST}";
 
         NGINX_PKG_ROOT = pkgs.nginx;
         DEVENV_STATE_NGINX = "${config.env.DEVENV_STATE}/nginx";
