@@ -68,7 +68,10 @@ class InitNginxCommand extends Command
         }
 
         // Prepare
-        unlink($nginxStateDir . "/nginx.conf");
+        $nginxStateConf = $nginxStateDir . "/nginx.conf";
+        if (is_file($nginxStateConf)) {
+            unlink($nginxStateConf);
+        }
 
         $nginxTmpDir = $nginxStateDir . "/tmp";
         if (!is_dir($nginxTmpDir) && !mkdir($nginxTmpDir, 0755, true) && !is_dir($nginxTmpDir)) {
