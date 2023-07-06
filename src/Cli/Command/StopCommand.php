@@ -49,12 +49,12 @@ class StopCommand extends Command
     {
         $result = true;
 
-        $result &= $this->stopProcess($this->dnsmasqConfig->getPidFile(), 'dnsmasq', $output);
+        $result = $result && $this->stopProcess($this->dnsmasqConfig->getPidFile(), 'dnsmasq', $output);
 
-        $result &= $this->stopProcess($this->traefikConfig->getPidFile(), 'traefik', $output);
+        $result = $result && $this->stopProcess($this->traefikConfig->getPidFile(), 'traefik', $output);
 
         if ($input->getOption('all')) {
-            $result &= $this->stopEnvironments($output);
+            $result = $result && $this->stopEnvironments($output);
         }
 
         return $result ? Command::SUCCESS : Command::FAILURE;
@@ -69,7 +69,7 @@ class StopCommand extends Command
 
             $pidFile = $this->devenvConfig->getPidFile($path);
 
-            $result &= $this->stopProcess($pidFile, $name, $output);
+            $result = $result && $this->stopProcess($pidFile, $name, $output);
         }
         return $result;
     }
