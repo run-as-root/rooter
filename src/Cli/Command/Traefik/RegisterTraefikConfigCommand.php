@@ -26,7 +26,12 @@ class RegisterTraefikConfigCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $projectName = $_ENV['PROJECT_NAME']; # @todo check if set
+        $projectName = getenv('PROJECT_NAME');
+
+        if (empty($projectName)) {
+            $output->writeln("<error>PROJECT_NAME is not set. This command should be executed in a project context.</error>");
+            return Command::FAILURE;
+        }
 
         $tmplVars = array_merge(
             $_ENV,
@@ -51,9 +56,12 @@ class RegisterTraefikConfigCommand extends Command
 
         file_put_contents($targetFile, $traefikYml);
 
-        $output->writeln("Registered traefik configuration for $projectName");
-        $output->writeln('----------');
-        $output->writeln(file_get_contents($targetFile));
+        $output->writeln("traefik configuration registered for $projectName");
+
+        if ($output->isVerbose()) {
+            $output->writeln('----------');
+            $output->writeln(file_get_contents($targetFile));
+        }
 
         return 0;
     }

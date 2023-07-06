@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Cli\Command\Traefik\RegisterTraefikConfigCommand;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -33,14 +35,19 @@ class RegisterEnvCommand extends Command
             return Command::FAILURE;
         }
 
+        // Register Environment
         try {
             $this->environmentRepository->register($projectName);
         } catch (\Exception $e) {
             $output->writeln("<error>Failed to register environment: {$e->getMessage()}</error>");
             return Command::FAILURE;
         }
-
         $output->writeln('<info>environment registered successfully.</info>');
+
+        // Register Traefik Config
+        $registerTraefik = new RegisterTraefikConfigCommand();
+        $registerTraefik->run(new ArrayInput([]), $output);
+
         return Command::SUCCESS;
     }
 
