@@ -24,7 +24,7 @@ class TablePlusCommand extends Command
         $port = getenv('DEVENV_DB_PORT');
         $db = getenv('DEVENV_DB_NAME');
 
-        $query = "mysql://$user:$pass@127.0.0.1:$port/$db";
+        $query = "mysql://$user:$pass@127.0.0.1:$port/$db?env=rooter&color=e3a333";
 
         $output->writeln($query);
 
