@@ -11,6 +11,7 @@ This guide assumes you have successfully installed:
 - nix package manager https://nixos.org/download.html#nix-install-macos
 - devenv https://devenv.sh/getting-started/
 - direnv https://direnv.net/docs/installation.html
+  - you can use HomeBrew: https://formulae.brew.sh/formula/direnv#default
 
 What exactly is being installed on macOS is documented here: https://nixos.org/manual/nix/stable/installation/installing-binary.html#macos-installation.
 
