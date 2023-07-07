@@ -65,17 +65,19 @@ class InitEnvPortsCommand extends Command
 
     private function writeToEnvFile(array $ports): void
     {
+        // Prepare array with ENV var name and value
         $portsEnvs = [];
         foreach ($ports as $type => $port) {
             $portsEnvs["DEVENV_{$type}_PORT"] = $port;
         }
+        $portsToAdd = $portsEnvs;
 
         $envFile = ROOTER_PROJECT_ROOT . "/.env";
-        $fileArray = file($envFile);
+        $lines = file($envFile);
 
         // Clean array from DEVENV PORT variables
         $envFileData = [];
-        foreach ($fileArray as $line) {
+        foreach ($lines as $line) {
             if (!str_starts_with($line, 'DEVENV_')) {
                 $envFileData[] = $line;
                 continue;
@@ -84,9 +86,15 @@ class InitEnvPortsCommand extends Command
             foreach ($portsEnvs as $envName => $port) {
                 if (preg_match("/$envName=.*/", $line)) {
                     $envFileData[] = "$envName=$port" . PHP_EOL;
+                    unset($portsToAdd[$envName]);
                     break;
                 }
             }
+        }
+
+        // Add remaining ENV vars to the .env
+        foreach ($portsToAdd as $envName => $port) {
+            $envFileData[] = "$envName=$port" . PHP_EOL;
         }
 
         file_put_contents($envFile, implode('', $envFileData));
