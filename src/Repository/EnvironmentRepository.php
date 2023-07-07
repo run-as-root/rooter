@@ -17,6 +17,16 @@ class EnvironmentRepository
     /**
      * @throws \JsonException
      */
+    public function getByName(string $projectName): array
+    {
+        $jsonData = file_get_contents("{$this->rooterConfig->getEnvironmentDir()}/$projectName.json");
+
+        return json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @throws \JsonException
+     */
     public function getList(): array
     {
         $jsonFiles = glob("{$this->rooterConfig->getEnvironmentDir()}/*.json");

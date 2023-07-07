@@ -9,7 +9,7 @@ class PortManager
     private int $portRange = 65535; // Range of port numbers
 
     private array $ranges = [
-        'DEFAULT' => [1024, 65535],
+        'default' => [1024, 65535],
         'HTTP' => [8001, 8400],
         'HTTPS' => [8401, 8999],
         'DB' => [3300, 3700],
@@ -17,14 +17,16 @@ class PortManager
         'MAILHOG_UI' => [18026, 22026],
         'REDIS' => [6379, 6779],
         'AMQP' => [5672, 5999],
-        'AMQP_UI' => [15672, 19672],
-        'ELASTIC' => [9200, 9600],
+        'AMQP_MANAGEMENT' => [15672, 19672],
+        'ELASTICSEARCH' => [9200, 9600],
     ];
 
     /** @throws \Exception */
-    public function findFreePort(): int
+    public function findFreePort(string $type = 'default'): int
     {
-        $port = random_int($this->portOffset, $this->portRange);
+        $portRange = $this->getPortRangeByKey($type);
+
+        $port = random_int($portRange[0], $portRange[1]);
         while (!$this->isPortAvailable($port)) {
             $port = random_int($this->portOffset, $this->portRange);
         }
@@ -72,6 +74,15 @@ class PortManager
             }
         }
         return $reservedPorts;
+    }
+
+    private function getPortRangeByKey(string $key): array
+    {
+        if (array_key_exists($key, $this->ranges)) {
+            return $this->ranges[$key];
+        }
+
+        throw new \InvalidArgumentException("Unknown Type $key");
     }
 
 }
