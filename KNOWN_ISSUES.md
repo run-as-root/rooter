@@ -1,6 +1,6 @@
 # ROOTER - Known Issues
 
-### macOS Upgrade breaks nix installation
+## macOS Upgrade breaks nix installation
 
 - check `/etc/zshrc` 
 - it should include the following peace of code
@@ -13,16 +13,20 @@ fi
 # End Nix
 ```
 
-## devenv.sh templates
+## php-fpm is not stopped
 
-### OpenSearch Magento > 2.4.6 required (Elastic v8 = OpenSearch v2)
+By default devenv uses ``honcho`` process-manager.  
+For a yet unknown reason, in some scenarios, honcho can not stop php-fpm.  
+Reason is that the PID tracked by honcho does not match the actual PID the process is running with.  
 
+In that case you can use another process-manager: ``process-compose``
+
+Add this to your `devenv.nix`
 ```nix
-    services.opensearch = {
-        enable = true;
-        settings = {
-            "http.port" = elasticsearchPort;
-            "transport.port" = 9300;
-        };
+    process.implementation="process-compose";
+    process.process-compose={
+        "port" = "9999";
+        "tui" = "false";
+        "version" = "0.5";
     };
 ```
