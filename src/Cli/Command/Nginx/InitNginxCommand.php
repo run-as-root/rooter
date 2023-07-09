@@ -57,6 +57,7 @@ class InitNginxCommand extends Command
             'NGINX_PKG_ROOT',
             'PROJECT_NAME',
             'PROJECT_HOST',
+            'HOME',
         ];
 
         $searchStrings = [];
@@ -64,6 +65,8 @@ class InitNginxCommand extends Command
         foreach ($nginxVarsAllowed as $variable) {
             $value = getenv($variable);
             $searchStrings[] = '${' . $variable . '}';
+            $replaceStrings[] = $value;
+            $searchStrings[] = '$' . $variable;
             $replaceStrings[] = $value;
         }
 
