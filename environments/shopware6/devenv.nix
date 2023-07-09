@@ -1,18 +1,8 @@
 { pkgs, inputs, lib, config, ... }:
 
 let
-    user = builtins.getEnv "USER";
-    # variables from .env are not available in config.env atm
-    httpPort = builtins.getEnv "DEVENV_HTTP_PORT";
-    httpsPort = builtins.getEnv "DEVENV_HTTPS_PORT";
-    mailhogSmtpPort = builtins.getEnv "DEVENV_MAILHOG_SMTP_PORT";
-    mailhogUiPort = builtins.getEnv "DEVENV_MAILHOG_UI_PORT";
-    mysqlPort = builtins.getEnv "DEVENV_DB_PORT";
-    redisPort = lib.strings.toInt ( builtins.getEnv "DEVENV_REDIS_PORT" );
-    redisSocket = "tcp://127.0.0.1:" + builtins.getEnv "DEVENV_REDIS_PORT" ;
-    elasticsearchPort = builtins.getEnv "DEVENV_ELASTICSEARCH_PORT";
-    rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
+    dotenv.enable = true;
     env = {
         PROJECT_NAME = "${PROJECT_NAME}";
         PROJECT_HOST = "${PROJECT_HOST}";
@@ -26,15 +16,15 @@ in {
         DEVENV_DB_USER = "app";# shopware
         DEVENV_DB_PASS = "app";# shopware
 
-        DEVENV_AMQP_USER = user;
+        DEVENV_AMQP_USER = builtins.getEnv "USER";
         DEVENV_AMQP_PASS = "guest";
 
         # Shopware env variables
-        APP_URL="http://127.0.0.1:${httpPort}";
+        APP_URL="http://127.0.0.1:${config.env.DEVENV_HTTP_PORT}";
         STOREFRONT_PROXY_URL = "http://${config.env.PROJECT_HOST}";
-        MAILER_DSN = lib.mkDefault "smtp://127.0.0.1:${mailhogSmtpPort}";
-        DATABASE_URL = lib.mkDefault "mysql://${config.env.DEVENV_DB_USER}:${config.env.DEVENV_DB_PASS}@127.0.0.1:${mysqlPort}/${config.env.DEVENV_DB_NAME}";
-        OPENSEARCH_URL="http://127.0.0.1:${elasticsearchPort}";
+        MAILER_DSN = lib.mkDefault "smtp://127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}";
+        DATABASE_URL = lib.mkDefault "mysql://${config.env.DEVENV_DB_USER}:${config.env.DEVENV_DB_PASS}@127.0.0.1:${config.env.DEVENV_DB_PORT}/${config.env.DEVENV_DB_NAME}";
+        OPENSEARCH_URL="http://127.0.0.1:${config.env.DEVENV_ELASTICSEARCH_PORT}";
     };
 
     # PACKAGES
@@ -49,7 +39,7 @@ in {
 
     # Shell welcome message
     enterShell = ''
-        [[ -z $ROOTER_INIT_SKIP ]] && ${rooterBin} nginx:init magento2
+        [[ -z $ROOTER_INIT_SKIP ]] && ${config.env.ROOTER_BIN} nginx:init shopware6
     '';
 
     # PHP
@@ -63,12 +53,12 @@ in {
               display_startup_errors = On
               error_reporting=E_ALL
               xdebug.mode = coverage,debug
-              sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${mailhogSmtpPort}
+              sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}
 
               realpath_cache_ttl = 3600
               session.gc_probability = 0
               session.save_handler = redis
-              session.save_path = "${redisSocket}/0"
+              session.save_path = "tcp://127.0.0.1:${config.env.DEVENV_REDIS_PORT}/0"
               display_errors = On
               error_reporting = E_ALL
               assert.active = 0
@@ -111,7 +101,7 @@ in {
         package = pkgs.mariadb_104;
         settings = {
             mysqld = {
-                port = "${mysqlPort}";
+                port = builtins.getEnv "DEVENV_DB_PORT"; # direct access to config.env is not working
                 log_bin_trust_function_creators = 1;
             };
         };
@@ -131,15 +121,15 @@ in {
     # Mailhog
     services.mailhog = {
         enable = true;
-        uiListenAddress   = "127.0.0.1:${mailhogUiPort}";
-        apiListenAddress  = "127.0.0.1:${mailhogUiPort}";
-        smtpListenAddress = "127.0.0.1:${mailhogSmtpPort}";
+        uiListenAddress   = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
+        apiListenAddress  = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
+        smtpListenAddress = "127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}";
     };
 
     # Redis
     services.redis = {
         enable = true;
-        port = redisPort;
+        port = lib.strings.toInt ( config.env.DEVENV_REDIS_PORT );
     };
 
     # Shopware 6 related scripts
