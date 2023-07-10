@@ -15,21 +15,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StartCommand extends Command
 {
-    private DevenvConfig $devenvConfig;
-    private ProcessManager $processManager;
+    public function __construct(
+        private readonly ProcessManager $processManager,
+        private readonly DevenvConfig $devenvConfig,
+        private readonly RegisterEnvCommand $registerEnvCommand
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('env:start');
         $this->setDescription('start environment process');
         $this->addOption('debug', '', InputOption::VALUE_NONE, 'activate debug mode');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->devenvConfig = new DevenvConfig();
-        $this->processManager = new ProcessManager();
     }
 
     /**
@@ -52,8 +50,7 @@ class StartCommand extends Command
 
         // Initialisation
         // Register Environment Config
-        $registerEnv = new RegisterEnvCommand();
-        $registerEnv->run(new ArrayInput([]), $output);
+        $this->registerEnvCommand->run(new ArrayInput([]), $output);
 
         // initialise nginx conf for environment
         // @todo atm all environments are using nginx. environments using something else are currently not supported

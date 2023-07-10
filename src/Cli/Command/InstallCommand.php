@@ -14,18 +14,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InstallCommand extends Command
 {
-    private RooterConfig $rooterConfig;
+    public function __construct(
+        private readonly RooterConfig $rooterConfig,
+        private readonly InitCommand $initCommand,
+        private readonly InitDnsmasqConfigCommand $initDnsmasq,
+        private readonly InitTraefikConfigCommand $initTraefik
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('install');
         $this->setDescription('Main installation of rooter');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->rooterConfig = new RooterConfig();
     }
 
     /**
@@ -52,18 +53,15 @@ class InstallCommand extends Command
 
         // Init executables
         $output->writeln('==> Initialising executables');
-        $init = new InitCommand();
-        $init->run(new ArrayInput([]), $output);
+        $this->initCommand->run(new ArrayInput([]), $output);
 
         // Init dnsmasq
         $output->writeln('==> Initialising dnsmasq');
-        $initDnsmasq = new InitDnsmasqConfigCommand();
-        $initDnsmasq->run(new ArrayInput([]), $output);
+        $this->initDnsmasq->run(new ArrayInput([]), $output);
 
         // Init traefik
         $output->writeln('==> Initialising traefik');
-        $initTraefik = new InitTraefikConfigCommand();
-        $initTraefik->run(new ArrayInput([]), $output);
+        $this->initTraefik->run(new ArrayInput([]), $output);
 
         // Generate ROOT CA and trust ROOT CA
         $this->generateCertificates($output);

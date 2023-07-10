@@ -10,12 +10,15 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class InitEnvCommand extends Command
 {
-    private RooterConfig $rooterConfig;
-    private EnvironmentsRenderer $environmentsRenderer;
+    public function __construct(
+        private readonly RooterConfig $rooterConfig,
+        private readonly EnvironmentsRenderer $environmentsRenderer
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
@@ -28,14 +31,7 @@ class InitEnvCommand extends Command
         $this->addOption(
             'name', '', InputOption::VALUE_REQUIRED, 'the name of the environment you are creating. Defaults to the current directory name'
         );
-        $this->addOption('force', 'f', InputOption::VALUE_NONE, 'force');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->rooterConfig = new RooterConfig();
-        $this->environmentsRenderer = new EnvironmentsRenderer($this->rooterConfig);
+        $this->addOption('force', 'f', InputOption::VALUE_NONE, 'force overwriting of env files');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -50,10 +46,11 @@ class InitEnvCommand extends Command
             return Command::FAILURE;
         }
 
+        // @todo make this more user-friendly: show files that would be overwritten, let the user decide with force
+
         // files to copy to project
         // @todo this is hardcoded and has to be the same for all projects, could be dynamically configured per environment template
         $files = [
-            ".env" => ".env",
             ".envrc" => ".envrc",
             "devenv.nix" => "devenv.nix",
             "devenv.yaml" => "devenv.yaml",

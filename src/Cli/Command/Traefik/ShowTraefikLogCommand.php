@@ -12,7 +12,10 @@ use Symfony\Component\Process\Process;
 
 class ShowTraefikLogCommand extends Command
 {
-    private TraefikConfig $traefikConfig;
+    public function __construct(private readonly TraefikConfig $traefikConfig)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
@@ -21,11 +24,6 @@ class ShowTraefikLogCommand extends Command
         $this->addOption('follow', 'f', InputOption::VALUE_NONE, 'follow the log output');
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->traefikConfig = new TraefikConfig();
-    }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $traefikLog = $this->traefikConfig->getTraefikLog();

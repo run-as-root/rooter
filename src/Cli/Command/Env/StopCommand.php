@@ -13,20 +13,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StopCommand extends Command
 {
-    private DevenvConfig $devenvConfig;
-    private ProcessManager $processManager;
+    public function __construct(
+        private readonly DevenvConfig $devenvConfig,
+        private readonly ProcessManager $processManager
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('env:stop');
         $this->setDescription('Stop environment');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->devenvConfig = new DevenvConfig();
-        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Repository;
 
 use RunAsRoot\Rooter\Config\RooterConfig;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
+#[Autoconfigure(lazy: true)]
 class EnvironmentRepository
 {
-    private RooterConfig $rooterConfig;
-
-    public function __construct()
+    public function __construct(private readonly RooterConfig $rooterConfig)
     {
-        $this->rooterConfig = new RooterConfig();
     }
 
     /**

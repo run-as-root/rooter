@@ -3,7 +3,9 @@
 namespace RunAsRoot\Rooter\Manager;
 
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
+#[Autoconfigure(lazy: true)]
 class PortManager
 {
     private ?array $reservedPorts = null;

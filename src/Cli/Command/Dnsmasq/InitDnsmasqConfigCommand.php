@@ -10,18 +10,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InitDnsmasqConfigCommand extends Command
 {
-    private DnsmasqConfig $dnsmasqConfig;
+    public function __construct(private readonly DnsmasqConfig $dnsmasqConfig)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('dnsmasq:config:init');
         $this->setDescription('Initialise rooter dnsmasq configuration for user in $HOME');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->dnsmasqConfig = new DnsmasqConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

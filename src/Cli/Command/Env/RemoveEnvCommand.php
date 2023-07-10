@@ -3,29 +3,24 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
-use RunAsRoot\Rooter\Cli\Command\Traefik\RegisterTraefikConfigCommand;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RemoveEnvCommand extends Command
 {
-    private EnvironmentRepository $environmentRepository;
+    public function __construct(private readonly EnvironmentRepository $environmentRepository)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('env:remove');
         $this->setDescription('Remove a registered environment');
         $this->addArgument('name', InputArgument::OPTIONAL, 'the name of the environment');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->environmentRepository = new EnvironmentRepository();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

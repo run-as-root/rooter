@@ -12,19 +12,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ShowEnvCommand extends Command
 {
-    private RooterConfig $rooterConfig;
+    public function __construct(private readonly RooterConfig $rooterConfig)
+    {
+        parent::__construct();
+    }
 
     protected function configure()
     {
         $this->setName('env:show');
         $this->setDescription('Show env settings');
         $this->addArgument('name', InputArgument::REQUIRED, 'The name of the env');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->rooterConfig = new RooterConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

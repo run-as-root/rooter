@@ -12,7 +12,10 @@ use Symfony\Component\Process\Process;
 
 class ShowLogsCommand extends Command
 {
-    private DevenvConfig $devenvConfig;
+    public function __construct(private readonly DevenvConfig $devenvConfig)
+    {
+        parent::__construct();
+    }
 
     protected function configure()
     {
@@ -20,12 +23,6 @@ class ShowLogsCommand extends Command
         $this->setDescription('Show env logs');
         $this->addOption('lines', 'l', InputOption::VALUE_OPTIONAL, 'Number of lines to display');
         $this->addOption('follow', 'f', InputOption::VALUE_NONE, 'follow logs continuously');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->devenvConfig = new DevenvConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

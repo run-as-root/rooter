@@ -13,22 +13,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StartCommand extends Command
 {
-    private TraefikConfig $traefikConfig;
-    private ProcessManager $processManager;
-    private DnsmasqConfig $dnsmasqConfig;
+    public function __construct(
+        private readonly TraefikConfig $traefikConfig,
+        private readonly ProcessManager $processManager,
+        private readonly DnsmasqConfig $dnsmasqConfig
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('start');
         $this->setDescription('start rooter processes');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->traefikConfig = new TraefikConfig();
-        $this->dnsmasqConfig = new DnsmasqConfig();
-        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

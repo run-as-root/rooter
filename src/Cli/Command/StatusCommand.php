@@ -16,22 +16,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StatusCommand extends Command
 {
-    private DnsmasqConfig $dnsmasqConfig;
-    private TraefikConfig $traefikConfig;
-    private ProcessManager $processManager;
+    public function __construct(
+        private readonly ListEnvCommand $listEnvCommand,
+        private readonly ProcessManager $processManager,
+        private readonly DnsmasqConfig $dnsmasqConfig,
+        private readonly TraefikConfig $traefikConfig
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('status');
         $this->setDescription('show status of rooter');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->traefikConfig = new TraefikConfig();
-        $this->dnsmasqConfig = new DnsmasqConfig();
-        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -54,8 +51,7 @@ class StatusCommand extends Command
         ]);
         $table->render();
 
-        $listEnvCommand = new ListEnvCommand();
-        $listEnvCommand->run(new ArrayInput([]), $output);
+        $this->listEnvCommand->run(new ArrayInput([]), $output);
 
         return 0;
     }
