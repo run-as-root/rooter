@@ -2,12 +2,15 @@
 
 namespace RunAsRoot\Rooter\Manager;
 
+use RunAsRoot\Rooter\Repository\EnvironmentRepository;
+
 class PortManager
 {
     private ?array $reservedPorts = null;
+    private ?array $environmentPorts = null;
     private int $portOffset = 1024; // Offset to get a port number in the desired range
-    private int $portRange = 65535; // Range of port numbers
 
+    private int $portRange = 65535; // Range of port numbers
     private array $ranges = [
         'default' => [1024, 65535],
         'HTTP' => [8001, 8400],
@@ -41,7 +44,10 @@ class PortManager
             return false;
         }
 
-        // @todo check ports from known environments
+        // check ports from known environments
+        if (in_array($port, $this->getEnvironmentPorts(), true)) {
+            return false;
+        }
 
         $socket = @fsockopen('localhost', $port);
         if ($socket) {
@@ -74,6 +80,32 @@ class PortManager
             }
         }
         return $reservedPorts;
+    }
+
+    private function getEnvironmentPorts(): array
+    {
+        $this->environmentPorts = $this->environmentPorts ?? $this->initEnvironmentPorts();
+        return $this->environmentPorts;
+    }
+
+    /** Read the list of environments ports */
+    private function initEnvironmentPorts(): array
+    {
+        $ports = [];
+
+        $environmentRepository = new EnvironmentRepository();
+        $environments = $environmentRepository->getList();
+
+        foreach ($environments as $environment) {
+            foreach ($environment as $key => $value) {
+                if (!str_contains($key, 'Port')) {
+                    continue;
+                }
+                $ports[] = $value;
+            }
+        }
+
+        return $ports;
     }
 
     private function getPortRangeByKey(string $key): array
