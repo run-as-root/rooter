@@ -1,6 +1,7 @@
 { pkgs, inputs, lib, config, ... }:
 
 let
+    rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
     dotenv.enable = true;
     env = {
@@ -39,7 +40,7 @@ in {
 
     # Shell welcome message
     enterShell = ''
-        [[ -z $ROOTER_INIT_SKIP ]] && ${config.env.ROOTER_BIN} nginx:init shopware6
+        [[ -z $ROOTER_INIT_SKIP ]] && ${rooterBin} nginx:init shopware6
     '';
 
     # PHP
@@ -59,8 +60,6 @@ in {
               session.gc_probability = 0
               session.save_handler = redis
               session.save_path = "tcp://127.0.0.1:${config.env.DEVENV_REDIS_PORT}/0"
-              display_errors = On
-              error_reporting = E_ALL
               assert.active = 0
               opcache.memory_consumption = 256M
               opcache.interned_strings_buffer = 20
@@ -93,7 +92,6 @@ in {
         enable = true;
         configFile = "${config.env.DEVENV_STATE_NGINX}/nginx.conf";
     };
-
 
     # DATABASE
     services.mysql = {

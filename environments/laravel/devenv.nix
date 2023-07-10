@@ -1,11 +1,6 @@
 { pkgs, inputs, lib, config, ... }:
 
 let
-    user = builtins.getEnv "USER";
-    # variables from .env are not available in config.env atm
-    mailhogSmtpPort = builtins.getEnv "DEVENV_MAILHOG_SMTP_PORT";
-    mailhogUiPort = builtins.getEnv "DEVENV_MAILHOG_UI_PORT";
-    mysqlPort = builtins.getEnv "DEVENV_DB_PORT";
     rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
     env = {
@@ -28,7 +23,6 @@ in {
         pkgs.gnupatch
         pkgs.curl
         pkgs.yarn
-        pkgs.nginx
     ];
 
     # Shell welcome message
@@ -47,9 +41,17 @@ in {
               display_startup_errors = On
               error_reporting=E_ALL
               xdebug.mode = coverage,debug
-              sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${mailhogSmtpPort}
+              sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}
             '';
         };
+        fpm.phpOptions =''
+              memory_limit = -1
+              error_reporting=E_ALL
+              xdebug.mode = coverage,debug
+              sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}
+              display_errors = On
+              display_startup_errors = On
+        '';
         fpm.pools.web = {
             listen = "${config.env.DEVENV_PHPFPM_SOCKET}";
             settings = {
@@ -81,7 +83,7 @@ in {
         package = pkgs.mariadb_104;
         settings = {
             mysqld = {
-                "port" = "${mysqlPort}";
+                "port" = builtins.getEnv "DEVENV_DB_PORT";
                 "innodb_buffer_pool_size" = "2G";
                 "table_open_cache" = "2048";
                 "sort_buffer_size" = "8M";
@@ -103,7 +105,7 @@ in {
     # Mailhog
     services.mailhog = {
         enable = true;
-        uiListenAddress = "127.0.0.1:${mailhogUiPort}";
-        smtpListenAddress = "127.0.0.1:${mailhogSmtpPort}";
+        uiListenAddress = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
+        smtpListenAddress = "127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}";
     };
 }

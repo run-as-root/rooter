@@ -1,17 +1,9 @@
 { pkgs, inputs, lib, config, ... }:
 
 let
-    user = builtins.getEnv "USER";
-    # variables from .env are not available in config.env atm
-    mailhogSmtpPort = builtins.getEnv "DEVENV_MAILHOG_SMTP_PORT";
-    mailhogUiPort = builtins.getEnv "DEVENV_MAILHOG_UI_PORT";
-    mysqlPort = builtins.getEnv "DEVENV_DB_PORT";
-    redisPort = lib.strings.toInt ( builtins.getEnv "DEVENV_REDIS_PORT" );
-    amqpPort = lib.strings.toInt ( builtins.getEnv "DEVENV_AMQP_PORT" );
-    amqpManagementPort = lib.strings.toInt ( builtins.getEnv "DEVENV_AMQP_MANAGEMENT_PORT" );
-    elasticsearchPort = lib.strings.toInt ( builtins.getEnv "DEVENV_ELASTICSEARCH_PORT" );
     rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
+    dotenv.enable = true;
     env = {
         PROJECT_NAME = "${PROJECT_NAME}";
         PROJECT_HOST = "${PROJECT_HOST}";
@@ -25,7 +17,7 @@ in {
         DEVENV_DB_USER = "app";
         DEVENV_DB_PASS = "app";
 
-        DEVENV_AMQP_USER = lib.mkDefault user;
+        DEVENV_AMQP_USER = builtins.getEnv "USER";
         DEVENV_AMQP_PASS = "guest";
     };
 
@@ -36,7 +28,6 @@ in {
         pkgs.curl
         pkgs.yarn
         pkgs.gettext
-        pkgs.n98-magerun2
     ];
 
     # Shell welcome message
@@ -50,21 +41,21 @@ in {
         package = inputs.phps.packages.${builtins.currentSystem}.php81.buildEnv {
             extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
             extraConfig = ''
-              memory_limit = -1
-              display_errors = On
-              display_startup_errors = On
-              error_reporting=E_ALL
-              xdebug.mode = coverage,debug
-              sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${mailhogSmtpPort}
+                memory_limit = -1
+                error_reporting=E_ALL
+                xdebug.mode = coverage,debug
+                sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}
+                display_errors = On
+                display_startup_errors = On
             '';
         };
         fpm.phpOptions =''
-              memory_limit = -1
-              error_reporting=E_ALL
-              xdebug.mode = coverage,debug
-              sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${mailhogSmtpPort}
-              display_errors = On
-              display_startup_errors = On
+            memory_limit = -1
+            error_reporting=E_ALL
+            xdebug.mode = coverage,debug
+            sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}
+            display_errors = On
+            display_startup_errors = On
         '';
         fpm.pools.web = {
             listen = "${config.env.DEVENV_PHPFPM_SOCKET}";
@@ -97,7 +88,7 @@ in {
         package = pkgs.mariadb_104;
         settings = {
             mysqld = {
-                port = "${mysqlPort}";
+                port = builtins.getEnv "DEVENV_DB_PORT"; # direct access to config.env is not working
                 innodb_buffer_pool_size = "2G";
                 table_open_cache = "2048";
                 sort_buffer_size = "8M";
@@ -119,30 +110,30 @@ in {
     # Mailhog
     services.mailhog = {
         enable = true;
-        uiListenAddress   = "127.0.0.1:${mailhogUiPort}";
-        apiListenAddress  = "127.0.0.1:${mailhogUiPort}";
-        smtpListenAddress = "127.0.0.1:${mailhogSmtpPort}";
+        uiListenAddress   = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
+        apiListenAddress  = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
+        smtpListenAddress = "127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}";
     };
 
     # Redis
     services.redis = {
         enable = true;
-        port = redisPort;
+        port = lib.strings.toInt ( config.env.DEVENV_REDIS_PORT );
     };
 
     # ElasticSearch
     services.elasticsearch = {
         enable = true;
-        port = elasticsearchPort;
+        port = lib.strings.toInt ( builtins.getEnv "DEVENV_ELASTICSEARCH_PORT" );
     };
 
     # RabbitMQ
     services.rabbitmq = {
         enable = true;
-        port = amqpPort;
+        port = lib.strings.toInt ( builtins.getEnv "DEVENV_AMQP_PORT" );
         managementPlugin = {
             enable = true;
-            port = amqpManagementPort;
+            port = lib.strings.toInt ( builtins.getEnv "DEVENV_AMQP_MANAGEMENT_PORT" );
         };
     };
 }
