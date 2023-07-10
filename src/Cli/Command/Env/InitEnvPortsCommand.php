@@ -27,11 +27,6 @@ class InitEnvPortsCommand extends Command
         $this->addOption('print', 'p', InputOption::VALUE_NONE, 'print the added env variables');
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $projectName = getenv('PROJECT_NAME');

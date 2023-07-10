@@ -35,11 +35,6 @@ class StopCommand extends Command
         $this->addOption('all', '', InputOption::VALUE_NONE, 'Stop all environments');
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-    }
-
     /**
      * @throws ExceptionInterface
      * @throws \JsonException

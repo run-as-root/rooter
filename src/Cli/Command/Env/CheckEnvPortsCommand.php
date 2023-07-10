@@ -27,11 +27,6 @@ class CheckEnvPortsCommand extends Command
         $this->addArgument('name', InputArgument::OPTIONAL, 'the name of the environment');
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $projectName = $input->getArgument('name') ?? getenv('PROJECT_NAME');

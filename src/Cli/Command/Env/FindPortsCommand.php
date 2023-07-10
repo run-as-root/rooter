@@ -23,11 +23,6 @@ class FindPortsCommand extends Command
         $this->addOption('count', 'c', InputOption::VALUE_REQUIRED, 'the number of ports you want');
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Scanning for free ports …');
