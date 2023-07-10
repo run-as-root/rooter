@@ -3,6 +3,8 @@
 let
     rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
 in {
+    dotenv.enable = true;
+
     env = {
         PROJECT_NAME = "${PROJECT_NAME}";
         PROJECT_HOST = "${PROJECT_HOST}";
