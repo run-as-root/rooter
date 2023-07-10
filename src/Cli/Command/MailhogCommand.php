@@ -17,7 +17,12 @@ class MailhogCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $projectName = $_ENV['PROJECT_NAME']; # @todo check if set
+        $projectName = getenv('PROJECT_NAME');
+
+        if (empty($projectName)) {
+            $output->writeln("<error>PROJECT_NAME is not set. This command should be executed in a project context.</error>");
+            return Command::FAILURE;
+        }
 
         shell_exec("open 'http://$projectName-mailhog.rooter.test'");
 

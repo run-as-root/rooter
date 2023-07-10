@@ -20,6 +20,7 @@ class CommandList
             new \RunAsRoot\Rooter\Cli\Command\Env\StopCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\StatusCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\ShowLogsCommand(),
+            new \RunAsRoot\Rooter\Cli\Command\Env\OpenEnvCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\FindPortsCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\CheckEnvPortsCommand(),
             new \RunAsRoot\Rooter\Cli\Command\Env\InitEnvPortsCommand(),
