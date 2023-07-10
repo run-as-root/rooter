@@ -4,19 +4,25 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Manager\PortManager;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'env:ports:init',
+    description: 'find free port for each service and write them to .env',
+)]
 class InitEnvPortsCommand extends Command
 {
-    private PortManager $portManager;
+    public function __construct(private readonly PortManager $portManager)
+    {
+        parent::__construct();
+    }
 
     protected function configure()
     {
-        $this->setName('env:ports:init');
-        $this->setDescription('find free port for each service and write them to .env');
         $this->addOption('overwrite', 'o', InputOption::VALUE_NONE, 'overwrite contents in .env');
         $this->addOption('print', 'p', InputOption::VALUE_NONE, 'print the added env variables');
     }
@@ -24,7 +30,6 @@ class InitEnvPortsCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
-        $this->portManager = new PortManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

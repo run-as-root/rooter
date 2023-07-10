@@ -3,8 +3,9 @@
 
 namespace RunAsRoot\Rooter;
 
-use RunAsRoot\Rooter\Cli\CommandList;
-use Symfony\Component\Console\Application;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 $autoloadDirs = [
     __DIR__ . '/../../autoload.php',
@@ -40,8 +41,11 @@ if (!\defined('ROOTER_COMPOSER_INSTALL')) {
 
 require ROOTER_COMPOSER_INSTALL;
 
-$commands = new CommandList();
+$container = new ContainerBuilder();
+$loader = new YamlFileLoader($container, new FileLocator(__DIR__));
+$loader->load('etc/services.yaml');
 
-$application = new Application();
-$application->addCommands($commands->getCommands());
+$container->compile();
+
+$application = $container->get(CliApplication::class);
 $application->run();

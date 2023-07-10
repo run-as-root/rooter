@@ -11,7 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class FindPortsCommand extends Command
 {
-    private PortManager $portManager;
+    public function __construct(private readonly PortManager $portManager)
+    {
+        parent::__construct();
+    }
 
     protected function configure()
     {
@@ -23,7 +26,6 @@ class FindPortsCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
-        $this->portManager = new PortManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

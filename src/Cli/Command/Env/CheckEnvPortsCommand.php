@@ -13,8 +13,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckEnvPortsCommand extends Command
 {
-    private PortManager $portManager;
-    private EnvironmentRepository $envRepository;
+    public function __construct(
+        private readonly PortManager $portManager,
+        private readonly EnvironmentRepository $envRepository
+    ) {
+        parent::__construct();
+    }
 
     protected function configure()
     {
@@ -26,8 +30,6 @@ class CheckEnvPortsCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
-        $this->portManager = new PortManager();
-        $this->envRepository = new EnvironmentRepository();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
