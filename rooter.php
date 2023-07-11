@@ -1,51 +1,10 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
 
 namespace RunAsRoot\Rooter;
 
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+require_once __DIR__ . '/src/RooterBootstrap.php';
 
-$autoloadDirs = [
-    __DIR__ . '/../../autoload.php',
-    __DIR__ . '/../vendor/autoload.php',
-    __DIR__ . '/vendor/autoload.php',
-];
-foreach ($autoloadDirs as $file) {
-    if (file_exists($file)) {
-        \define('ROOTER_COMPOSER_INSTALL', $file);
-        break;
-    }
-}
-
-unset($file, $autoloadDirs);
-
-if (!\defined('ROOTER_COMPOSER_INSTALL')) {
-    fwrite(
-        STDERR,
-        'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
-        '    composer install' . PHP_EOL . PHP_EOL .
-        'After that for a first time installation run.' . PHP_EOL . PHP_EOL .
-        '    rooter install' . PHP_EOL . PHP_EOL
-    );
-
-    die(1);
-}
-
-\define('ROOTER_DIR', __DIR__);
-\define('ROOTER_HOME_DIR', getenv("HOME") . "/.rooter");
-\define('ROOTER_SSL_DIR', ROOTER_HOME_DIR . "/ssl");
-\define('ROOTER_PROJECT_ROOT', (string)getcwd());
-\define('ROOTER_PROJECT_DIR', ROOTER_PROJECT_ROOT . "/.rooter");
-
-require ROOTER_COMPOSER_INSTALL;
-
-$container = new ContainerBuilder();
-$loader = new YamlFileLoader($container, new FileLocator(__DIR__));
-$loader->load('etc/services.yaml');
-
-$container->compile();
-
-$application = $container->get(CliApplication::class);
+$application = RooterBootstrap::createApplication();
 $application->run();
