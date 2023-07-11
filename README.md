@@ -5,7 +5,7 @@ rooter is a local environment manager that helps orchestrating local developer e
 It brings a traefik instance that manages routing to the projects.  
 Alongside that is has a lot of commands to solve day-to-day repetitive tasks.  
 
-## Installation
+## Prerequisites
 
 This guide assumes you have successfully installed:
 - nix package manager https://nixos.org/download.html#nix-install-macos
@@ -15,6 +15,8 @@ This guide assumes you have successfully installed:
   - make sure to hook it into your shell: https://direnv.net/docs/hook.html
 
 What exactly is being installed on macOS is documented here: https://nixos.org/manual/nix/stable/installation/installing-binary.html#macos-installation.
+
+## Installation
 
 Clone the rooter repository to your local and change directory to rooter
 ```bash
