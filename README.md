@@ -147,3 +147,20 @@ Or Globally in .zshrc or .bashrc
 ```
 export TABLEPLUS_BIN=/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus
 ```
+
+## Known issues
+
+see [KNOWN_ISSUES.md](KNOWN_ISSUES.md)
+
+## Templates
+
+see [TEMPLATES.md](TEMPLATES.md)
+
+## Development
+
+For local development of rooter you can use the default installation.  
+PHP Debugging can be enabled by replacing this line in ``shell.nix``:
+
+```
+use nix -o shell.dev.nix
+```

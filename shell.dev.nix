@@ -3,9 +3,10 @@
 }:
 let
     php_custom = pkgs.php82.buildEnv {
-      extensions = { all, enabled }: with all; enabled ++ [ xsl ];
+      extensions = { all, enabled }: with all; enabled ++ [ xdebug xsl ];
       extraConfig = ''
         memory_limit=-1
+        xdebug.mode=debug
       '';
     };
 
