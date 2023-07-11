@@ -21,12 +21,12 @@ class ShowEnvCommand extends Command
     {
         $this->setName('env:show');
         $this->setDescription('Show env settings');
-        $this->addArgument('name', InputArgument::REQUIRED, 'The name of the env');
+        $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the env');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $filename = $input->getArgument('name');
+        $filename = $input->getArgument('name') ?? getenv('PROJECT_NAME');
         $envFile = "{$this->rooterConfig->getEnvironmentDir()}/$filename.json";
 
         if (!file_exists($envFile)) {
