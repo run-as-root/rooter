@@ -1,29 +1,25 @@
 <?php
 declare(strict_types=1);
 
-namespace RunAsRoot\Rooter\Cli\Command\Env;
+namespace RunAsRoot\Rooter\Cli\Command\Traefik;
 
-use RunAsRoot\Rooter\Cli\Command\Traefik\RemoveTraefikConfigCommand;
-use RunAsRoot\Rooter\Repository\EnvironmentRepository;
+use RunAsRoot\Rooter\Config\TraefikConfig;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class RemoveEnvCommand extends Command
+class RemoveTraefikConfigCommand extends Command
 {
-    public function __construct(
-        private readonly EnvironmentRepository $environmentRepository,
-        private readonly RemoveTraefikConfigCommand $removeTraefikConfigCommand
-    ) {
+    public function __construct(private readonly TraefikConfig $traefikConfig)
+    {
         parent::__construct();
     }
 
     public function configure()
     {
-        $this->setName('env:remove');
-        $this->setDescription('Remove a registered environment');
+        $this->setName('traefik:config:remove');
+        $this->setDescription('Remove a project specific traefik config');
         $this->addArgument('name', InputArgument::OPTIONAL, 'the name of the environment');
     }
 
@@ -37,17 +33,15 @@ class RemoveEnvCommand extends Command
             return Command::FAILURE;
         }
 
-        try {
-            $this->removeTraefikConfigCommand->run(new ArrayInput([]), $output);
+        $targetFile = $this->traefikConfig->getEndpointConfPath($projectName);
 
-            $this->environmentRepository->delete($projectName);
-        } catch (\Exception $e) {
-            $output->writeln("<error>Failed to remove environment: {$e->getMessage()}</error>");
+        if (!is_file($targetFile)) {
             return Command::FAILURE;
         }
-        $output->writeln('<info>environment removed successfully.</info>');
+        unlink($targetFile);
+
+        $output->writeln("traefik configuration removed for $projectName");
 
         return Command::SUCCESS;
     }
-
 }
