@@ -11,19 +11,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class FindPortsCommand extends Command
 {
-    private PortManager $portManager;
+    public function __construct(private readonly PortManager $portManager)
+    {
+        parent::__construct();
+    }
 
     protected function configure()
     {
         $this->setName('env:ports:find');
         $this->setDescription('find available ports for environment');
         $this->addOption('count', 'c', InputOption::VALUE_REQUIRED, 'the number of ports you want');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->portManager = new PortManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

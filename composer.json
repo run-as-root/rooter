@@ -9,10 +9,13 @@
         }
     ],
     "require": {
+        "ext-posix": "*",
+        "symfony/config": "^6.3",
         "symfony/console": "^6.3",
+        "symfony/dependency-injection": "^6.3",
         "symfony/process": "^6.3",
-        "vlucas/phpdotenv": "^5.5",
-        "ext-posix": "*"
+        "symfony/yaml": "^6.3",
+        "vlucas/phpdotenv": "^5.5"
     },
     "bin": [
         "rooter"

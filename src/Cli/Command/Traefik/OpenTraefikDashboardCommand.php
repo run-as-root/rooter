@@ -11,20 +11,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class OpenTraefikDashboardCommand extends Command
 {
-    private TraefikConfig $traefikConfig;
-    private ProcessManager $processManager;
+    public function __construct(
+        private readonly ProcessManager $processManager,
+        private readonly TraefikConfig $traefikConfig
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('traefik:dashboard');
         $this->setDescription('Open Traefik Dashboard');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->traefikConfig = new TraefikConfig();
-        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

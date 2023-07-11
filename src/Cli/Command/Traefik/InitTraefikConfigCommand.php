@@ -10,7 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InitTraefikConfigCommand extends Command
 {
-    private TraefikConfig $traefikConfig;
+    public function __construct(private readonly TraefikConfig $traefikConfig)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
@@ -18,11 +21,6 @@ class InitTraefikConfigCommand extends Command
         $this->setDescription('Initialise rooter traefik configuration for user in $HOME');
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->traefikConfig = new TraefikConfig();
-    }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->ensureDir($this->traefikConfig->getTraefikHomeDir());

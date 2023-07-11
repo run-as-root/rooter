@@ -18,27 +18,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StopCommand extends Command
 {
-    private EnvironmentRepository $envRepository;
-    private DevenvConfig $devenvConfig;
-    private ProcessManager $processManager;
-    private DnsmasqConfig $dnsmasqConfig;
-    private TraefikConfig $traefikConfig;
+    public function __construct(
+        private readonly ProcessManager $processManager,
+        private readonly EnvironmentRepository $envRepository,
+        private readonly DevenvConfig $devenvConfig,
+        private readonly DnsmasqConfig $dnsmasqConfig,
+        private readonly TraefikConfig $traefikConfig
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('stop');
         $this->setDescription('stop rooter processes');
         $this->addOption('all', '', InputOption::VALUE_NONE, 'Stop all environments');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->devenvConfig = new DevenvConfig();
-        $this->dnsmasqConfig = new DnsmasqConfig();
-        $this->traefikConfig = new TraefikConfig();
-        $this->envRepository = new EnvironmentRepository();
-        $this->processManager = new ProcessManager();
     }
 
     /**

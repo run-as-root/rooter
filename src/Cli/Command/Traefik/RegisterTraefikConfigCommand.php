@@ -10,18 +10,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RegisterTraefikConfigCommand extends Command
 {
-    private TraefikConfig $traefikConfig;
+    public function __construct(private readonly TraefikConfig $traefikConfig)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('traefik:config:register');
         $this->setDescription('Register a project specific traefik config');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->traefikConfig = new TraefikConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

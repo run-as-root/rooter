@@ -15,23 +15,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ListEnvCommand extends Command
 {
-    private DevenvConfig $devenvConfig;
-    private EnvironmentRepository $envRepository;
-    private ProcessManager $processManager;
+    public function __construct(
+        private readonly DevenvConfig $devenvConfig,
+        private readonly EnvironmentRepository $envRepository,
+        private readonly ProcessManager $processManager
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('env:list');
         $this->setDescription('list all projects');
         $this->addOption('ports', '', InputOption::VALUE_NONE, 'show all ports');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->devenvConfig = new DevenvConfig();
-        $this->envRepository = new EnvironmentRepository();
-        $this->processManager = new ProcessManager();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

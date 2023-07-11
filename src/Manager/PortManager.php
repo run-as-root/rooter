@@ -3,13 +3,15 @@
 namespace RunAsRoot\Rooter\Manager;
 
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
+#[Autoconfigure(lazy: true)]
 class PortManager
 {
     private ?array $reservedPorts = null;
     private ?array $environmentPorts = null;
-    private int $portOffset = 1024; // Offset to get a port number in the desired range
 
+    private int $portOffset = 1024; // Offset to get a port number in the desired range
     private int $portRange = 65535; // Range of port numbers
     private array $ranges = [
         'default' => [1024, 65535],
@@ -23,6 +25,10 @@ class PortManager
         'AMQP_MANAGEMENT' => [15672, 19672],
         'ELASTICSEARCH' => [9200, 9600],
     ];
+
+    public function __construct(private readonly EnvironmentRepository $environmentRepository)
+    {
+    }
 
     /** @throws \Exception */
     public function findFreePort(string $type = 'default'): int
@@ -93,8 +99,7 @@ class PortManager
     {
         $ports = [];
 
-        $environmentRepository = new EnvironmentRepository();
-        $environments = $environmentRepository->getList();
+        $environments = $this->environmentRepository->getList();
 
         foreach ($environments as $environment) {
             foreach ($environment as $key => $value) {

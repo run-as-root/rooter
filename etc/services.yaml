@@ -1,0 +1,22 @@
+parameters:
+  version: '1.0.0'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    bind:
+      string $version: '%version%'
+
+  _instanceof:
+    Symfony\Component\Console\Command\Command:
+      tags: ['command']
+
+  RunAsRoot\Rooter\:
+    resource: '../src/'
+
+  RunAsRoot\Rooter\CliApplication:
+    public: true
+    arguments:
+      - !tagged command
+

@@ -12,18 +12,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RegisterEnvCommand extends Command
 {
-    private EnvironmentRepository $environmentRepository;
+    public function __construct(
+        private readonly EnvironmentRepository $environmentRepository,
+        private readonly RegisterTraefikConfigCommand $registerTraefik
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('env:register');
         $this->setDescription('Register a project');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->environmentRepository = new EnvironmentRepository();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -45,8 +44,7 @@ class RegisterEnvCommand extends Command
         $output->writeln('<info>environment registered successfully.</info>');
 
         // Register Traefik Config
-        $registerTraefik = new RegisterTraefikConfigCommand();
-        $registerTraefik->run(new ArrayInput([]), $output);
+        $this->registerTraefik->run(new ArrayInput([]), $output);
 
         return Command::SUCCESS;
     }

@@ -12,7 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MysqlImportCommand extends Command
 {
-    private RooterConfig $rooterConfig;
+    public function __construct(private readonly RooterConfig $rooterConfig)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
@@ -24,11 +27,6 @@ class MysqlImportCommand extends Command
         $this->addUsage('dump-1686574009.sql --drop');
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->rooterConfig = new RooterConfig();
-    }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $PV_BIN = "{$this->rooterConfig->getBinDir()}/pv";

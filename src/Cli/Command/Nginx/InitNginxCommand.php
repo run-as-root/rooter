@@ -12,21 +12,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InitNginxCommand extends Command
 {
-    private RooterConfig $rooterConfig;
-    private EnvironmentsRenderer $environmentsRenderer;
+    public function __construct(
+        private readonly RooterConfig $rooterConfig,
+        private readonly EnvironmentsRenderer $environmentsRenderer
+    ) {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('nginx:init');
         $this->setDescription('Initialise nginx config for a provided environment type');
         $this->addArgument('type', InputArgument::REQUIRED, 'The system you want to initialise');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->rooterConfig = new RooterConfig();
-        $this->environmentsRenderer = new EnvironmentsRenderer($this->rooterConfig);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

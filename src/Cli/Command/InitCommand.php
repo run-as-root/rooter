@@ -10,18 +10,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InitCommand extends Command
 {
-    private RooterConfig $rooterConfig;
+    public function __construct(private readonly RooterConfig $rooterConfig)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('init');
         $this->setDescription('initialise rooter executables');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-        $this->rooterConfig = new RooterConfig();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
