@@ -25,6 +25,8 @@ class InitEnvCommand extends Command
         $this->setName('env:init');
         $this->setDescription('Initialise environment for current directory');
         $this->addArgument('type', InputArgument::REQUIRED, 'The system you want to initialise');
+        $this->addUsage('laravel');
+        $this->addUsage('magento1');
         $this->addUsage('magento2');
         $this->addUsage('magento2 --name=my-project-name');
         $this->addUsage('shopware6');
