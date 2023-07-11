@@ -43,6 +43,13 @@ in {
         [[ -z $ROOTER_INIT_SKIP ]] && ${rooterBin} nginx:init shopware6
     '';
 
+    process.implementation="process-compose";
+    process.process-compose={
+        "port" = "9999";
+        "tui" = "false";
+        "version" = "0.5";
+    };
+
     # PHP
     languages.php = {
         enable = true;
