@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Cli\Command\StartCommand as StartRooterCommand;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
@@ -18,6 +19,7 @@ class StartCommand extends Command
     public function __construct(
         private readonly ProcessManager $processManager,
         private readonly DevenvConfig $devenvConfig,
+        private readonly StartRooterCommand $startRooterCommand,
         private readonly RegisterEnvCommand $registerEnvCommand
     ) {
         parent::__construct();
@@ -51,6 +53,9 @@ class StartCommand extends Command
         // Initialisation
         // Register Environment Config
         $this->registerEnvCommand->run(new ArrayInput([]), $output);
+
+        // Start rooter
+        $this->startRooterCommand->run(new ArrayInput([]), $output);
 
         // initialise nginx conf for environment
         // @todo atm all environments are using nginx. environments using something else are currently not supported
