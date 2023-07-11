@@ -7,9 +7,9 @@ use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 #[Autoconfigure(lazy: true)]
-class EnvironmentRepository
+readonly class EnvironmentRepository
 {
-    public function __construct(private readonly RooterConfig $rooterConfig)
+    public function __construct(private RooterConfig $rooterConfig)
     {
     }
 
