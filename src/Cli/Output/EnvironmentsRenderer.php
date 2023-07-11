@@ -16,15 +16,7 @@ class EnvironmentsRenderer
 
     public function render(InputInterface $input, OutputInterface $output): void
     {
-        $availableEnvTmpls = scandir($this->rooterConfig->getEnvironmentTemplatesDir());
-
-        $types = [];
-        foreach ($availableEnvTmpls as $name) {
-            if ($name === '.' || $name === '..') {
-                continue;
-            }
-            $types[] = $name;
-        }
+        $types = $this->rooterConfig->getEnvironmentTypes();
 
         $output->writeln("Available environments:");
         $io = new SymfonyStyle($input, $output);

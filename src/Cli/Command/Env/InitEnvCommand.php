@@ -10,6 +10,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class InitEnvCommand extends Command
 {
@@ -24,31 +26,40 @@ class InitEnvCommand extends Command
     {
         $this->setName('env:init');
         $this->setDescription('Initialise environment for current directory');
-        $this->addArgument('type', InputArgument::REQUIRED, 'The system you want to initialise');
-        $this->addUsage('laravel');
-        $this->addUsage('magento1');
-        $this->addUsage('magento2');
-        $this->addUsage('magento2 --name=my-project-name');
-        $this->addUsage('shopware6');
+        $this->addArgument('type', InputArgument::OPTIONAL, 'The system you want to initialise');
         $this->addOption(
             'name', '', InputOption::VALUE_REQUIRED, 'the name of the environment you are creating. Defaults to the current directory name'
         );
         $this->addOption('force', 'f', InputOption::VALUE_NONE, 'force overwriting of env files');
+
+        $this->addUsage('magento2');
+        $this->addUsage('magento2 --name=my-project-name');
+        $this->addUsage('shopware6');
+        $this->addUsage('laravel');
+        $this->addUsage('magento1');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Prepare
-        $type = $input->getArgument('type');
+        $helper = $this->getHelper('question');
 
+        // get environment type
+        $type = $input->getArgument('type');
+        if (empty($type)) {
+            $question = new ChoiceQuestion('Please select the environment', $this->rooterConfig->getEnvironmentTypes());
+            $question->setErrorMessage('environment type %s is unknown.');
+
+            $type = $helper->ask($input, $output, $question);
+        }
+        $output->writeln("Initialising environment of type: $type");
+
+        // Verify environment template dir
         $envTmplDir = "{$this->rooterConfig->getEnvironmentTemplatesDir()}/$type";
         if (!is_dir($envTmplDir)) {
-            $output->writeln("<error>unknown environment type: $type</error>");
+            $output->writeln("<error>environment templates directory not found for type: $type</error>");
             $this->environmentsRenderer->render($input, $output);
             return Command::FAILURE;
         }
-
-        // @todo make this more user-friendly: show files that would be overwritten, let the user decide with force
 
         // files to copy to project
         // @todo this is hardcoded and has to be the same for all projects, could be dynamically configured per environment template
@@ -59,14 +70,51 @@ class InitEnvCommand extends Command
         ];
 
         $isForce = (bool)$input->getOption('force');
-        if (!$isForce && !$this->canInitialiseEnvironment($files)) {
-            $output->writeln("<info>Seems like the environment was already initialised.</info>");
-            $output->writeln("<info>If you still want to continue please use --force.</info>");
-            return Command::FAILURE;
-        }
-
         $projectName = $input->getOption('name') ?? basename(ROOTER_PROJECT_ROOT);
 
+        // Check files
+        $filesToWrite = [];
+        foreach ($files as $sourceFile => $targetFile) {
+            $targetPath = ROOTER_PROJECT_ROOT . "/$targetFile";
+
+            if (!$isForce && is_file($targetPath)) {
+                $question = new ConfirmationQuestion("Overwrite $targetFile ? (y/n): ", false);
+                if (!$helper->ask($input, $output, $question)) {
+                    continue;
+                }
+            }
+
+            $filesToWrite[$sourceFile] = $targetFile;
+        }
+
+        if (empty($filesToWrite)) {
+            $output->writeln('No files were changed');
+            return Command::SUCCESS;
+        }
+
+        // Copy files to project replacing placeholders
+        foreach ($filesToWrite as $sourceFile => $targetFile) {
+            $sourcePath = "$envTmplDir/$sourceFile";
+            $targetPath = ROOTER_PROJECT_ROOT . "/$targetFile";
+
+            $sourceContent = file_get_contents($sourcePath);
+            if ($sourceContent === false) {
+                $output->writeln("<error>Could not read file $sourcePath</error>");
+                continue;
+            }
+
+            $targetContent = $this->renderContent($projectName, $sourceContent);
+
+            file_put_contents($targetPath, $targetContent);
+
+            $output->writeln("Copied $targetFile");
+        }
+
+        return Command::SUCCESS;
+    }
+
+    private function renderContent(mixed $projectName, string $sourceContent): string
+    {
         $vars = [
             'PROJECT_NAME' => $projectName,
             'PROJECT_HOST' => "$projectName.rooter.test",
@@ -79,33 +127,7 @@ class InitEnvCommand extends Command
             $replaceStrings[] = $value;
         }
 
-        // Copy files to project replacing placeholders
-        foreach ($files as $sourceFile => $targetFile) {
-            $sourcePath = "$envTmplDir/$sourceFile";
-            $targetPath = ROOTER_PROJECT_ROOT . "/$targetFile";
-
-            $sourceContent = file_get_contents($sourcePath);
-
-            $targetContent = str_replace($searchStrings, $replaceStrings, $sourceContent);
-
-            file_put_contents($targetPath, $targetContent);
-
-            $output->writeln("$sourceFile => $targetFile");
-        }
-
-        return 0;
-    }
-
-    private function canInitialiseEnvironment(array $files): bool
-    {
-        foreach ($files as $targetFile) {
-            $targetPath = ROOTER_PROJECT_ROOT . "/" . $targetFile;
-            // If one file is found we will not initialise
-            if (is_file($targetPath)) {
-                return false;
-            }
-        }
-        return true;
+        return (string)str_replace($searchStrings, $replaceStrings, $sourceContent);
     }
 
 }
