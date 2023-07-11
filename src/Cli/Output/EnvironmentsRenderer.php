@@ -8,9 +8,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-readonly class EnvironmentsRenderer
+class EnvironmentsRenderer
 {
-    public function __construct(private RooterConfig $rooterConfig)
+    public function __construct(private readonly RooterConfig $rooterConfig)
     {
     }
 
