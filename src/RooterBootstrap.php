@@ -50,6 +50,7 @@ class RooterBootstrap
         return $rooterEnvDir;
     }
 
+    /** @throws \ErrorException */
     private static function initAutoload(string $baseDir): void
     {
         $autoloadDirs = [
@@ -67,8 +68,6 @@ class RooterBootstrap
 
         if ($rooterComposerInstall === null) {
             throw new \ErrorException(
-
-                STDERR,
                 'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
                 '    composer install' . PHP_EOL . PHP_EOL .
                 'After that for a first time installation run.' . PHP_EOL . PHP_EOL .
