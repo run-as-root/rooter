@@ -37,6 +37,7 @@ class InitEnvCommand extends Command
         $this->addUsage('shopware6');
         $this->addUsage('laravel');
         $this->addUsage('magento1');
+        $this->addUsage('symfony');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
