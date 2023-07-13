@@ -126,7 +126,25 @@ rooter --help
 rooter --help <command>
 ```
 
-## Applications
+## Configuration
+
+### Domains and Subdomains
+
+By default, rooter will use the project name as the domain.  
+
+The following subdomains are available by default if the project is named foobar:
+```
+*.foobar.rooter.test
+```
+
+Using `DEVENV_HTTP_SUBDOMAINS` you can define a list of subdomains that should be used for the project.  
+Add the following line to your .env file and adjust the subdomains to your needs.
+```bash
+DEVENV_HTTP_SUBDOMAINS=my-project,de-project
+```
+This will result in the following domains being available for the project:
+- my-project.rooter.test
+- de-project.rooter.test
 
 ### TablePlus
 

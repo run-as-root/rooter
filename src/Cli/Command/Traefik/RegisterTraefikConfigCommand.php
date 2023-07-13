@@ -10,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RegisterTraefikConfigCommand extends Command
 {
+    private const ROOTER_DOMAIN_TMPL = "%s.rooter.test";
+
     public function __construct(private readonly TraefikConfig $traefikConfig)
     {
         parent::__construct();
@@ -23,18 +25,21 @@ class RegisterTraefikConfigCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $projectName = getenv('PROJECT_NAME');
+        $projectName = (string) getenv('PROJECT_NAME');
 
         if (empty($projectName)) {
             $output->writeln("<error>PROJECT_NAME is not set. This command should be executed in a project context.</error>");
             return Command::FAILURE;
         }
 
+        $traefikHttpRule = $this->getTraefikHttpRule($projectName);
+
         $tmplVars = array_merge(
             $_ENV,
             [
                 'ROOTER_DIR' => ROOTER_DIR,
                 'ROOTER_HOME_DIR' => ROOTER_HOME_DIR,
+                'TRAEFIK_HTTP_RULE'=> $traefikHttpRule,
             ]
         );
         $sourceContent = file_get_contents($this->traefikConfig->getEndpointTmpl());
@@ -61,5 +66,30 @@ class RegisterTraefikConfigCommand extends Command
         }
 
         return 0;
+    }
+
+    private function getTraefikHttpRule(string $projectName): string
+    {
+        $envDomain = sprintf(self::ROOTER_DOMAIN_TMPL, $projectName);
+
+        $traefikHttpRule = "Host(`$envDomain`) || HostRegexp(`{subdomain:.+}.$envDomain`)";
+
+        $subdomainSlugs = getenv('DEVENV_HTTP_SUBDOMAINS');
+
+        if (empty($subdomainSlugs)) {
+            return $traefikHttpRule;
+        }
+
+        $subdomainSlugList = explode(',', $subdomainSlugs);
+        $subdomains = '';
+        foreach ($subdomainSlugList as $subdomainSlug) {
+            $subdomain = sprintf(self::ROOTER_DOMAIN_TMPL, $subdomainSlug);
+            $subdomains .= "`$subdomain`,";
+        }
+        if (!empty($subdomains)) {
+            $traefikHttpRule .= " || Host($subdomains)";
+        }
+
+        return $traefikHttpRule;
     }
 }
