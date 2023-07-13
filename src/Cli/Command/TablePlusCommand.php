@@ -17,7 +17,17 @@ class TablePlusCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $tablePlusBin = getenv('TABLEPLUS_BIN') ?? '/Applications/TablePlus.app/Contents/MacOS/TablePlus'; # @todo check if set
+        $tablePlusBin = getenv('TABLEPLUS_BIN');
+
+        if (!is_file($tablePlusBin)) {
+            $tablePlusBin = '/Applications/TablePlus.app/Contents/MacOS/TablePlus';
+        }
+        if (!is_file($tablePlusBin)) {
+            $tablePlusBin = '/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus';
+        }
+        if (!is_file($tablePlusBin)) {
+            throw new \RuntimeException('no valid TablePlus installation found in /Application or /Application/Setapp');
+        }
 
         $user = getenv('DEVENV_DB_USER');
         $pass = getenv('DEVENV_DB_PASS');
