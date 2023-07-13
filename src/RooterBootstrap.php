@@ -46,6 +46,10 @@ class RooterBootstrap
             if (!$isRooterDir) {
                 $rooterEnvDir = dirname($rooterEnvDir);
             }
+            if ($rooterEnvDir === dirname($rooterEnvDir)) {
+                // We have reached top-level and could not find an environment
+                break;
+            }
         }
         return $rooterEnvDir;
     }
