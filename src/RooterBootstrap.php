@@ -22,7 +22,7 @@ class RooterBootstrap
         \define('ROOTER_HOME_DIR', getenv("HOME") . "/.rooter");
         \define('ROOTER_SSL_DIR', ROOTER_HOME_DIR . "/ssl");
         \define('ROOTER_PROJECT_ROOT', $rooterEnvDir);
-        \define('ROOTER_PROJECT_DIR', ROOTER_PROJECT_ROOT . "/.rooter");
+        \define('ROOTER_PROJECT_DIR', $rooterEnvDir . "/.rooter");
 
         $container = new ContainerBuilder();
         $loader = new YamlFileLoader($container, new FileLocator($baseDir));
@@ -35,12 +35,13 @@ class RooterBootstrap
 
     private static function getRooterProjectRoot(string $rooterDir): string
     {
-        $rooterEnvDir = (string)getcwd();
-        if ($rooterEnvDir === $rooterDir) {
-            return $rooterEnvDir;
+        $cwd = (string)getcwd();
+        if ($cwd === $rooterDir) {
+            return $cwd;
         }
 
         $isRooterDir = false;
+        $rooterEnvDir = $cwd;
         while (!$isRooterDir) {
             $isRooterDir = file_exists("$rooterEnvDir/devenv.nix");
             if (!$isRooterDir) {
@@ -48,6 +49,8 @@ class RooterBootstrap
             }
             if ($rooterEnvDir === dirname($rooterEnvDir)) {
                 // We have reached top-level and could not find an environment
+                // We set the project dir to current working dir
+                $rooterEnvDir = $cwd;
                 break;
             }
         }

@@ -71,12 +71,13 @@ class InitEnvCommand extends Command
         ];
 
         $isForce = (bool)$input->getOption('force');
-        $projectName = $input->getOption('name') ?? basename(ROOTER_PROJECT_ROOT);
+        $envBaseDir = getcwd();
+        $projectName = $input->getOption('name') ?? dirname($envBaseDir);
 
         // Check files
         $filesToWrite = [];
         foreach ($files as $sourceFile => $targetFile) {
-            $targetPath = ROOTER_PROJECT_ROOT . "/$targetFile";
+            $targetPath = $envBaseDir . "/$targetFile";
 
             if (!$isForce && is_file($targetPath)) {
                 $question = new ConfirmationQuestion("Overwrite $targetFile ? (y/n): ", false);
@@ -96,7 +97,7 @@ class InitEnvCommand extends Command
         // Copy files to project replacing placeholders
         foreach ($filesToWrite as $sourceFile => $targetFile) {
             $sourcePath = "$envTmplDir/$sourceFile";
-            $targetPath = ROOTER_PROJECT_ROOT . "/$targetFile";
+            $targetPath = $envBaseDir . "/$targetFile";
 
             $sourceContent = file_get_contents($sourcePath);
             if ($sourceContent === false) {
