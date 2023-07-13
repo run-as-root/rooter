@@ -29,13 +29,6 @@ class InitEnvPortsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $projectName = getenv('PROJECT_NAME');
-
-        if (empty($projectName)) {
-            $output->writeln("<error>PROJECT_NAME is not set. This command should be executed in a project context.</error>");
-            return Command::FAILURE;
-        }
-
         $output->writeln('Initialising ports …');
 
         $types = ['HTTP', 'HTTPS', 'DB', 'MAILHOG_SMTP', 'MAILHOG_UI', 'REDIS', 'AMQP', 'AMQP_MANAGEMENT', 'ELASTICSEARCH',];
@@ -73,7 +66,7 @@ class InitEnvPortsCommand extends Command
         $portsToAdd = $portsEnvs;
 
         $envFile = ROOTER_PROJECT_ROOT . "/.env";
-        $lines = file($envFile);
+        $lines = is_file($envFile) ? file($envFile) : [];
 
         // Clean array from DEVENV PORT variables
         $envFileData = [];
