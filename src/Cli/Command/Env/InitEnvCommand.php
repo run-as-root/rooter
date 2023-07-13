@@ -72,7 +72,7 @@ class InitEnvCommand extends Command
 
         $isForce = (bool)$input->getOption('force');
         $envBaseDir = getcwd();
-        $projectName = $input->getOption('name') ?? dirname($envBaseDir);
+        $projectName = $input->getOption('name') ?? basename($envBaseDir);
 
         // Check files
         $filesToWrite = [];
