@@ -1,0 +1,63 @@
+http:
+  routers:
+    {% if hasHttp -%}
+    {{PROJECT_NAME}}-http:
+      rule: {{TRAEFIK_HTTP_RULE}}
+      service: {{PROJECT_NAME}}-http
+      entrypoints:
+        - http
+    {%- endif %}
+
+    {% if hasHttps -%}
+    {{PROJECT_NAME}}-https:
+      rule: {{TRAEFIK_HTTP_RULE}}
+      service: {{PROJECT_NAME}}-https
+      tls: true
+      entrypoints:
+        - https
+    {%- endif %}
+
+    {% if hasMailhog -%}
+    {{PROJECT_NAME}}-mailhog:
+      rule: Host(`{{PROJECT_NAME}}-mailhog.rooter.test`)
+      service: {{PROJECT_NAME}}-mailhog
+      entrypoints:
+        - http
+    {%- endif %}
+
+    {% if hasAmqp -%}
+    {{PROJECT_NAME}}-amqp:
+      rule: Host(`{{PROJECT_NAME}}-amqp.rooter.test`)
+      service: {{PROJECT_NAME}}-amqp
+      entrypoints:
+        - http
+    {%- endif %}
+
+  services:
+    {% if hasHttp -%}
+    {{PROJECT_NAME}}-http:
+      loadbalancer:
+        servers:
+          - url: 'http://127.0.0.1:{{DEVENV_HTTP_PORT}}'
+    {%- endif %}
+
+    {% if hasHttps -%}
+    {{PROJECT_NAME}}-https:
+      loadbalancer:
+        servers:
+          - url: 'https://{{PROJECT_HOST}}:{{DEVENV_HTTPS_PORT}}'
+    {%- endif %}
+
+    {% if hasMailhog -%}
+    {{PROJECT_NAME}}-mailhog:
+      loadbalancer:
+        servers:
+          - url: 'http://127.0.0.1:{{DEVENV_MAILHOG_UI_PORT}}'
+    {%- endif %}
+
+    {% if hasAmqp -%}
+    {{PROJECT_NAME}}-amqp:
+      loadbalancer:
+        servers:
+          - url: 'http://127.0.0.1:{{DEVENV_AMQP_MANAGEMENT_PORT}}'
+    {%- endif %}

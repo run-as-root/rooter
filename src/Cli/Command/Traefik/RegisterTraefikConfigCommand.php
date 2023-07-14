@@ -7,12 +7,13 @@ use RunAsRoot\Rooter\Config\TraefikConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Twig\Environment as TwigEnvironment;
 
 class RegisterTraefikConfigCommand extends Command
 {
     private const ROOTER_DOMAIN_TMPL = "%s.rooter.test";
 
-    public function __construct(private readonly TraefikConfig $traefikConfig)
+    public function __construct(private readonly TraefikConfig $traefikConfig, private readonly TwigEnvironment $twig)
     {
         parent::__construct();
     }
@@ -25,34 +26,27 @@ class RegisterTraefikConfigCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $projectName = (string) getenv('PROJECT_NAME');
+        $projectName = (string)getenv('PROJECT_NAME');
 
         if (empty($projectName)) {
             $output->writeln("<error>PROJECT_NAME is not set. This command should be executed in a project context.</error>");
             return Command::FAILURE;
         }
 
-        $traefikHttpRule = $this->getTraefikHttpRule($projectName);
-
         $tmplVars = array_merge(
             $_ENV,
             [
                 'ROOTER_DIR' => ROOTER_DIR,
                 'ROOTER_HOME_DIR' => ROOTER_HOME_DIR,
-                'TRAEFIK_HTTP_RULE'=> $traefikHttpRule,
+                'TRAEFIK_HTTP_RULE' => $this->getTraefikHttpRule($projectName),
+                'hasHttp' => !empty(getenv('DEVENV_HTTP_PORT')),
+                'hasHttps' => !empty(getenv('DEVENV_HTTPS_PORT')),
+                'hasMailhog' => !empty(getenv('DEVENV_MAILHOG_UI_PORT')),
+                'hasAmqp' => !empty(getenv('DEVENV_AMQP_MANAGEMENT_PORT')),
             ]
         );
-        $sourceContent = file_get_contents($this->traefikConfig->getEndpointTmpl());
 
-        $traefikYml = preg_replace_callback(
-            '/\${(.*?)}/',
-            static function ($matches) use ($tmplVars) {
-                $varName = $matches[1];
-
-                return $tmplVars[$varName] ?? '';
-            },
-            $sourceContent
-        );
+        $traefikYml = $this->twig->render('traefik/endpoint.yml.twig', $tmplVars);
 
         $targetFile = $this->traefikConfig->getEndpointConfPath($projectName);
 

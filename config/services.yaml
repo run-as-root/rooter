@@ -13,10 +13,16 @@ services:
       tags: ['command']
 
   RunAsRoot\Rooter\:
-    resource: '../src/'
+    resource: '%rooter.dir%/src/'
 
   RunAsRoot\Rooter\CliApplication:
     public: true
     arguments:
       - !tagged command
 
+  Twig\Loader\FilesystemLoader:
+    arguments:
+      - '%rooter.dir%/templates'
+  Twig\Environment:
+    arguments:
+      - '@Twig\Loader\FilesystemLoader'
