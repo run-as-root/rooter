@@ -6,6 +6,7 @@ namespace RunAsRoot\Rooter;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag;
 
 class RooterBootstrap
 {
@@ -24,7 +25,15 @@ class RooterBootstrap
         \define('ROOTER_PROJECT_ROOT', $rooterEnvDir);
         \define('ROOTER_PROJECT_DIR', $rooterEnvDir . "/.rooter");
 
-        $container = new ContainerBuilder();
+        $parameterBag = new EnvPlaceholderParameterBag([
+            'rooter.dir' => ROOTER_DIR,
+            'rooter.home_dir' => ROOTER_HOME_DIR,
+            'rooter.ssl_dir' => ROOTER_SSL_DIR,
+            'rooter.project_root' => ROOTER_PROJECT_ROOT,
+            'rooter.project_dir' => ROOTER_PROJECT_DIR,
+        ]);
+
+        $container = new ContainerBuilder($parameterBag);
         $loader = new YamlFileLoader($container, new FileLocator($baseDir));
         $loader->load('config/services.yaml');
 
