@@ -12,6 +12,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InitNginxCommand extends Command
 {
+    private array $envVarsAllowed = [
+        'DEVENV_STATE_NGINX',
+        'DEVENV_HTTP_PORT',
+        'DEVENV_HTTPS_PORT',
+        'DEVENV_PHPFPM_SOCKET',
+        'DEVENV_ROOT',
+        'NGINX_PKG_ROOT',
+        'PROJECT_NAME',
+        'PROJECT_HOST',
+        'HOME',
+    ];
+
     public function __construct(
         private readonly RooterConfig $rooterConfig,
         private readonly EnvironmentsRenderer $environmentsRenderer
@@ -44,23 +56,17 @@ class InitNginxCommand extends Command
             return 1;
         }
 
-        $nginxVarsAllowed = [
-            'NGINX_DIR_SSL_CERTS',
-            'DEVENV_STATE_NGINX',
-            'DEVENV_HTTP_PORT',
-            'DEVENV_HTTPS_PORT',
-            'DEVENV_PHPFPM_SOCKET',
-            'DEVENV_ROOT',
-            'NGINX_PKG_ROOT',
-            'PROJECT_NAME',
-            'PROJECT_HOST',
-            'HOME',
-        ];
+        $vars = [];
+
+        $vars['NGINX_DIR_SSL_CERTS'] = getenv('NGINX_DIR_SSL_CERTS') ?: '$HOME/.rooter/ssl/certs';
+
+        foreach ($this->envVarsAllowed as $variable) {
+            $vars[$variable] = getenv($variable);
+        }
 
         $searchStrings = [];
         $replaceStrings = [];
-        foreach ($nginxVarsAllowed as $variable) {
-            $value = getenv($variable);
+        foreach ($vars as $variable => $value) {
             $searchStrings[] = '${' . $variable . '}';
             $replaceStrings[] = $value;
             $searchStrings[] = '$' . $variable;
