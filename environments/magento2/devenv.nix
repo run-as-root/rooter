@@ -132,6 +132,7 @@ in {
     services.elasticsearch = {
         enable = true;
         port = lib.strings.toInt ( builtins.getEnv "DEVENV_ELASTICSEARCH_PORT" );
+        tcp_port = lib.strings.toInt ( builtins.getEnv "DEVENV_ELASTICSEARCH_TCP_PORT" );
     };
 
     # RabbitMQ

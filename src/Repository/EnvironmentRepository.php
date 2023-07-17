@@ -62,6 +62,7 @@ class EnvironmentRepository
             'amqpPort' => getenv('DEVENV_AMQP_PORT') ?? '',
             'amqpManagementPort' => getenv('DEVENV_AMQP_MANAGEMENT_PORT') ?? '',
             'elasticsearchPort' => getenv('DEVENV_ELASTICSEARCH_PORT') ?? '',
+            'elasticsearchTcpPort' => getenv('DEVENV_ELASTICSEARCH_TCP_PORT') ?? '',
         ];
 
         $this->save($data);

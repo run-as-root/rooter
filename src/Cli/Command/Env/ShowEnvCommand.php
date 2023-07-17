@@ -60,6 +60,7 @@ class ShowEnvCommand extends Command
             'amqpPort',
             'amqpManagementPort',
             'elasticsearchPort',
+            'elasticsearchTcpPort',
         ];
 
         $table = new Table($output);
@@ -70,7 +71,9 @@ class ShowEnvCommand extends Command
 
         foreach ($attributes as $attributeKey) {
             $value = $envData[$attributeKey] ?? '';
-            $table->addRow([$attributeKey, $value]);
+            if (!empty($value) || $output->isVerbose()) {
+                $table->addRow([$attributeKey, $value]);
+            }
         }
 
         $table->render();
