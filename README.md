@@ -1,6 +1,6 @@
-# ROOTER
-
 ![rooter logo](docs/images/rooter-logo.jpg)
+
+# ROOTER
 
 rooter is a local environment manager that helps orchestrating local developer environments for multiple projects.  
 
