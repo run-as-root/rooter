@@ -1,5 +1,7 @@
 # ROOTER
 
+![rooter logo](docs/images/rooter-logo.jpg)
+
 rooter is a local environment manager that helps orchestrating local developer environments for multiple projects.  
 
 It brings a traefik instance that manages routing to the projects.  
@@ -168,11 +170,11 @@ export TABLEPLUS_BIN=/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus
 
 ## KNOWN ISSUES
 
-see [KNOWN_ISSUES.md](KNOWN_ISSUES.md)
+see [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md)
 
 ## TEMPLATES
 
-see [TEMPLATES.md](TEMPLATES.md)
+see [TEMPLATES.md](docs/TEMPLATES.md)
 
 ## DEVELOPMENT
 
