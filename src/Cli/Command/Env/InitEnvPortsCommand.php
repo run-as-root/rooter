@@ -31,7 +31,18 @@ class InitEnvPortsCommand extends Command
     {
         $output->writeln('Initialising ports …');
 
-        $types = ['HTTP', 'HTTPS', 'DB', 'MAILHOG_SMTP', 'MAILHOG_UI', 'REDIS', 'AMQP', 'AMQP_MANAGEMENT', 'ELASTICSEARCH',];
+        $types = [
+            'HTTP',
+            'HTTPS',
+            'DB',
+            'MAIL_SMTP',
+            'MAIL_UI',
+            'REDIS',
+            'AMQP',
+            'AMQP_MANAGEMENT',
+            'ELASTICSEARCH',
+            'ELASTICSEARCH_TCP',
+        ];
 
         foreach ($types as $type) {
             $port = $this->portManager->findFreePort($type);

@@ -44,13 +44,14 @@ class CheckEnvPortsCommand extends Command
         $rows[] = ['HTTP', $envData['httpPort'], $this->portManager->isPortAvailable((int)$envData['httpPort'])];
         $rows[] = ['HTTPS', $envData['httpsPort'], $this->portManager->isPortAvailable((int)$envData['httpsPort'])];
         $rows[] = ['db', $envData['dbPort'], $this->portManager->isPortAvailable((int)$envData['dbPort'])];
-        $rows[] = ['Mailhog SMTP', $envData['mailhogSmtpPort'], $this->portManager->isPortAvailable((int)$envData['mailhogSmtpPort'])];
-        $rows[] = ['Mailhog UI', $envData['mailhogUiPort'], $this->portManager->isPortAvailable((int)$envData['mailhogUiPort'])];
+        $rows[] = ['Mail SMTP', $envData['mailSmtpPort'], $this->portManager->isPortAvailable((int)$envData['mailSmtpPort'])];
+        $rows[] = ['Mail UI', $envData['mailUiPort'], $this->portManager->isPortAvailable((int)$envData['mailUiPort'])];
         $rows[] = ['db', $envData['dbPort'], $this->portManager->isPortAvailable((int)$envData['dbPort'])];
         $rows[] = ['Redis', $envData['redisPort'], $this->portManager->isPortAvailable((int)$envData['redisPort'])];
         $rows[] = ['AMQP', $envData['amqpPort'], $this->portManager->isPortAvailable((int)$envData['amqpPort'])];
         $rows[] = ['AMQP Management', $envData['amqpManagementPort'], $this->portManager->isPortAvailable((int)$envData['amqpManagementPort'])];
         $rows[] = ['Elastic', $envData['elasticsearchPort'], $this->portManager->isPortAvailable((int)$envData['elasticsearchPort'])];
+        $rows[] = ['Elastic TCP', $envData['elasticsearchTcpPort'], $this->portManager->isPortAvailable((int)$envData['elasticsearchTcpPort'])];
 
         $table = new Table($output);
         $table->setHeaders(['name', 'port', 'status']);

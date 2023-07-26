@@ -51,7 +51,7 @@ in {
                 memory_limit = -1
                 error_reporting=E_ALL
                 xdebug.mode = coverage,debug
-                sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}
+                sendmail_path = ${pkgs.mailpit}/bin/mailpit sendmail -S 127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}
                 display_errors = On
                 display_startup_errors = On
             '';
@@ -59,8 +59,8 @@ in {
         fpm.phpOptions =''
             memory_limit = -1
             error_reporting=E_ALL
-            xdebug.mode = coverage,debug
-            sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}
+            xdebug.mode = debug
+            sendmail_path = ${pkgs.mailpit}/bin/mailpit sendmail -S 127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}
             display_errors = On
             display_startup_errors = On
         '';
@@ -114,12 +114,11 @@ in {
         ];
     };
 
-    # Mailhog
-    services.mailhog = {
+    # mailpit
+    services.mailpit = {
         enable = true;
-        uiListenAddress   = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
-        apiListenAddress  = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
-        smtpListenAddress = "127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}";
+        uiListenAddress   = "127.0.0.1:${config.env.DEVENV_MAIL_UI_PORT}";
+        smtpListenAddress = "127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}";
     };
 
     # Redis

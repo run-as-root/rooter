@@ -17,10 +17,10 @@ http:
         - https
     {%- endif %}
 
-    {% if hasMailhog -%}
-    {{PROJECT_NAME}}-mailhog:
-      rule: Host(`{{PROJECT_NAME}}-mailhog.rooter.test`)
-      service: {{PROJECT_NAME}}-mailhog
+    {% if hasMail -%}
+    {{PROJECT_NAME}}-mailpit:
+      rule: Host(`{{PROJECT_NAME}}-mail.rooter.test`)
+      service: {{PROJECT_NAME}}-mail
       entrypoints:
         - http
     {%- endif %}
@@ -48,11 +48,11 @@ http:
           - url: 'https://{{PROJECT_HOST}}:{{DEVENV_HTTPS_PORT}}'
     {%- endif %}
 
-    {% if hasMailhog -%}
-    {{PROJECT_NAME}}-mailhog:
+    {% if hasMail -%}
+    {{PROJECT_NAME}}-mail:
       loadbalancer:
         servers:
-          - url: 'http://127.0.0.1:{{DEVENV_MAILHOG_UI_PORT}}'
+          - url: 'http://127.0.0.1:{{DEVENV_MAIL_UI_PORT}}'
     {%- endif %}
 
     {% if hasAmqp -%}

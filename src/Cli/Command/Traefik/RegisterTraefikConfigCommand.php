@@ -35,10 +35,10 @@ class RegisterTraefikConfigCommand extends Command
 
         $hasHttp = !empty(getenv('DEVENV_HTTP_PORT'));
         $hasHttps = !empty(getenv('DEVENV_HTTPS_PORT'));
-        $hasMailhog = !empty(getenv('DEVENV_MAILHOG_UI_PORT'));
+        $hasMail = !empty(getenv('DEVENV_MAIL_UI_PORT'));
         $hasAmqp = !empty(getenv('DEVENV_AMQP_MANAGEMENT_PORT'));
 
-        if(!$hasHttp && !$hasHttps && !$hasMailhog && !$hasAmqp) {
+        if(!$hasHttp && !$hasHttps && !$hasAmqp) {
             $output->writeln("<info>No ports configured. Traefik config not generated</info>");
             return Command::SUCCESS;
         }
@@ -51,7 +51,7 @@ class RegisterTraefikConfigCommand extends Command
                 'TRAEFIK_HTTP_RULE' => $this->getTraefikHttpRule($projectName),
                 'hasHttp' => $hasHttp,
                 'hasHttps' => $hasHttps,
-                'hasMailhog' => $hasMailhog,
+                'hasMail' => $hasMail,
                 'hasAmqp' => $hasAmqp,
             ]
         );

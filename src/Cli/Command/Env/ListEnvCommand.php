@@ -50,7 +50,7 @@ class ListEnvCommand extends Command
             if ($showPorts) {
                 $project['HTTP'] = sprintf("http:  %s\nhttps: %s", $envData['httpPort'] ?? '', $envData['httpsPort'] ?? '');
                 $project['db'] = sprintf("%s", $envData['dbPort'] ?? '');
-                $project['Mailhog'] = sprintf("smtp: %s\nui:   %s", $envData['mailhogSmtpPort'] ?? '', $envData['mailhogUiPort'] ?? '');
+                $project['Mail'] = sprintf("smtp: %s\nui:   %s", $envData['mailSmtpPort'] ?? '', $envData['mailUiPort'] ?? '');
                 $project['Redis'] = sprintf("%s", $envData['redisPort'] ?? '');
                 $project['AMQP'] = sprintf("tcp: %s\nui:  %s", $envData['amqpPort'] ?? '', $envData['amqpManagementPort'] ?? '');
                 $project['Elastic'] = sprintf("%s", $envData['elasticsearchPort'] ?? '');
@@ -65,7 +65,7 @@ class ListEnvCommand extends Command
 
         $headers = ['Name', 'Host', 'Status'];
         if ($showPorts) {
-            $headers = array_merge($headers, ['HTTP', 'db', 'Mailhog', 'Redis', 'AMQP', 'Elastic',]);
+            $headers = array_merge($headers, ['HTTP', 'db', 'Mail', 'Redis', 'AMQP', 'Elastic',]);
         }
 
         $table = new Table($output);

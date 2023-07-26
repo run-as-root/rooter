@@ -45,8 +45,8 @@ class InfoCommand extends Command
             ['AMQP-admin', 'http://127.0.0.1:' . getenv('DEVENV_AMQP_MANAGEMENT_PORT')],
             ['elasticsearch', 'http://127.0.0.1:' . getenv('DEVENV_ELASTICSEARCH_PORT')],
             new TableSeparator(),
-            ['mailhog UI', 'http://127.0.0.1:' . getenv('DEVENV_MAILHOG_UI_PORT')],
-            ['mailhog SMTP', 'http://127.0.0.1:' . getenv('DEVENV_MAILHOG_SMTP_PORT')],
+            ['mail UI', 'http://127.0.0.1:' . getenv('DEVENV_MAIL_UI_PORT')],
+            ['mail SMTP', 'http://127.0.0.1:' . getenv('DEVENV_MAIL_SMTP_PORT')],
         ]);
         $table->render();
 

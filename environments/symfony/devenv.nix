@@ -17,7 +17,7 @@ in {
         DEVENV_DB_USER = "app";
         DEVENV_DB_PASS = "app";
 
-        MAILER_DSN = lib.mkDefault "smtp://127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}";
+        MAILER_DSN = lib.mkDefault "smtp://127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}";
         DATABASE_URL = lib.mkDefault "mysql://${config.env.DEVENV_DB_USER}:${config.env.DEVENV_DB_PASS}@127.0.0.1:${config.env.DEVENV_DB_PORT}/${config.env.DEVENV_DB_NAME}";
     };
 
@@ -54,7 +54,7 @@ in {
               display_startup_errors = On
               error_reporting=E_ALL
               xdebug.mode = coverage,debug
-              sendmail_path = ${pkgs.mailhog}/bin/Mailhog sendmail --smtp-addr 127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}
+              sendmail_path = ${pkgs.mailpit}/bin/mailpit sendmail -S 127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}
 
               realpath_cache_ttl = 3600
               session.gc_probability = 0
@@ -116,12 +116,11 @@ in {
         ];
     };
 
-    # Mailhog
-    services.mailhog = {
+    # mailpit
+    services.mailpit = {
         enable = true;
-        uiListenAddress   = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
-        apiListenAddress  = "127.0.0.1:${config.env.DEVENV_MAILHOG_UI_PORT}";
-        smtpListenAddress = "127.0.0.1:${config.env.DEVENV_MAILHOG_SMTP_PORT}";
+        uiListenAddress   = "127.0.0.1:${config.env.DEVENV_MAIL_UI_PORT}";
+        smtpListenAddress = "127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}";
     };
 
     # Redis

@@ -18,12 +18,13 @@ class PortManager
         'HTTP' => [8001, 8400],
         'HTTPS' => [8401, 8999],
         'DB' => [3300, 3700],
-        'MAILHOG_SMTP' => [10026, 10426],
-        'MAILHOG_UI' => [18026, 22026],
+        'MAIL_SMTP' => [10026, 10426],
+        'MAIL_UI' => [18026, 22026],
         'REDIS' => [6379, 6779],
         'AMQP' => [5672, 5999],
         'AMQP_MANAGEMENT' => [15672, 19672],
-        'ELASTICSEARCH' => [9200, 9600],
+        'ELASTICSEARCH' => [9200, 9299],
+        'ELASTICSEARCH_TCP' => [9300, 9399],
     ];
 
     public function __construct(private readonly EnvironmentRepository $environmentRepository)
