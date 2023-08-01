@@ -31,7 +31,7 @@ class CheckEnvPortsCommand extends Command
     {
         $projectName = $input->getArgument('name') ?? getenv('PROJECT_NAME');
 
-        if (empty($projectName)) {
+        if (!$projectName) {
             $output->writeln("<error>PROJECT_NAME is not set. This command should be executed in a project context.</error>");
             return Command::FAILURE;
         }
