@@ -11,7 +11,6 @@ use Twig\Environment as TwigEnvironment;
 
 class RegisterTraefikConfigCommand extends Command
 {
-    private const ROOTER_DOMAIN_TMPL = "%s.rooter.test";
 
     public function __construct(private readonly TraefikConfig $traefikConfig, private readonly TwigEnvironment $twig)
     {
@@ -38,7 +37,7 @@ class RegisterTraefikConfigCommand extends Command
         $hasMail = !empty(getenv('DEVENV_MAIL_UI_PORT'));
         $hasAmqp = !empty(getenv('DEVENV_AMQP_MANAGEMENT_PORT'));
 
-        if(!$hasHttp && !$hasHttps && !$hasAmqp) {
+        if (!$hasHttp && !$hasHttps && !$hasAmqp) {
             $output->writeln("<info>No ports configured. Traefik config not generated</info>");
             return Command::SUCCESS;
         }
@@ -74,7 +73,8 @@ class RegisterTraefikConfigCommand extends Command
 
     private function getTraefikHttpRule(string $projectName): string
     {
-        $envDomain = sprintf(self::ROOTER_DOMAIN_TMPL, $projectName);
+        $localDomain = "rooter.test";
+        $envDomain = sprintf("%s.%s", $projectName, $localDomain);
 
         $traefikHttpRule = "Host(`$envDomain`) || HostRegexp(`{subdomain:.+}.$envDomain`)";
 
@@ -87,7 +87,7 @@ class RegisterTraefikConfigCommand extends Command
         $subdomainSlugList = explode(',', $subdomainSlugs);
         $subdomains = '';
         foreach ($subdomainSlugList as $subdomainSlug) {
-            $subdomain = sprintf(self::ROOTER_DOMAIN_TMPL, $subdomainSlug);
+            $subdomain = sprintf("%s.%s", $subdomainSlug, $localDomain);
             $subdomains .= "`$subdomain`,";
         }
         if (!empty($subdomains)) {
