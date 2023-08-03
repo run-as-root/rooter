@@ -41,12 +41,39 @@ class InitDnsmasqConfigCommand extends Command
         # @todo allow port adjustment?
         copy($this->dnsmasqConfig->getConfTmpl(), $dnsmasqConf);
 
-        $resolverConfTmpl = $this->dnsmasqConfig->getResolverTmpl();
-        $resolverConf = $this->dnsmasqConfig->getResolverConf();
-        if (!is_file($resolverConf)) {
-            exec("sudo cp $resolverConfTmpl $resolverConf");
-        }
+        // Initialise resolver config for .test and rooter.test
+        $this->initialiseResolverConf($output);
 
         return 0;
     }
+
+    private function initialiseResolverConf(OutputInterface $output): void
+    {
+        $resolverConfTmpl = $this->dnsmasqConfig->getResolverTmpl();
+        $resolverConf = $this->dnsmasqConfig->getResolverConf();
+
+        $osType = php_uname('s');
+        // Configure resolver for .test domains on macOS
+        if (!str_starts_with($osType, 'Darwin')) {
+            $output->writeln('<comment>Manual configuration required for Automatic DNS resolution</comment>');
+            return;
+        }
+
+        if (!is_dir('/etc/resolver')) {
+            $output->writeln('==> Configuring resolver (requires sudo privileges)');
+            exec('sudo mkdir /etc/resolver');
+        }
+
+        if (!file_exists($resolverConf)) {
+            $output->writeln('==> Configuring resolver for rooter.test domains (requires sudo privileges)');
+            exec("sudo cp $resolverConfTmpl $resolverConf");
+        }
+
+        $resolverConf = '/etc/resolver/test';
+        if (!file_exists($resolverConf)) {
+            $output->writeln('==> Configuring resolver for .test domains (requires sudo privileges)');
+            exec("sudo cp $resolverConfTmpl $resolverConf");
+        }
+    }
+
 }

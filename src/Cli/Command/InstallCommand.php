@@ -71,9 +71,11 @@ class InstallCommand extends Command
 
     private function generateCertificates(OutputInterface $output): void
     {
+        $osType = php_uname('s');
         $rootCaDir = ROOTER_SSL_DIR . "/rootca";
         $caKeyPemFile = "$rootCaDir/private/ca.key.pem";
         $caCertPemFile = "$rootCaDir/certs/ca.cert.pem";
+        $certificateName = 'rooter.test';
 
         if (!is_dir($rootCaDir)) {
             mkdir("$rootCaDir/certs", 0755, true);
@@ -98,9 +100,7 @@ class InstallCommand extends Command
             exec($command);
         }
 
-        $osType = php_uname('s');
-
-        if (strpos($osType, 'Linux') === 0) {
+        if (str_starts_with($osType, 'Linux')) {
             if (is_dir('/etc/pki/ca-trust/source/anchors')
                 && !file_exists('/etc/pki/ca-trust/source/anchors/rooter-proxy-local-ca.cert.pem')
             ) {
@@ -114,24 +114,11 @@ class InstallCommand extends Command
                 exec("sudo cp $caCertPemFile /usr/local/share/ca-certificates/rooter-proxy-local-ca.crt");
                 exec('sudo update-ca-certificates');
             }
-        } elseif (strpos($osType, 'Darwin') === 0) {
+        } elseif (str_starts_with($osType, 'Darwin')) {
             if (!exec('security dump-trust-settings -d | grep "ROOTER Proxy Local CA"')) {
                 $output->writeln('==> Trusting root certificate (requires sudo privileges)');
                 exec("sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $caCertPemFile");
             }
-        }
-
-        // Configure resolver for .test domains on macOS
-        if (strpos($osType, 'Darwin') === 0) {
-            if (!file_exists('/etc/resolver/test')) {
-                $output->writeln('==> Configuring resolver for .test domains (requires sudo privileges)');
-                if (!is_dir('/etc/resolver')) {
-                    exec('sudo mkdir /etc/resolver');
-                }
-                exec('echo "nameserver 127.0.0.1" | sudo tee /etc/resolver/test >/dev/null');
-            }
-        } else {
-            $output->writeln('<comment>Manual configuration required for Automatic DNS resolution</comment>');
         }
 
         // Certs
@@ -139,8 +126,6 @@ class InstallCommand extends Command
         if (!is_dir($certsDir)) {
             mkdir($certsDir, 0755, true);
         }
-
-        $certificateName = 'rooter.test';
 
         $certificateKeyPemFile = "$certsDir/$certificateName.key.pem";
         $certificateCsrPemFile = "$certsDir/$certificateName.csr.pem";
