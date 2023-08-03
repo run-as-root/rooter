@@ -6,6 +6,7 @@ namespace RunAsRoot\Rooter\Cli\Command\Magento2;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -20,6 +21,7 @@ class RefreshMagento2DbCommand extends Command
         $this->setName('magento2:db-refresh');
         $this->setDescription('Refresh database from dump');
         $this->addArgument('dump-file', InputArgument::REQUIRED, 'path to db dump');
+        $this->addOption('skip-reindex', '', InputOption::VALUE_NONE, 'skip reindex after importing the dump');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -32,6 +34,7 @@ class RefreshMagento2DbCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $dbDumpFile = $input->getArgument('dump-file');
+        $skipReindex = $input->getOption('skip-reindex');
 
         $MAGERUN2_BIN = getenv('MAGERUN2_BIN') ?: 'n98-magerun2';
         $DEVENV_DB_USER = getenv('DEVENV_DB_USER');
@@ -58,8 +61,10 @@ class RefreshMagento2DbCommand extends Command
         $this->runCommand($command);
 
         // Reindex so Elasticsearch gets the updated data
-        $command = "$this->phpBin bin/magento indexer:reindex";
-        $this->runCommand($command);
+        if (!$skipReindex) {
+            $command = "$this->phpBin bin/magento indexer:reindex";
+            $this->runCommand($command);
+        }
 
         return 0;
     }
