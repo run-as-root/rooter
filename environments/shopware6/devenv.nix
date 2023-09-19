@@ -103,7 +103,7 @@ in {
     # DATABASE
     services.mysql = {
         enable = true;
-        package = pkgs.mariadb_104;
+        package = pkgs.mariadb_106;
         settings = {
             mysqld = {
                 port = builtins.getEnv "DEVENV_DB_PORT"; # direct access to config.env is not working
