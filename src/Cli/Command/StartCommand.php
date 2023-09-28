@@ -31,7 +31,14 @@ class StartCommand extends Command
     {
         // Dnsmasq
         try {
-            $this->processManager->startWithPid($this->dnsmasqConfig->getDnsmasqCommand(), $this->dnsmasqConfig->getPidFile());
+            $command = $this->dnsmasqConfig->getDnsmasqCommand();
+            $pidFile = $this->dnsmasqConfig->getPidFile();
+
+            $output->writeln("dnsmasq command: $command", OutputInterface::VERBOSITY_VERBOSE);
+            $output->writeln("dnsmasq pidFile: $pidFile", OutputInterface::VERBOSITY_VERBOSE);
+
+            $this->processManager->startWithPid($command, $pidFile);
+
             $output->writeln("<info>dnsmasq started.</info>");
         } catch (ProcessAlreadyRunningException $e) {
             $output->writeln("dnsmasq is already running ({$e->getMessage()})");
@@ -39,7 +46,14 @@ class StartCommand extends Command
 
         // Traefik
         try {
-            $this->processManager->startWithPid($this->traefikConfig->getTraefikCommand(), $this->traefikConfig->getPidFile());
+            $command = $this->traefikConfig->getTraefikCommand();
+            $pidFile = $this->traefikConfig->getPidFile();
+
+            $output->writeln("traefik command: $command", OutputInterface::VERBOSITY_VERBOSE);
+            $output->writeln("traefik pidFile: $pidFile", OutputInterface::VERBOSITY_VERBOSE);
+
+            $this->processManager->startWithPid($command, $pidFile);
+
             $output->writeln("<info>traefik started.</info>");
         } catch (ProcessAlreadyRunningException $e) {
             $output->writeln("traefik is already running ({$e->getMessage()})");
