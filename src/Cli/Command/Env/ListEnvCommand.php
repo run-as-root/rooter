@@ -51,12 +51,10 @@ class ListEnvCommand extends Command
                 $httpPortStr = '';
                 if ($envData['httpPort'] || $envData['httpsPort']) {
                     $httpPortStr = sprintf("http:  %s\nhttps: %s", $envData['httpPort'] ?? '', $envData['httpsPort'] ?? '');
-
                 }
                 $mailStr = '';
-                if ($envData['mailSmtpPort'] || $envData['mailUiPort']) {
+                if (isset($envData['mailSmtpPort']) || isset($envData['mailUiPort'])) {
                     $mailStr = sprintf("smtp: %s\nui:   %s", $envData['mailSmtpPort'] ?? '', $envData['mailUiPort'] ?? '');
-
                 }
                 $amqpStr = '';
                 if ($envData['amqpPort'] || $envData['amqpManagementPort']) {
