@@ -61,3 +61,10 @@ http:
         servers:
           - url: 'http://127.0.0.1:{{DEVENV_AMQP_MANAGEMENT_PORT}}'
     {%- endif %}
+
+{% if hasTldDomains -%}
+tls:
+  certificates:
+    - certFile: {{ROOTER_HOME_DIR}}/ssl/certs/{{PROJECT_TLD}}.crt.pem
+      keyFile: {{ROOTER_HOME_DIR}}/ssl/certs/{{PROJECT_TLD}}.key.pem
+{%- endif %}

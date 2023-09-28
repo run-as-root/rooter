@@ -36,22 +36,27 @@ class RegisterTraefikConfigCommand extends Command
         $hasHttps = !empty(getenv('DEVENV_HTTPS_PORT'));
         $hasMail = !empty(getenv('DEVENV_MAIL_UI_PORT'));
         $hasAmqp = !empty(getenv('DEVENV_AMQP_MANAGEMENT_PORT'));
+        $hasTldDomains = !empty(getenv('PROJECT_TLD'));
 
         if (!$hasHttp && !$hasHttps && !$hasAmqp) {
             $output->writeln("<info>No ports configured. Traefik config not generated</info>");
             return Command::SUCCESS;
         }
 
+        $fqdnRooterLocal = sprintf("%s.%s", $projectName, "rooter.test");
+
         $tmplVars = array_merge(
             $_ENV,
             [
                 'ROOTER_DIR' => ROOTER_DIR,
                 'ROOTER_HOME_DIR' => ROOTER_HOME_DIR,
+                'ROOTER_PROJECT_HOST' => $fqdnRooterLocal,
                 'TRAEFIK_HTTP_RULE' => $this->getTraefikHttpRule($projectName),
                 'hasHttp' => $hasHttp,
                 'hasHttps' => $hasHttps,
                 'hasMail' => $hasMail,
                 'hasAmqp' => $hasAmqp,
+                'hasTldDomains' => $hasTldDomains,
             ]
         );
 
@@ -73,10 +78,15 @@ class RegisterTraefikConfigCommand extends Command
 
     private function getTraefikHttpRule(string $projectName): string
     {
+        $projectTld = getenv('PROJECT_TLD');
         $localDomain = "rooter.test";
+
         $envDomain = sprintf("%s.%s", $projectName, $localDomain);
 
         $traefikHttpRule = "Host(`$envDomain`) || HostRegexp(`{subdomain:.+}.$envDomain`)";
+        if (is_string($projectTld)) {
+            $traefikHttpRule .= " || Host(`$projectTld`) || HostRegexp(`{subdomain:.+}.$projectTld`)";
+        }
 
         $subdomainSlugs = getenv('DEVENV_HTTP_SUBDOMAINS');
 
