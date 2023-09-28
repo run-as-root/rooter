@@ -37,7 +37,7 @@ in {
 
     process.implementation="process-compose";
     process.process-compose={
-        "port" = "9999";
+        "port" = config.env.DEVENV_PROCESS_COMPOSE_PORT;
         "tui" = "false";
         "version" = "0.5";
     };

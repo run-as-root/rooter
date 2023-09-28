@@ -80,16 +80,12 @@ class StartCommand extends Command
 
         $this->processManager->start($command, true);
 
-        // Show progress bar until we have a devenv pid
-        $progressBar = $this->getProgressBar($output);
-        $progressBar->start();
-
         // Taking the pid from devenv file here, since the one returned from symfony process is only the spawning process
         while (!$this->processManager->hasPid($pidFile)) {
             usleep(500000); // Sleep for 0.5 seconds
-            $progressBar->advance();
         }
-        $progressBar->finish();
+
+        $this->renderLogOutput($this->devenvConfig->getLogFile(), $output);
 
         $pid = $this->processManager->getPidFromFile($pidFile);
 
@@ -99,16 +95,55 @@ class StartCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function getProgressBar(OutputInterface $output): ProgressBar
+    /**
+     * Reads the log file and outputs it to the console as long as new content is written to the file
+     * If no new content is written for 3 seconds, the output is stopped
+     */
+    private function renderLogOutput($logFilePath, OutputInterface $output): void
     {
-        $progressBar = new ProgressBar($output);
-        $progressBar->setFormat("%current%/%max% [%bar%] %elapsed:6s% %memory:6s%");
-        $progressBar->setBarCharacter('█');
-        $progressBar->setEmptyBarCharacter('░');
-        $progressBar->setProgressCharacter('▒');
-        $progressBar->setBarWidth(50);
-        $progressBar->setRedrawFrequency(10);
-        return $progressBar;
+        $file = fopen($logFilePath, 'rb');
+        if (!$file) {
+            throw new \RuntimeException("File $logFilePath does not exist");
+        }
+
+        $lastPosition = $unchangedCounter = 0;
+
+        fseek($file, $lastPosition);
+
+        while (true) {
+            clearstatcache();
+            $currentSize = filesize($logFilePath);
+
+            if ($currentSize > $lastPosition) {
+                $file = fopen($logFilePath, 'rb');
+                if (!$file) {
+                    $output->writeln('<error>Unable to open the log file.</error>');
+                    break;
+                }
+
+                fseek($file, $lastPosition);
+
+                while (!feof($file)) {
+                    $line = fgets($file);
+                    if ($line === false || str_contains($line, 'declare -x')) {
+                        continue;
+                    }
+                    $output->write($line);
+                }
+
+                $lastPosition = ftell($file);
+
+                fclose($file);
+            } else {
+                $unchangedCounter++;
+            }
+
+            sleep(1); // Sleep for 1 second
+
+            if ($unchangedCounter > 3) {
+                break;
+            }
+        }
     }
 
 }

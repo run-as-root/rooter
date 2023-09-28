@@ -61,6 +61,7 @@ class ShowEnvCommand extends Command
             'amqpManagementPort',
             'elasticsearchPort',
             'elasticsearchTcpPort',
+            'processComposePort',
         ];
 
         $table = new Table($output);

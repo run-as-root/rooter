@@ -67,6 +67,7 @@ class ListEnvCommand extends Command
                 $project['Redis'] = sprintf("%s", $envData['redisPort'] ?? '');
                 $project['AMQP'] = $amqpStr;
                 $project['Elastic'] = sprintf("%s", $envData['elasticsearchPort'] ?? '');
+                $project['ProcessCompose'] = sprintf("%s", $envData['processComposePort'] ?? '');
             }
 
             if (count($projects) > 0) {
@@ -78,7 +79,7 @@ class ListEnvCommand extends Command
 
         $headers = ['Name', 'Host', 'Status'];
         if ($showPorts) {
-            $headers = array_merge($headers, ['HTTP', 'db', 'Mail', 'Redis', 'AMQP', 'Elastic',]);
+            $headers = array_merge($headers, ['HTTP', 'db', 'Mail', 'Redis', 'AMQP', 'Elastic', 'ProcessCompose',]);
         }
 
         $table = new Table($output);

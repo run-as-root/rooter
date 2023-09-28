@@ -42,6 +42,7 @@ class InitEnvPortsCommand extends Command
             'AMQP_MANAGEMENT',
             'ELASTICSEARCH',
             'ELASTICSEARCH_TCP',
+            'PROCESS_COMPOSE',
         ];
 
         foreach ($types as $type) {

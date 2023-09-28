@@ -52,6 +52,7 @@ class CheckEnvPortsCommand extends Command
         $rows[] = ['AMQP Management', $envData['amqpManagementPort'], $this->portManager->isPortAvailable((int)$envData['amqpManagementPort'])];
         $rows[] = ['Elastic', $envData['elasticsearchPort'], $this->portManager->isPortAvailable((int)$envData['elasticsearchPort'])];
         $rows[] = ['Elastic TCP', $envData['elasticsearchTcpPort'], $this->portManager->isPortAvailable((int)$envData['elasticsearchTcpPort'])];
+        $rows[] = ['process-compose', $envData['processComposePort'], $this->portManager->isPortAvailable((int)$envData['processComposePort'])];
 
         $table = new Table($output);
         $table->setHeaders(['name', 'port', 'status']);
