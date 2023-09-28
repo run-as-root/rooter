@@ -25,6 +25,7 @@ class PortManager
         'AMQP_MANAGEMENT' => [15672, 19672],
         'ELASTICSEARCH' => [9200, 9299],
         'ELASTICSEARCH_TCP' => [9300, 9399],
+        'PROCESS_COMPOSE' => [9900, 9999],
     ];
 
     public function __construct(private readonly EnvironmentRepository $environmentRepository)
