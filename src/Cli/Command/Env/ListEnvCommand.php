@@ -48,11 +48,26 @@ class ListEnvCommand extends Command
             ];
 
             if ($showPorts) {
-                $project['HTTP'] = sprintf("http:  %s\nhttps: %s", $envData['httpPort'] ?? '', $envData['httpsPort'] ?? '');
+                $httpPortStr = '';
+                if ($envData['httpPort'] || $envData['httpsPort']) {
+                    $httpPortStr = sprintf("http:  %s\nhttps: %s", $envData['httpPort'] ?? '', $envData['httpsPort'] ?? '');
+
+                }
+                $mailStr = '';
+                if ($envData['mailSmtpPort'] || $envData['mailUiPort']) {
+                    $mailStr = sprintf("smtp: %s\nui:   %s", $envData['mailSmtpPort'] ?? '', $envData['mailUiPort'] ?? '');
+
+                }
+                $amqpStr = '';
+                if ($envData['amqpPort'] || $envData['amqpManagementPort']) {
+                    $amqpStr = sprintf("tcp: %s\nui:  %s", $envData['amqpPort'] ?? '', $envData['amqpManagementPort'] ?? '');
+                }
+
+                $project['HTTP'] = $httpPortStr;
                 $project['db'] = sprintf("%s", $envData['dbPort'] ?? '');
-                $project['Mail'] = sprintf("smtp: %s\nui:   %s", $envData['mailSmtpPort'] ?? '', $envData['mailUiPort'] ?? '');
+                $project['Mail'] = $mailStr;
                 $project['Redis'] = sprintf("%s", $envData['redisPort'] ?? '');
-                $project['AMQP'] = sprintf("tcp: %s\nui:  %s", $envData['amqpPort'] ?? '', $envData['amqpManagementPort'] ?? '');
+                $project['AMQP'] = $amqpStr;
                 $project['Elastic'] = sprintf("%s", $envData['elasticsearchPort'] ?? '');
             }
 
