@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
-use RunAsRoot\Rooter\Config\RooterConfig;
+use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ShowEnvCommand extends Command
 {
-    public function __construct(private readonly RooterConfig $rooterConfig)
+    public function __construct(private readonly EnvironmentRepository $envRepository)
     {
         parent::__construct();
     }
@@ -26,26 +26,9 @@ class ShowEnvCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $filename = $input->getArgument('name') ?? getenv('PROJECT_NAME');
-        $envFile = "{$this->rooterConfig->getEnvironmentDir()}/$filename.json";
+        $projectName = $input->getArgument('name') ?? getenv('PROJECT_NAME');
 
-        if (!file_exists($envFile)) {
-            $output->writeln("<error>Unknown environment $filename</error>");
-            return Command::FAILURE;
-        }
-
-        $jsonData = file_get_contents($envFile);
-        try {
-            $envData = json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            $output->writeln("Invalid JSON format. Exception:{$e->getMessage()}");
-            return Command::FAILURE;
-        }
-
-        if (!$envData) {
-            $output->writeln('Invalid JSON format.');
-            return Command::FAILURE;
-        }
+        $envData = $this->envRepository->getByName($projectName);
 
         $attributes = [
             'name',
