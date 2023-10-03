@@ -5,8 +5,10 @@ namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Cli\Command\StartCommand as StartRooterCommand;
 use RunAsRoot\Rooter\Cli\Output\LogFileRenderer;
+use RunAsRoot\Rooter\Cli\Output\ProcessComposeStartUpRenderer;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Manager\ProcessManager;
+use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -21,6 +23,8 @@ class StartCommand extends Command
         private readonly DevenvConfig $devenvConfig,
         private readonly StartRooterCommand $startRooterCommand,
         private readonly RegisterEnvCommand $registerEnvCommand,
+        private readonly EnvironmentRepository $environmentRepository,
+        private readonly ProcessComposeStartUpRenderer $processComposeStartUpRenderer,
         private readonly LogFileRenderer $logFileRenderer,
     ) {
         parent::__construct();
@@ -40,8 +44,7 @@ class StartCommand extends Command
     {
         $debug = $input->getOption('debug');
 
-        $pidFile = $this->devenvConfig->getPidFile();
-        if ($this->processManager->isRunning($pidFile)) {
+        if ($this->processManager->isRunning($this->devenvConfig->getPidFile())) {
             $output->writeln("environment is already running");
             return Command::FAILURE;
         }
@@ -70,7 +73,7 @@ class StartCommand extends Command
         }
         $command = "export ROOTER_INIT_SKIP=1 && " . $command;
 
-        $output->writeln("<info>environment starting …</info>");
+        $output->writeln("environment initialising ...");
 
         // Launch the process
         if ($debug) {
@@ -81,19 +84,40 @@ class StartCommand extends Command
 
         $this->processManager->start($command, true);
 
+        $projectName = getenv('PROJECT_NAME');
+        $envData = $this->environmentRepository->getByName($projectName);
+
+        $processComposePort = $envData['processComposePort'];
+        if (empty($processComposePort)) {
+            $this->followStartLegacy($output);
+            return Command::SUCCESS;
+        }
+
+        $isSuccess = $this->processComposeStartUpRenderer->render($envData, $output);
+
+        $pid = $this->processManager->getPidFromFile($this->devenvConfig->getPidFile());
+
+        $output->writeln("devenv is running with PID: $pid");
+        $output->writeln("process-compose is running on port: $processComposePort");
+        if (!$isSuccess) {
+            $output->writeln(
+                "<comment>not all processes started correctly, run `rooter process-compose` or `rooter env:status` to see details</comment>"
+            );
+        }
+        $output->writeln("<info>environment started</info>");
+
+        return $isSuccess ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    private function followStartLegacy(OutputInterface $output): void
+    {
+        $pidFile = $this->devenvConfig->getPidFile();
         // Taking the pid from devenv file here, since the one returned from symfony process is only the spawning process
         while (!$this->processManager->hasPid($pidFile)) {
             usleep(500000); // Sleep for 0.5 seconds
         }
 
         $this->logFileRenderer->render($this->devenvConfig->getLogFile(), $output);
-
-        $pid = $this->processManager->getPidFromFile($pidFile);
-
-        $output->writeln('');
-        $output->writeln("<info>devenv is running with PID:$pid</info>");
-
-        return Command::SUCCESS;
     }
 
 }

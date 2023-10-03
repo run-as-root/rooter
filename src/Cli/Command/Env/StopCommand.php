@@ -33,7 +33,7 @@ class StopCommand extends Command
         try {
             $pidFile = $this->devenvConfig->getPidFile();
             $this->processManager->stop($pidFile);
-            $output->writeln("<info>environment was stopped</info>");
+            $output->writeln("environment was stopped");
         } catch (ProcessNotRunningException $e) {
             $output->writeln("environment already stopped");
         } catch (FailedToStopProcessException $e) {
