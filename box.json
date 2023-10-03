@@ -1,0 +1,23 @@
+{
+    "compression": "GZ",
+    "algorithm": "SHA512",
+    "datetime": "release-date",
+    "files": [
+        "src/RooterBootstrap.php",
+        "vendor/composer/installed.php"
+    ],
+    "force-autodiscovery": true,
+    "directories": [
+        "src",
+        "config",
+        "environments",
+        "templates",
+        "etc"
+    ],
+    "replacements": {
+        "application_name": "rooter"
+    },
+    "git-commit-short": "git_commit_short",
+    "stub": "build/phar/_cli_stub.php",
+    "output": "rooter.phar"
+}
