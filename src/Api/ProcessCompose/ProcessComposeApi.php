@@ -21,6 +21,10 @@ readonly class ProcessComposeApi
     /** @throws ApiException|\JsonException */
     public function isAlive(array $envData): void
     {
+        if (!array_key_exists('processComposePort', $envData)) {
+            throw new ApiException('processComposePort not found in envData');
+        }
+
         try {
             $processComposePort = $envData['processComposePort'];
             $response = $this->client->get("127.0.0.1:$processComposePort/live");
@@ -61,6 +65,10 @@ readonly class ProcessComposeApi
         if (!is_array($processData) || count($processData) === 0) {
             throw new NoProcessesException('no processes returned from process-compose');
         }
+
+        usort($processData, static function ($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
 
         return $processData;
     }
