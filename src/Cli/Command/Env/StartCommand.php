@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Cli\Command\StartCommand as StartRooterCommand;
+use RunAsRoot\Rooter\Cli\Output\LogFileRenderer;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,7 +20,8 @@ class StartCommand extends Command
         private readonly ProcessManager $processManager,
         private readonly DevenvConfig $devenvConfig,
         private readonly StartRooterCommand $startRooterCommand,
-        private readonly RegisterEnvCommand $registerEnvCommand
+        private readonly RegisterEnvCommand $registerEnvCommand,
+        private readonly LogFileRenderer $logFileRenderer,
     ) {
         parent::__construct();
     }
@@ -85,7 +86,7 @@ class StartCommand extends Command
             usleep(500000); // Sleep for 0.5 seconds
         }
 
-        $this->renderLogOutput($this->devenvConfig->getLogFile(), $output);
+        $this->logFileRenderer->render($this->devenvConfig->getLogFile(), $output);
 
         $pid = $this->processManager->getPidFromFile($pidFile);
 
@@ -93,57 +94,6 @@ class StartCommand extends Command
         $output->writeln("<info>devenv is running with PID:$pid</info>");
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * Reads the log file and outputs it to the console as long as new content is written to the file
-     * If no new content is written for 3 seconds, the output is stopped
-     */
-    private function renderLogOutput($logFilePath, OutputInterface $output): void
-    {
-        $file = fopen($logFilePath, 'rb');
-        if (!$file) {
-            throw new \RuntimeException("File $logFilePath does not exist");
-        }
-
-        $lastPosition = $unchangedCounter = 0;
-
-        fseek($file, $lastPosition);
-
-        while (true) {
-            clearstatcache();
-            $currentSize = filesize($logFilePath);
-
-            if ($currentSize > $lastPosition) {
-                $file = fopen($logFilePath, 'rb');
-                if (!$file) {
-                    $output->writeln('<error>Unable to open the log file.</error>');
-                    break;
-                }
-
-                fseek($file, $lastPosition);
-
-                while (!feof($file)) {
-                    $line = fgets($file);
-                    if ($line === false || str_contains($line, 'declare -x')) {
-                        continue;
-                    }
-                    $output->write($line);
-                }
-
-                $lastPosition = ftell($file);
-
-                fclose($file);
-            } else {
-                $unchangedCounter++;
-            }
-
-            sleep(1); // Sleep for 1 second
-
-            if ($unchangedCounter > 3) {
-                break;
-            }
-        }
     }
 
 }

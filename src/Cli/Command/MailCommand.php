@@ -7,12 +7,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MailhogCommand extends Command
+class MailCommand extends Command
 {
     public function configure()
     {
-        $this->setName('mailhog');
-        $this->setDescription('launch mailhog http UI');
+        $this->setName('mail');
+        $this->setAliases(['mailhog', 'mailpit']);
+        $this->setDescription('launch mail http UI in browser');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -24,7 +25,7 @@ class MailhogCommand extends Command
             return Command::FAILURE;
         }
 
-        shell_exec("open 'http://$projectName-mailhog.rooter.test'");
+        shell_exec("open 'http://$projectName-mail.rooter.test'");
 
         return 0;
     }
