@@ -12,6 +12,7 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StatusCommand extends Command
@@ -29,10 +30,13 @@ class StatusCommand extends Command
     {
         $this->setName('status');
         $this->setDescription('show status of rooter');
+        $this->addOption('ports', '', InputOption::VALUE_NONE, 'show all ports');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $showPorts = $input->getOption('ports');
+
         $dnsmasqPid = $this->processManager->getPidFromFile($this->dnsmasqConfig->getPidFile());
         $dnsmasqStatus = $this->processManager->isRunningByPid($dnsmasqPid) ? 'running' : 'stopped';
 
@@ -51,7 +55,7 @@ class StatusCommand extends Command
         ]);
         $table->render();
 
-        $this->listEnvCommand->run(new ArrayInput([]), $output);
+        $this->listEnvCommand->run(new ArrayInput(['--ports' => $showPorts]), $output);
 
         return 0;
     }
