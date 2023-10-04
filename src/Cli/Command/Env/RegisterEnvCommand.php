@@ -41,7 +41,7 @@ class RegisterEnvCommand extends Command
             $output->writeln("<error>Failed to register environment: {$e->getMessage()}</error>");
             return Command::FAILURE;
         }
-        $output->writeln('environment registered successfully.');
+        $output->writeln("environment $projectName registered");
 
         // Register Traefik Config
         $this->registerTraefik->run(new ArrayInput([]), $output);

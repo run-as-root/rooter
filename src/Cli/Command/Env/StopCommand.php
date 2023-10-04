@@ -29,13 +29,15 @@ class StopCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $result = true;
+        $projectName = getenv('PROJECT_NAME');
 
         try {
+            $output->writeln("Stopping environment$projectName ");
             $pidFile = $this->devenvConfig->getPidFile();
             $this->processManager->stop($pidFile);
-            $output->writeln("environment was stopped");
+            $output->writeln("environment $projectName stopped");
         } catch (ProcessNotRunningException $e) {
-            $output->writeln("environment already stopped");
+            $output->writeln("environment $projectName already stopped");
         } catch (FailedToStopProcessException $e) {
             $output->writeln("<error>environment could not be stopped: {$e->getMessage()}</error>");
             $result = false;
