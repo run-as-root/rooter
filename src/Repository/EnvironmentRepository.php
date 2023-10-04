@@ -51,6 +51,7 @@ class EnvironmentRepository
     {
         $data = [
             'name' => $projectName,
+            'type' => getenv('ROOTER_ENV_TYPE') ?? '',
             'path' => ROOTER_PROJECT_ROOT,
             'host' => getenv('PROJECT_HOST') ?? '',
             'httpPort' => getenv('DEVENV_HTTP_PORT') ?? '',

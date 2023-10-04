@@ -43,6 +43,7 @@ class ListEnvCommand extends Command
 
             $project = [
                 'Name' => $envData['name'] ?? '',
+                'Type' => $envData['type'] ?? '',
                 'Host' => $envData['host'] ?? '',
                 'Status' => $status,
             ];

@@ -27,11 +27,6 @@ in {
         pkgs.yarn
     ];
 
-    # Shell welcome message
-    enterShell = ''
-        [[ -z $ROOTER_INIT_SKIP ]] && ${rooterBin} nginx:init laravel
-    '';
-
     process.implementation="process-compose";
     process.process-compose={
         "port" = config.env.DEVENV_PROCESS_COMPOSE_PORT;

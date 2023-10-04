@@ -42,6 +42,7 @@ class ShowEnvCommand extends Command
 
         $attributes = [
             'name',
+            'type',
             'path',
             'host',
             'httpPort',

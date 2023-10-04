@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Cli\Command\Nginx\InitNginxCommand;
 use RunAsRoot\Rooter\Cli\Command\StartCommand as StartRooterCommand;
 use RunAsRoot\Rooter\Cli\Output\LogFileRenderer;
 use RunAsRoot\Rooter\Cli\Output\ProcessComposeStartUpRenderer;
@@ -23,6 +24,7 @@ class StartCommand extends Command
         private readonly DevenvConfig $devenvConfig,
         private readonly StartRooterCommand $startRooterCommand,
         private readonly RegisterEnvCommand $registerEnvCommand,
+        private readonly InitNginxCommand $initNginxCommand,
         private readonly EnvironmentRepository $environmentRepository,
         private readonly ProcessComposeStartUpRenderer $processComposeStartUpRenderer,
         private readonly LogFileRenderer $logFileRenderer,
@@ -42,10 +44,10 @@ class StartCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $debug = $input->getOption('debug');
+        $projectName = getenv('PROJECT_NAME');
 
         if ($this->processManager->isRunning($this->devenvConfig->getPidFile())) {
-            $output->writeln("environment is already running");
+            $output->writeln("environment $projectName is already running");
             return Command::FAILURE;
         }
 
@@ -54,19 +56,23 @@ class StartCommand extends Command
             throw new \RuntimeException(sprintf('Directory "%s" was not created', ROOTER_PROJECT_DIR));
         }
 
-        // Initialisation
-        // Register Environment Config
-        $this->registerEnvCommand->run(new ArrayInput([]), $output);
+        $debug = $input->getOption('debug');
+        $output->writeln("Starting environment $projectName");
 
         // Start rooter
         $this->startRooterCommand->run(new ArrayInput([]), $output);
 
-        // initialise nginx conf for environment
-        // @todo atm all environments are using nginx. environments using something else are currently not supported
-//        $initNginx = new InitNginxCommand();
-//        $initNginx->run(new ArrayInput([]), $output);
+        // Register Environment Config
+        $this->registerEnvCommand->run(new ArrayInput([]), $output);
 
-        // ROOTER assumes the nginx config has been placed
+        // Nginx init
+        $type = getenv('ROOTER_ENV_TYPE') ?? '';
+        if ($type) {
+            $initNginx = $this->initNginxCommand;
+            $initNginx->run(new ArrayInput(['type' => $type]), $output);
+        }
+
+        // Start devenv environment
         $command = "devenv up";
         if (!$debug) {
             $command = sprintf('%s > %s 2>&1', $command, $this->devenvConfig->getLogFile());
