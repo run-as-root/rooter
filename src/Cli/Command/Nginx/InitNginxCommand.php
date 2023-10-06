@@ -35,12 +35,16 @@ class InitNginxCommand extends Command
     {
         $this->setName('nginx:init');
         $this->setDescription('Initialise nginx config for a provided environment type');
-        $this->addArgument('type', InputArgument::REQUIRED, 'The system you want to initialise');
+        $this->addArgument('type', InputArgument::OPTIONAL, 'The system you want to initialise');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $envType = $input->getArgument('type');
+        $envType = $input->getArgument('type') ?? getenv('ROOTER_ENV_TYPE');
+        if (!$envType) {
+            $output->writeln("<error>Please provide an environment type as argument or use env variable ROOTER_ENV_TYPE</error>");
+            return Command::FAILURE;
+        }
 
         $envTmplDir = "{$this->rooterConfig->getEnvironmentTemplatesDir()}/$envType";
         if (!is_dir($envTmplDir)) {
@@ -85,6 +89,8 @@ class InitNginxCommand extends Command
         }
 
         $nginxTmplDir = getenv("DEVENV_CONFIG_NGINX") ?: $this->rooterConfig->getEnvironmentTemplatesDir() . "/$envType/nginx";
+
+        $output->writeln("using templates from $nginxTmplDir");
 
         // Read and modify nginx-template.conf
         $nginxTemplate = file_get_contents("$nginxTmplDir/nginx-template.conf");
