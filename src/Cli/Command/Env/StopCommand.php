@@ -32,7 +32,7 @@ class StopCommand extends Command
         $projectName = getenv('PROJECT_NAME');
 
         try {
-            $output->writeln("Stopping environment$projectName ");
+            $output->writeln("Stopping environment $projectName");
             $pidFile = $this->devenvConfig->getPidFile();
             $this->processManager->stop($pidFile);
             $output->writeln("environment $projectName stopped");
