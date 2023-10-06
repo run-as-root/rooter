@@ -46,7 +46,7 @@ class PortManager
     }
 
     /** @throws \Exception */
-    public function findFreePortsForRanges(): array
+    public function findFreePortsForRanges($asEnvVars = false): array
     {
         $ports = [];
         foreach ($this->ranges as $portType => $portRange) {
@@ -54,7 +54,10 @@ class PortManager
                 continue;
             }
             $port = $this->findFreePort($portType);
-            $ports[$portType] = $port;
+
+            $key = $asEnvVars ? "DEVENV_{$portType}_PORT" : $portType;
+
+            $ports[$key] = $port;
         }
         return $ports;
     }

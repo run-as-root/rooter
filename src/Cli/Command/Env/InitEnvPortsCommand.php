@@ -37,19 +37,15 @@ class InitEnvPortsCommand extends Command
     {
         $output->writeln('Finding ports ...');
 
-        $ports = $this->portManager->findFreePortsForRanges();
-        $envVariables = [];
-        foreach ($ports as $type => $port) {
-            $envVariables["DEVENV_{$type}_PORT"] = $port;
-        }
+        $ports = $this->portManager->findFreePortsForRanges(true);
 
         if ($input->getOption('write')) {
             $output->writeln('Writing ports to .env');
-            $this->dotEnvFileManager->write($envVariables);
+            $this->dotEnvFileManager->write($ports);
         }
 
         $output->writeln('Ports available for this environment:');
-        foreach ($envVariables as $varName => $varValue) {
+        foreach ($ports as $varName => $varValue) {
             $output->writeln("$varName=$varValue");
         }
 
