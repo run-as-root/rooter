@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Manager\DotEnvFileManager;
 use RunAsRoot\Rooter\Manager\PortManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -16,8 +17,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class InitEnvPortsCommand extends Command
 {
-    public function __construct(private readonly PortManager $portManager)
-    {
+    public function __construct(
+        private readonly PortManager $portManager,
+        private readonly DotEnvFileManager $dotEnvFileManager
+    ) {
         parent::__construct();
     }
 
@@ -42,7 +45,7 @@ class InitEnvPortsCommand extends Command
 
         if ($input->getOption('write')) {
             $output->writeln('Writing ports to .env');
-            $this->writeToEnvFile($envVariables);
+            $this->dotEnvFileManager->write($envVariables);
         }
 
         $output->writeln('Ports available for this environment:');
@@ -53,36 +56,5 @@ class InitEnvPortsCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function writeToEnvFile(array $envVariables): void
-    {
-        $variablesToAdd = $envVariables; // copy to have a list of remaining variables to add
-
-        $envFile = ROOTER_PROJECT_ROOT . "/.env";
-        $lines = is_file($envFile) ? file($envFile) : [];
-
-        // Clean array from variables prefixed with DEVENV_ or ROOTER_
-        $envFileData = [];
-        foreach ($lines as $line) {
-            if (!str_starts_with($line, 'DEVENV_') || !str_starts_with($line, 'ROOTER_')) {
-                $envFileData[] = $line;
-                continue;
-            }
-
-            foreach ($envVariables as $varName => $varValue) {
-                if (preg_match("/$varName=.*/", $line)) {
-                    $envFileData[] = "$varName=$varValue" . PHP_EOL;
-                    unset($variablesToAdd[$varName]);
-                    break;
-                }
-            }
-        }
-
-        // Add remaining ENV vars to the .env
-        foreach ($variablesToAdd as $varName => $varValue) {
-            $envFileData[] = "$varName=$varValue" . PHP_EOL;
-        }
-
-        file_put_contents($envFile, implode('', $envFileData));
-    }
 }
 
