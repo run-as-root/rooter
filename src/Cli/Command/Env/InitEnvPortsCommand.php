@@ -23,83 +23,63 @@ class InitEnvPortsCommand extends Command
 
     protected function configure()
     {
-        $this->addOption('overwrite', 'o', InputOption::VALUE_NONE, 'overwrite contents in .env');
+        $this->addOption('write', 'w', InputOption::VALUE_NONE, 'write contents in .env');
         $this->addOption('print', 'p', InputOption::VALUE_NONE, 'print the added env variables');
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('Initialising ports …');
+        $output->writeln('Finding ports ...');
 
-        $types = [
-            'HTTP',
-            'HTTPS',
-            'DB',
-            'MAIL_SMTP',
-            'MAIL_UI',
-            'REDIS',
-            'AMQP',
-            'AMQP_MANAGEMENT',
-            'ELASTICSEARCH',
-            'ELASTICSEARCH_TCP',
-            'PROCESS_COMPOSE',
-        ];
-
-        foreach ($types as $type) {
-            $port = $this->portManager->findFreePort($type);
-            $ports[$type] = $port;
-            $output->writeln("$type: $port");
+        $ports = $this->portManager->findFreePortsForRanges();
+        $envVariables = [];
+        foreach ($ports as $type => $port) {
+            $envVariables["DEVENV_{$type}_PORT"] = $port;
         }
 
-        if ($input->getOption('overwrite')) {
-            $this->writeToEnvFile($ports);
+        if ($input->getOption('write')) {
+            $output->writeln('Writing ports to .env');
+            $this->writeToEnvFile($envVariables);
         }
 
-        if ($input->getOption('print')) {
-            $envContent = '';
-            foreach ($ports as $type => $port) {
-                $envContent .= "DEVENV_{$type}_PORT=$port" . PHP_EOL;
-            }
-            $output->writeln('');
-            $output->writeln('.env content');
-            $output->writeln($envContent);
+        $output->writeln('Ports available for this environment:');
+        foreach ($envVariables as $varName => $varValue) {
+            $output->writeln("$varName=$varValue");
         }
 
         return Command::SUCCESS;
     }
 
-    private function writeToEnvFile(array $ports): void
+    private function writeToEnvFile(array $envVariables): void
     {
-        // Prepare array with ENV var name and value
-        $portsEnvs = [];
-        foreach ($ports as $type => $port) {
-            $portsEnvs["DEVENV_{$type}_PORT"] = $port;
-        }
-        $portsToAdd = $portsEnvs;
+        $variablesToAdd = $envVariables; // copy to have a list of remaining variables to add
 
         $envFile = ROOTER_PROJECT_ROOT . "/.env";
         $lines = is_file($envFile) ? file($envFile) : [];
 
-        // Clean array from DEVENV PORT variables
+        // Clean array from variables prefixed with DEVENV_ or ROOTER_
         $envFileData = [];
         foreach ($lines as $line) {
-            if (!str_starts_with($line, 'DEVENV_')) {
+            if (!str_starts_with($line, 'DEVENV_') || !str_starts_with($line, 'ROOTER_')) {
                 $envFileData[] = $line;
                 continue;
             }
 
-            foreach ($portsEnvs as $envName => $port) {
-                if (preg_match("/$envName=.*/", $line)) {
-                    $envFileData[] = "$envName=$port" . PHP_EOL;
-                    unset($portsToAdd[$envName]);
+            foreach ($envVariables as $varName => $varValue) {
+                if (preg_match("/$varName=.*/", $line)) {
+                    $envFileData[] = "$varName=$varValue" . PHP_EOL;
+                    unset($variablesToAdd[$varName]);
                     break;
                 }
             }
         }
 
         // Add remaining ENV vars to the .env
-        foreach ($portsToAdd as $envName => $port) {
-            $envFileData[] = "$envName=$port" . PHP_EOL;
+        foreach ($variablesToAdd as $varName => $varValue) {
+            $envFileData[] = "$varName=$varValue" . PHP_EOL;
         }
 
         file_put_contents($envFile, implode('', $envFileData));

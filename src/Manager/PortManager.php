@@ -45,6 +45,20 @@ class PortManager
         return $port;
     }
 
+    /** @throws \Exception */
+    public function findFreePortsForRanges(): array
+    {
+        $ports = [];
+        foreach ($this->ranges as $portType => $portRange) {
+            if ($portType === 'default') {
+                continue;
+            }
+            $port = $this->findFreePort($portType);
+            $ports[$portType] = $port;
+        }
+        return $ports;
+    }
+
     /** check if a port is available and not reserved */
     public function isPortAvailable(int $port): bool
     {
