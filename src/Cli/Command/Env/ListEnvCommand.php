@@ -28,11 +28,13 @@ class ListEnvCommand extends Command
         $this->setName('env:list');
         $this->setDescription('list all projects');
         $this->addOption('ports', '', InputOption::VALUE_NONE, 'show all ports');
+        $this->addOption('running', '', InputOption::VALUE_NONE, 'filter only running environments');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $showPorts = $input->getOption('ports');
+        $onlyRunning = $input->getOption('running');
 
         $envList = $this->envRepository->getList();
 
@@ -40,6 +42,9 @@ class ListEnvCommand extends Command
         foreach ($envList as $envData) {
             $pidFile = $this->devenvConfig->getPidFile($envData['path']);
             $status = $this->processManager->isRunning($pidFile) ? 'running' : 'stopped';
+            if($status !== 'running' && $onlyRunning) {
+                continue;
+            }
 
             $project = [
                 'Name' => $envData['name'] ?? '',
