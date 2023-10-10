@@ -26,11 +26,16 @@ class RooterConfig
 
     public function getEnvironmentTypes(): array
     {
-        $availableEnvironments = scandir($this->getEnvironmentTemplatesDir());
-
         $types = [];
+
+        $templatesDir = $this->getEnvironmentTemplatesDir();
+
+        $availableEnvironments = scandir($templatesDir);
         foreach ($availableEnvironments as $name) {
             if ($name === '.' || $name === '..') {
+                continue;
+            }
+            if(!is_dir("$templatesDir/$name")) {
                 continue;
             }
             $types[] = $name;
