@@ -23,7 +23,7 @@ class ProcessComposeStartUpRenderer
         $sectionWaiting = $output->section();
         $sectionWaiting->write("process-compose starting ");
         while ($this->isProcessComposeAlive($envData) === false) {
-            ++$linebreakCounter % self::CLI_LINE_WIDTH === 0 ? $sectionWaiting->writeln('.'):$sectionWaiting->write(".");
+            ++$linebreakCounter % self::CLI_LINE_WIDTH === 0 ? $sectionWaiting->writeln(".") : $sectionWaiting->write(".");
             usleep(500000);
         }
 
