@@ -9,17 +9,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ProcessComposeStartUpRenderer
 {
+    private const CLI_LINE_WIDTH = 72;
+    
     public function __construct(private readonly ProcessComposeApi $processComposeApi)
     {
     }
 
     public function render(array $envData, OutputInterface $output): bool
     {
+
+        $linebreakCounter = 0;
         /** @var ConsoleSectionOutput $sectionWaiting */
         $sectionWaiting = $output->section();
         $sectionWaiting->write("process-compose starting ");
         while ($this->isProcessComposeAlive($envData) === false) {
-            $sectionWaiting->write(".");
+            ++$linebreakCounter % self::CLI_LINE_WIDTH === 0 ? $sectionWaiting->writeln('.'):$sectionWaiting->write(".");
             usleep(500000);
         }
 
