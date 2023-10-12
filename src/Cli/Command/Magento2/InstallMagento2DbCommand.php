@@ -19,8 +19,8 @@ class InstallMagento2DbCommand extends Command
     {
         $this->setName('magento2:db-install');
         $this->setDescription('Initialise fresh database');
+        $this->addOption('config-data-import', '', InputOption::VALUE_NONE, 'import config data after installation');
         $this->addOption('skip-reindex', '', InputOption::VALUE_NONE, 'skip reindex after importing the dump');
-        $this->addOption('skip-config-import', '', InputOption::VALUE_NONE, 'skip config import after installation');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -32,7 +32,7 @@ class InstallMagento2DbCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $skipConfigImport = $input->getOption('skip-config-import');
+        $importConfigData = $input->getOption('config-data-import');
         $skipReindex = $input->getOption('skip-reindex');
 
         $DEVENV_DB_USER = getenv('DEVENV_DB_USER');
@@ -47,13 +47,20 @@ class InstallMagento2DbCommand extends Command
         $DEVENV_AMQP_USER = getenv('DEVENV_AMQP_USER');
         $DEVENV_AMQP_PASS = getenv('DEVENV_AMQP_PASS');
 
+        # Drop and recreate database
+        $output->writeln('Dropping and recreating database');
         $mysqlParams = "-u{$DEVENV_DB_USER} -p{$DEVENV_DB_PASS} --host=localhost --port={$DEVENV_DB_PORT}";
-
         exec("mysql $mysqlParams -e \"DROP DATABASE IF EXISTS $DEVENV_DB_NAME; CREATE DATABASE IF NOT EXISTS $DEVENV_DB_NAME;\"");
 
+        # remove settings
+        $output->writeln('Removing app/etc/env.php');
+        $this->runCommand("rm app/etc/env.php");
+
+        ## Magento setup:install
+        $output->writeln('Running magento setup:install');
         $command = "$this->phpBin bin/magento setup:install \
                 --db-host=127.0.0.1:$DEVENV_DB_PORT --db-name=$DEVENV_DB_NAME --db-user=$DEVENV_DB_USER --db-password=$DEVENV_DB_PASS \
-                --admin-email=admin@mwltr.de --admin-firstname=Admin --admin-lastname=Admin --admin-password=admin123 --admin-user=admin \
+                --admin-email=admin@run-as-root.sh --admin-firstname=Admin --admin-lastname=Admin --admin-password=admin123 --admin-user=admin \
                 --backend-frontname=admin  \
                 --base-url=http://$PROJECT_HOST/ \
                 --currency=EUR --language=en_US --timezone=Europe/Berlin --ansi \
@@ -87,16 +94,21 @@ class InstallMagento2DbCommand extends Command
 
         $this->runCommand($command);
 
+        # Magento setup:upgrade
+        $output->writeln('Running magento setup:upgrade');
         $command = "$this->phpBin bin/magento setup:upgrade";
         $this->runCommand($command);
 
-        if(!$skipConfigImport) {
+        if($importConfigData) {
+            $output->writeln('Importing config data from files with config:data:import');
+            // @todo make configurable were data is fetched from, arg or env?
             $command = "$this->phpBin bin/magento config:data:import config/store dev/rooter";
             $this->runCommand($command);
         }
 
         // Reindex so Elasticsearch gets the updated data
         if (!$skipReindex) {
+            $output->writeln('Running magento indexer:reindex');
             $command = "$this->phpBin bin/magento indexer:reindex";
             $this->runCommand($command);
         }
