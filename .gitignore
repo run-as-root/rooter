@@ -3,6 +3,5 @@
 /tmp
 /vendor
 /rooter
-flake.*
 box.phar
 rooter.phar
