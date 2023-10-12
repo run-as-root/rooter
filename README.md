@@ -73,37 +73,18 @@ rooter env:init magento2 --name="my-first-rooter-env"
 ```
 Manually add `.devenv/` and `.env` to .gitignore
 
-### Check Ports
+This command will also create a `.env` file in your project root or overwrite values for rooter.  
+It will find available ports for the project and write them to the .env file.  
+Ports will selected from a range defined for each service type.
 
-Check the ports that have been prefilled in the .env file and adjust them to your local setup.  
-If you are not sure what ports you have used in other rooter projects, you can use the following command to get an overview.
+### Configure auto-initialisation
+
+With direnv it is possible to automatically initialise the environment when you enter the project directory.  
+To activate this feature, run the following command in your project directory.
 ```bash
-rooter env:list --ports
+direnv allow .
 ```
-If you run this command for the very first time the list should be empty and show nothing.
-
-### Register Environment
-
-Register environment to rooter, so it is visible in various commands.
-
-```bash
-rooter env:register
-```
-
-### Register Traefik
-
-Register the nginx of the project to traefik so traefik can route requests.  
-```bash
-rooter traefik:config:register
-```
-
-### Start rooter
-
-To start rooter with dnsmasq and traefik in the background run:
-
-```bash
-rooter start
-```
+When this is activated the first time, dependencies for the CLI will be fetched, installed and configured for this project.
 
 ### Start the environment
 
@@ -147,6 +128,42 @@ DEVENV_HTTP_SUBDOMAINS=my-project,de-project
 This will result in the following domains being available for the project:
 - my-project.rooter.test
 - de-project.rooter.test
+
+## COMMANDS
+
+### Check Ports
+
+Check the ports that have been prefilled in the .env file and adjust them to your local setup.  
+If you are not sure what ports you have used in other rooter projects, you can use the following command to get an overview.
+```bash
+rooter env:list --ports
+```
+If you run this command for the very first time the list should be empty and show nothing.
+
+### Register Environment
+
+Register environment to rooter, so it is visible in various commands.  
+When using the `env:start` command, rooter will automatically register the environment.  
+
+```bash
+rooter env:register
+```
+
+### Register Traefik
+
+Register the nginx of the project to traefik so traefik can route requests.
+When using the `env:start` command, rooter will automatically register the traefik config.
+```bash
+rooter traefik:config:register
+```
+
+### Start rooter
+
+To start rooter with dnsmasq and traefik in the background run:
+
+```bash
+rooter start
+```
 
 ### TablePlus
 
