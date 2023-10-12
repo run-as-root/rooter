@@ -69,9 +69,12 @@ class InstallMagento2DbCommand extends Command
                 --page-cache=redis \
                 --page-cache-redis-server=127.0.0.1 \
                 --page-cache-redis-db=1 \
-                --page-cache-redis-port=$DEVENV_REDIS_PORT  \
-                --amqp-host=127.0.0.1 --amqp-port=$DEVENV_AMQP_PORT --amqp-user=$DEVENV_AMQP_USER --amqp-password=$DEVENV_AMQP_PASS --amqp-virtualhost=\"/\"";
+                --page-cache-redis-port=$DEVENV_REDIS_PORT  ";
 
+        if ($DEVENV_AMQP_PORT) {
+            $command .= " \
+                --amqp-host=127.0.0.1 --amqp-port=$DEVENV_AMQP_PORT --amqp-user=$DEVENV_AMQP_USER --amqp-password=$DEVENV_AMQP_PASS --amqp-virtualhost=\"/\"";
+        }
         if ($DEVENV_ELASTICSEARCH_PORT) {
             $command .= " \
                 --search-engine=elasticsearch7 \
