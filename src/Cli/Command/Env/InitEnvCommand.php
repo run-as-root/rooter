@@ -5,6 +5,8 @@ namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Cli\Output\EnvironmentsRenderer;
 use RunAsRoot\Rooter\Config\RooterConfig;
+use RunAsRoot\Rooter\Manager\DotEnvFileManager;
+use RunAsRoot\Rooter\Manager\PortManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +19,9 @@ class InitEnvCommand extends Command
 {
     public function __construct(
         private readonly RooterConfig $rooterConfig,
-        private readonly EnvironmentsRenderer $environmentsRenderer
+        private readonly EnvironmentsRenderer $environmentsRenderer,
+        private readonly PortManager $portManager,
+        private readonly DotEnvFileManager $dotEnvFileManager
     ) {
         parent::__construct();
     }
@@ -40,6 +44,9 @@ class InitEnvCommand extends Command
         $this->addUsage('symfony');
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
@@ -47,7 +54,7 @@ class InitEnvCommand extends Command
         // get environment type
         $type = $input->getArgument('type');
         if (empty($type)) {
-            $question = new ChoiceQuestion('Please select the environment', $this->rooterConfig->getEnvironmentTypes());
+            $question = new ChoiceQuestion('Please select the environment type:', $this->rooterConfig->getEnvironmentTypes());
             $question->setErrorMessage('environment type %s is unknown.');
 
             $type = $helper->ask($input, $output, $question);
@@ -70,24 +77,8 @@ class InitEnvCommand extends Command
             "devenv.yaml" => "devenv.yaml",
         ];
 
-        $isForce = (bool)$input->getOption('force');
-        $envBaseDir = getcwd();
-        $projectName = $input->getOption('name') ?? basename($envBaseDir);
-
         // Check files
-        $filesToWrite = [];
-        foreach ($files as $sourceFile => $targetFile) {
-            $targetPath = $envBaseDir . "/$targetFile";
-
-            if (!$isForce && is_file($targetPath)) {
-                $question = new ConfirmationQuestion("Overwrite $targetFile ? (y/n): ", false);
-                if (!$helper->ask($input, $output, $question)) {
-                    continue;
-                }
-            }
-
-            $filesToWrite[$sourceFile] = $targetFile;
-        }
+        $filesToWrite = $this->askForOverwrite($files, $input, $output);
 
         if (empty($filesToWrite)) {
             $output->writeln('No files were changed');
@@ -95,6 +86,8 @@ class InitEnvCommand extends Command
         }
 
         // Copy files to project replacing placeholders
+        $envBaseDir = getcwd();
+        $projectName = $input->getOption('name') ?? basename($envBaseDir);
         foreach ($filesToWrite as $sourceFile => $targetFile) {
             $sourcePath = "$envTmplDir/$sourceFile";
             $targetPath = $envBaseDir . "/$targetFile";
@@ -112,10 +105,18 @@ class InitEnvCommand extends Command
             $output->writeln("Copied $targetFile");
         }
 
+        // Init .env file
+        $output->writeln('Writing ENV variables to .env');
+        $envVars = array_merge(
+            ['ROOTER_ENV_TYPE' => $type],
+            $this->portManager->findFreePortsForRanges(true)
+        );
+        $this->dotEnvFileManager->write($envVars);
+
         return Command::SUCCESS;
     }
 
-    private function renderContent(mixed $projectName, string $sourceContent): string
+    private function renderContent(string $projectName, string $sourceContent): string
     {
         $vars = [
             'PROJECT_NAME' => $projectName,
@@ -130,6 +131,29 @@ class InitEnvCommand extends Command
         }
 
         return (string)str_replace($searchStrings, $replaceStrings, $sourceContent);
+    }
+
+    private function askForOverwrite(array $files, InputInterface $input, OutputInterface $output): array
+    {
+        $envBaseDir = getcwd();
+        $helper = $this->getHelper('question');
+
+        $isForce = (bool)$input->getOption('force');
+
+        $filesToWrite = [];
+        foreach ($files as $sourceFile => $targetFile) {
+            $targetPath = $envBaseDir . "/$targetFile";
+
+            if (!$isForce && is_file($targetPath)) {
+                $question = new ConfirmationQuestion("Overwrite $targetFile ? (y/n): ", false);
+                if (!$helper->ask($input, $output, $question)) {
+                    continue;
+                }
+            }
+
+            $filesToWrite[$sourceFile] = $targetFile;
+        }
+        return $filesToWrite;
     }
 
 }
