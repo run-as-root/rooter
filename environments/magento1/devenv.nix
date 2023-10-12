@@ -87,13 +87,13 @@ in {
         package = pkgs.mariadb_106;
         settings = {
             mysqld = {
-                "port" = builtins.getEnv "DEVENV_DB_PORT";
-                "innodb_buffer_pool_size" = "2G";
-                "table_open_cache" = "2048";
-                "sort_buffer_size" = "8M";
-                "join_buffer_size" = "8M";
-                "query_cache_size" = "256M";
-                "query_cache_limit" = "2M";
+                port = config.env.DEVENV_DB_PORT;
+                innodb_buffer_pool_size = "2G";
+                table_open_cache = "2048";
+                sort_buffer_size = "8M";
+                join_buffer_size = "8M";
+                query_cache_size = "256M";
+                query_cache_limit = "2M";
             };
         };
         initialDatabases = [{ name = "${config.env.DEVENV_DB_NAME}"; }];

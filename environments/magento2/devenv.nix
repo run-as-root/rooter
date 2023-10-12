@@ -90,7 +90,7 @@ in {
         package = pkgs.mariadb_106;
         settings = {
             mysqld = {
-                port = builtins.getEnv "DEVENV_DB_PORT"; # direct access to config.env is not working
+                port = config.env.DEVENV_DB_PORT;
                 innodb_buffer_pool_size = "2G";
                 table_open_cache = "2048";
                 sort_buffer_size = "8M";
@@ -125,17 +125,17 @@ in {
     # ElasticSearch
     services.elasticsearch = {
         enable = true;
-        port = lib.strings.toInt ( builtins.getEnv "DEVENV_ELASTICSEARCH_PORT" );
-        tcp_port = lib.strings.toInt ( builtins.getEnv "DEVENV_ELASTICSEARCH_TCP_PORT" );
+        port = lib.strings.toInt ( config.env.DEVENV_ELASTICSEARCH_PORT );
+        tcp_port = lib.strings.toInt ( config.env.DEVENV_ELASTICSEARCH_TCP_PORT );
     };
 
     # RabbitMQ
     services.rabbitmq = {
         enable = true;
-        port = lib.strings.toInt ( builtins.getEnv "DEVENV_AMQP_PORT" );
+        port = lib.strings.toInt ( config.env.DEVENV_AMQP_PORT );
         managementPlugin = {
             enable = true;
-            port = lib.strings.toInt ( builtins.getEnv "DEVENV_AMQP_MANAGEMENT_PORT" );
+            port = lib.strings.toInt ( config.env.DEVENV_AMQP_MANAGEMENT_PORT );
         };
     };
 }

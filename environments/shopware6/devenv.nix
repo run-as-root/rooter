@@ -101,7 +101,7 @@ in {
         package = pkgs.mariadb_106;
         settings = {
             mysqld = {
-                port = builtins.getEnv "DEVENV_DB_PORT"; # direct access to config.env is not working
+                port = config.env.DEVENV_DB_PORT;
                 log_bin_trust_function_creators = 1;
             };
         };
