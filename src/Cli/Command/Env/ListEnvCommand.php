@@ -42,7 +42,7 @@ class ListEnvCommand extends Command
         foreach ($envList as $envData) {
             $pidFile = $this->devenvConfig->getPidFile($envData['path']);
             $status = $this->processManager->isRunning($pidFile) ? 'running' : 'stopped';
-            if($status !== 'running' && $onlyRunning) {
+            if ($status !== 'running' && $onlyRunning) {
                 continue;
             }
 
@@ -83,7 +83,7 @@ class ListEnvCommand extends Command
             $projects[] = $project;
         }
 
-        $headers = ['Name', 'Host', 'Status'];
+        $headers = ['Name', 'Type', 'Host', 'Status'];
         if ($showPorts) {
             $headers = array_merge($headers, ['HTTP', 'db', 'Mail', 'Redis', 'AMQP', 'Elastic', 'ProcessCompose',]);
         }
