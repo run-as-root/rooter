@@ -60,6 +60,16 @@ For that you should either create
 
 ## Project setup
 
+### Quickstart
+
+List of commands without explanation.
+```bash
+rooter env:init <environment-type>
+direnv allow .
+rooter env:start --debug # once done cancel with CTRL+C
+rooter env:start
+```
+
 ### Initialise Environment
 
 To initialise a new enviroment for a project run
