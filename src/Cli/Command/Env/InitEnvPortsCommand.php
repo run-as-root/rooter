@@ -26,8 +26,7 @@ class InitEnvPortsCommand extends Command
 
     protected function configure()
     {
-        $this->addOption('write', 'w', InputOption::VALUE_NONE, 'write contents in .env');
-        $this->addOption('print', 'p', InputOption::VALUE_NONE, 'print the added env variables');
+        $this->addOption('write', 'w', InputOption::VALUE_NONE, 'write contents to .env');
     }
 
     /**
