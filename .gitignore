@@ -1,7 +1,9 @@
 .idea
+.direnv
 /bin
 /tmp
 /vendor
 /rooter
+/result
 box.phar
 rooter.phar

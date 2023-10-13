@@ -17,7 +17,7 @@
     "replacements": {
         "application_name": "rooter"
     },
-    "git-commit-short": "git_commit_short",
     "stub": "build/phar/_cli_stub.php",
+    "main": false,
     "output": "rooter.phar"
 }

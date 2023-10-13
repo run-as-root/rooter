@@ -18,45 +18,11 @@ This guide assumes you have successfully installed:
 
 What exactly is being installed on macOS is documented here: https://nixos.org/manual/nix/stable/installation/installing-binary.html#macos-installation.
 
-## Installation
+## Installation via flake
 
-Clone the rooter repository to your local and change directory to rooter
 ```bash
-git clone git@gitlab.com:run_as_root/internal/rooter.git rooter
-cd rooter
+nix profile install --accept-flake-config "git+ssh://git@gitlab.com/run_as_root/internal/rooter.git?ref=main"
 ```
-No we need to download all dependencies using nix.  
-This can be triggered using direnv or using nix.  
-Choose one:
-
-1. direnv
-```bash
-direnv allow .
-```
-
-2. nix
-```bash 
-nix-shell
-# … wait for the process to finish, it will take quite a few minutes if executed for the first time
-exit # exit the shell
-```
-
-Install Composer dependencies required to executed rooter
-```bash
-composer install
-```
-
-Now that all dependencies are installed, we can continue with the rooter installation.  
-It will initialise directories, configurations, process, ssl certs, etc.  
-```bash
-./rooter install
-```
-
-Last but not least, we suggest to make sure rooter binary is globally available.  
-For that you should either create 
-- an alias for rooter in you `~/.basrc` or `~/.zshrc` e.g. `alias rooter=/<path-to-rooter>/rooter`
-- or create a symlink in any dir that is included in your path
-- or add the rooter directory to the PATH `export $PATH="$PATH:/<path-to-rooter>/rooter"`
 
 ## Project setup
 
@@ -85,7 +51,7 @@ Manually add `.devenv/` and `.env` to .gitignore
 
 This command will also create a `.env` file in your project root or overwrite values for rooter.  
 It will find available ports for the project and write them to the .env file.  
-Ports will selected from a range defined for each service type.
+Ports will be selected from a range defined for each service type.
 
 ### Configure auto-initialisation
 
@@ -205,9 +171,53 @@ see [TEMPLATES.md](docs/TEMPLATES.md)
 
 ## DEVELOPMENT
 
-For local development of rooter you can use the default installation.  
-PHP Debugging can be enabled by replacing this line in ``shell.nix``:
+### Installation Development
 
+Clone the rooter repository to your local and change directory to rooter
+```bash
+git clone git@gitlab.com:run_as_root/internal/rooter.git rooter
+cd rooter
 ```
-use nix -o shell.dev.nix
+No we need to download all dependencies using nix.  
+This can be triggered using direnv or using nix.  
+Choose one:
+
+1. direnv
+```bash
+direnv allow .
+```
+
+2. nix
+```bash 
+nix-shell
+# … wait for the process to finish, it will take quite a few minutes if executed for the first time
+exit # exit the shell
+```
+
+Install Composer dependencies required to executed rooter
+```bash
+composer install
+```
+
+Now that all dependencies are installed, we can continue with the rooter installation.  
+It will initialise directories, configurations, process, ssl certs, etc.
+```bash
+./rooter install
+```
+
+Last but not least, we suggest to make sure rooter binary is globally available.  
+For that you should either create
+- an alias for rooter in you `~/.basrc` or `~/.zshrc` e.g. `alias rooter=/<path-to-rooter>/rooter`
+- or create a symlink in any dir that is included in your path
+- or add the rooter directory to the PATH `export $PATH="$PATH:/<path-to-rooter>/rooter"`
+
+### Using dev version of rooter
+
+For local development of rooter you can use the default installation.
+
+```bash
+nix build ".#rooterDev" --impure
+alias rooter-dev="<path-to-rooter>/rooter/result/bin/rooterDev"
+# optional per environment:
+export ROOTER_BIN="/Volumes/MyData/Entwicklung/Workspace/run-as-root/rooter/result/bin/rooterDev"
 ```
