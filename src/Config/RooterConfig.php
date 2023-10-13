@@ -35,13 +35,23 @@ class RooterConfig
             if ($name === '.' || $name === '..') {
                 continue;
             }
-            if(!is_dir("$templatesDir/$name")) {
+            if (!is_dir("$templatesDir/$name")) {
                 continue;
             }
             $types[] = $name;
         }
 
         return $types;
+    }
+
+    public function getPvBin(): string
+    {
+        return getenv('ROOTER_PV_BIN') ?: "{$this->getBinDir()}/pv";
+    }
+
+    public function getGzipBin(): string
+    {
+        return getenv('ROOTER_GZIP_BIN') ?: "{$this->getBinDir()}/gzip";
     }
 
 }

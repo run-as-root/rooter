@@ -13,6 +13,10 @@ let
     PROJECT_ROOT = builtins.getEnv "PWD";
 
     rooter = pkgs.writeShellScriptBin "rooter" ''
+        export ROOTER_TRAEFIK_BIN=${pkgs.traefik}/bin/traefik
+        export ROOTER_DNSMASQ_BIN=${pkgs.dnsmasq}/bin/dnsmasq
+        export ROOTER_GZIP_BIN=${pkgs.gzip}/bin/gzip
+        export ROOTER_PV_BIN=${pkgs.pv}/bin/pv
         ${php_custom}/bin/php ${PROJECT_ROOT}/rooter.php "$@"
     '';
 in

@@ -23,7 +23,7 @@ class DnsmasqConfig
 
     public function getDnsmasqBin(): string
     {
-        return $this->dnsmasqkBin;
+        return getenv('ROOTER_DNSMASQ_BIN') ?: $this->dnsmasqkBin;
     }
 
     public function getHomeDir(): string

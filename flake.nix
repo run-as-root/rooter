@@ -29,8 +29,18 @@
             xdebug.mode=debug
         '';
       };
+      envConfig = ''
+        export ROOTER_TRAEFIK_BIN=${pkgs.traefik}/bin/traefik
+        export ROOTER_DNSMASQ_BIN=${pkgs.dnsmasq}/bin/dnsmasq
+        export ROOTER_GZIP_BIN=${pkgs.gzip}/bin/gzip
+        export ROOTER_PV_BIN=${pkgs.pv}/bin/pv
+        '';
     in rec {
       packages.php = php;
+      packages.traefik = pkgs.traefik;
+      packages.dnsmasq = pkgs.dnsmasq;
+      packages.pv = pkgs.pv;
+      packages.gzip = pkgs.gzip;
       packages.rooter =
         let
           inherit (pkgs) stdenv lib;
@@ -42,6 +52,7 @@
         in
           pkgs.writeScriptBin "rooter" ''
             #!${pkgs.stdenv.shell}
+            ${envConfig}
             ${php}/bin/php ${magerun} "$@"
           '';
 
@@ -51,6 +62,7 @@
           PROJECT_ROOT = builtins.getEnv "PWD";
         in
           pkgs.writeShellScriptBin "rooterDev" ''
+            ${envConfig}
             ${phpDev}/bin/php ${PROJECT_ROOT}/rooter.php "$@"
           '';
 
@@ -68,20 +80,21 @@
                 ${pkgs.php82Packages.composer}/bin/composer install
                 ${phpDev}/bin/php ${box} compile --composer-bin=${pkgs.php82Packages.composer}/bin/composer
               ";
-              installPhase = "
+              installPhase = ''
                 mkdir -p $out/bin;
                 install -t $out/bin rooter.phar;
-              ";
+              '';
           };
         in
           pkgs.writeShellScriptBin "rooterDevPhar" ''
+              ${envConfig}
               ${phpDev}/bin/php ${rooterPharLocal}/bin/rooter.phar "$@"
           '';
 
       defaultPackage = self.packages.${system}.rooter;
 
       devShell = pkgs.mkShell {
-        buildInputs = [phpDev];
+        buildInputs = with pkgs; [phpDev traefik dnsmasq pv gzip packages.rooterDev];
       };
     });
 }

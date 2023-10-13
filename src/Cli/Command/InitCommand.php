@@ -8,6 +8,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @deprecated env variables for ROOTER_TRAEFIK_BIN and ROOTER_%s_BIN are being used instead
+ */
 class InitCommand extends Command
 {
     public function __construct(private readonly RooterConfig $rooterConfig)
@@ -36,24 +39,40 @@ class InitCommand extends Command
 
         $bins = ['traefik', 'dnsmasq', 'pv', 'gzip',];
         foreach ($bins as $bin) {
-            $this->initBin($bin);
+            try {
+                $this->initBin($bin);
+                $output->writeln("$bin initialised");
+            } catch (\Exception $e) {
+                $output->writeln("<error>$bin initialisation error: {$e->getMessage()}</error>");
+            }
         }
 
         return 0;
     }
 
+    /**
+     * @throws \RuntimeException
+     */
     private function initBin(string $binName): void
     {
-        $binTarget = "{$this->rooterConfig->getBinDir()}/$binName";
+        $binSource = getenv(sprintf("ROOTER_%s_BIN", strtoupper($binName)));
 
+        if (empty($binSource)) {
+            $path = [];
+            exec('which ' . $binName, $path);
+
+            if (count($path) === 0) {
+                throw new \RuntimeException("Could not find $binName in PATH");
+            }
+
+            $binSource = array_shift($path);
+        }
+
+        // re-create symlink
+        $binTarget = "{$this->rooterConfig->getBinDir()}/$binName";
         if (is_file($binTarget)) {
             unlink($binTarget);
         }
-
-        $path = [];
-        exec('which ' . $binName, $path);
-
-        $binSource = array_shift($path);
 
         exec("ln -sf $binSource $binTarget");
     }

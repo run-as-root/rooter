@@ -29,8 +29,8 @@ class MysqlImportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $PV_BIN = "{$this->rooterConfig->getBinDir()}/pv";
-        $GZIP_BIN = "{$this->rooterConfig->getBinDir()}/gzip";
+        $PV_BIN = $this->rooterConfig->getPvBin();
+        $GZIP_BIN = $this->rooterConfig->getGzipBin();
 
         $dbDumpFile = $input->getArgument('file');
 

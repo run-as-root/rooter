@@ -178,20 +178,11 @@ Clone the rooter repository to your local and change directory to rooter
 git clone git@gitlab.com:run_as_root/internal/rooter.git rooter
 cd rooter
 ```
-No we need to download all dependencies using nix.  
-This can be triggered using direnv or using nix.  
-Choose one:
-
-1. direnv
-```bash
-direnv allow .
-```
-
-2. nix
+Now we need to download all dependencies and prepare a executable.
 ```bash 
-nix-shell
-# … wait for the process to finish, it will take quite a few minutes if executed for the first time
-exit # exit the shell
+nix build ".#rooterDev" --impure
+# if flakes are disabled:
+nix build ".#rooterDev" --impure --extra-experimental-features nix-command --extra-experimental-features flakes
 ```
 
 Install Composer dependencies required to executed rooter
@@ -201,23 +192,43 @@ composer install
 
 Now that all dependencies are installed, we can continue with the rooter installation.  
 It will initialise directories, configurations, process, ssl certs, etc.
+NOTE: This is only necessary if it was not done with the normal installation.
 ```bash
-./rooter install
+rooterDev install
 ```
 
-Last but not least, we suggest to make sure rooter binary is globally available.  
+Last but not least, we suggest to make sure rooterDev version available globally.  
 For that you should either create
-- an alias for rooter in you `~/.basrc` or `~/.zshrc` e.g. `alias rooter=/<path-to-rooter>/rooter`
+- an alias for rooter in you `~/.basrc` or `~/.zshrc`
 - or create a symlink in any dir that is included in your path
-- or add the rooter directory to the PATH `export $PATH="$PATH:/<path-to-rooter>/rooter"`
 
-### Using dev version of rooter
+Examples
+```bash
+# add to your .bashrc or .zshrc
+alias rooter-dev="<path-to-rooter>/rooter/result/bin/rooterDev"
 
-For local development of rooter you can use the default installation.
+# optional per environment:
+export ROOTER_BIN="<path-to-rooter>/rooter/result/bin/rooterDev"
+```
+
+### direnv
+
+For ease of use you can activate direnv for the rooter project.  
+By default it will refresh the `rooterDev` package and make it available in your shell.
 
 ```bash
+direnv allow .
+```
+
+
+### Commands while using dev version of rooter
+
+#### Debugging
+
+To debug rooter itself you need to use the '.#rooterDev' build out (`result/bin/rooterDev`).
+```bash
 nix build ".#rooterDev" --impure
-alias rooter-dev="<path-to-rooter>/rooter/result/bin/rooterDev"
-# optional per environment:
-export ROOTER_BIN="/Volumes/MyData/Entwicklung/Workspace/run-as-root/rooter/result/bin/rooterDev"
+
+# if flakes are disabled:
+nix build ".#rooterDev" --impure --extra-experimental-features nix-command --extra-experimental-features flakes
 ```

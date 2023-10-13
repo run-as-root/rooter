@@ -26,7 +26,7 @@ class TraefikConfig
 
     public function getTraefikBin(): string
     {
-        return $this->traefikBin;
+        return getenv('ROOTER_TRAEFIK_BIN') ?: $this->traefikBin;
     }
 
     public function getTraefikHomeDir(): string
