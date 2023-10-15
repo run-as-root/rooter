@@ -21,7 +21,9 @@ What exactly is being installed on macOS is documented here: https://nixos.org/m
 ## Installation via flake
 
 ```bash
-nix profile install --accept-flake-config "git+ssh://git@gitlab.com/run_as_root/internal/rooter.git?ref=main"
+nix profile install --accept-flake-config "git+ssh://git@github.com/run-as-root/rooter.git?ref=main"
+# once public: nix profile install --accept-flake-config "github:run-as-root/rooter?ref=main"
+# from gitlab: nix profile install --accept-flake-config "git+ssh://git@gitlab.com/run_as_root/internal/rooter.git?ref=main"
 ```
 
 ## Project setup
