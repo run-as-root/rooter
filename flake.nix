@@ -44,16 +44,15 @@
       packages.rooter =
         let
           inherit (pkgs) stdenv lib;
-          magerun = builtins.fetchurl {
-            # @todo fetch rooter.phar from github releases
-            url = "https://github.com/netz98/n98-magerun2/releases/download/7.2.0/n98-magerun2.phar";
-            sha256 = "0z1dkxz69r9r9gf8xm458zysa51f1592iymcp478wjx87i6prvn3";
+          rooterPhar = builtins.fetchurl {
+            url = "https://github.com/run-as-root/rooter/releases/download/latest/rooter.phar";
+            sha256 = "0krq1q5mgxknhgjjc3d1wzmcpq3axkd4p2l1i0ymjy43rknlw8af";
           };
         in
           pkgs.writeScriptBin "rooter" ''
             #!${pkgs.stdenv.shell}
             ${envConfig}
-            ${php}/bin/php ${magerun} "$@"
+            ${php}/bin/php ${rooterPhar} "$@"
           '';
 
       packages.rooterDev =
@@ -91,9 +90,9 @@
               ${phpDev}/bin/php ${rooterPharLocal}/bin/rooter.phar "$@"
           '';
 
-      defaultPackage = self.packages.${system}.rooter;
+      packages.default = self.packages.${system}.rooter;
 
-      devShell = pkgs.mkShell {
+      devShells.default = pkgs.mkShell {
         buildInputs = with pkgs; [phpDev traefik dnsmasq pv gzip packages.rooterDev];
       };
     });
