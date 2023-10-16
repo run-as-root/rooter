@@ -10,9 +10,14 @@
     "directories": [
         "src",
         "config",
-        "environments",
         "templates",
         "etc"
+    ],
+    "finder": [
+        {
+            "in": "environments",
+            "ignoreDotFiles": false
+        }
     ],
     "replacements": {
         "application_name": "rooter"
