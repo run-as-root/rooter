@@ -1,5 +1,6 @@
 parameters:
-  version: '%env(ROOTER_VERSION)%'
+  version: '%env(default:versionDefault:ROOTER_VERSION)%'
+  versionDefault: '@@latest'
 
 services:
   _defaults:
