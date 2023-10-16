@@ -15,6 +15,7 @@
     utils.lib.eachDefaultSystem (system:
     let
       pkgs = nixpkgs.legacyPackages.${system};
+      rooterVersion = (builtins.readFile ./VERSION);
       # @todo adapt PHP version if required
       php = pkgs.php82.buildEnv {
         extensions = { all, enabled }: with all; enabled;
@@ -51,6 +52,8 @@
         in
           pkgs.writeScriptBin "rooter" ''
             #!${pkgs.stdenv.shell}
+            export ROOTER_APP_MODE=production
+            export ROOTER_VERSION=${rooterVersion}
             ${envConfig}
             ${php}/bin/php ${rooterPhar} "$@"
           '';
@@ -61,6 +64,8 @@
           PROJECT_ROOT = builtins.getEnv "PWD";
         in
           pkgs.writeShellScriptBin "rooterDev" ''
+            export ROOTER_APP_MODE=develop
+            export ROOTER_VERSION=develop
             ${envConfig}
             ${phpDev}/bin/php ${PROJECT_ROOT}/rooter.php "$@"
           '';
@@ -86,6 +91,8 @@
           };
         in
           pkgs.writeShellScriptBin "rooterDevPhar" ''
+              export ROOTER_APP_MODE=develop
+              export ROOTER_VERSION=develop-phar
               ${envConfig}
               ${phpDev}/bin/php ${rooterPharLocal}/bin/rooter.phar "$@"
           '';

@@ -37,7 +37,7 @@ class RooterBootstrap
         $loader = new YamlFileLoader($container, new FileLocator($baseDir));
         $loader->load('config/services.yaml');
 
-        $container->compile();
+        $container->compile(true);
 
         return $container->get(CliApplication::class);
     }
