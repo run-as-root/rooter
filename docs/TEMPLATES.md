@@ -6,8 +6,8 @@
     services.opensearch = {
         enable = true;
         settings = {
-            "http.port" = elasticsearchPort;
-            "transport.port" = 9300;
+            "http.port" = lib.strings.toInt ( config.env.DEVENV_ELASTICSEARCH_PORT);
+            "transport.port" = lib.strings.toInt ( config.env.DEVENV_ELASTICSEARCH_TCP_PORT );
         };
     };
 ```
