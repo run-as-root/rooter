@@ -25,21 +25,11 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
 fi
 # End Nix
 ```
+## RabbitMQ
 
-## php-fpm is not stopped
-
-By default devenv uses ``honcho`` process-manager.  
-For a yet unknown reason, in some scenarios, honcho can not stop php-fpm.  
-Reason is that the PID tracked by honcho does not match the actual PID the process is running with.  
-
-In that case you can use another process-manager: ``process-compose``
-
-Add this to your `devenv.nix`
-```nix
-    process.implementation="process-compose";
-    process.process-compose={
-        "port" = "9999";
-        "tui" = "false";
-        "version" = "0.5";
-    };
+RabbitMQ is not starting with an error similar to this:
 ```
+Protocol 'inet_tcp': register/listen error: eaddrinuse
+```
+
+For some reason RabbitMQ opens a connection to a port already in use, even though they are not configured in `.env / devenv.nix`
