@@ -8,10 +8,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 #[Autoconfigure(lazy: true)]
 class DotEnvFileManager
 {
-    public function __construct()
-    {
-    }
-
     public function write(array $envVariables, string $envFile=''): void
     {
         $variablesToAdd = $envVariables; // copy to have a list of remaining variables to add

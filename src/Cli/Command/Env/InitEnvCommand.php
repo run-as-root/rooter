@@ -100,9 +100,22 @@ class InitEnvCommand extends Command
 
             $targetContent = $this->renderContent($projectName, $sourceContent);
 
+            // create backup first
+            if (is_file($targetPath)) {
+                copy($targetPath, "$targetPath.backup");
+                $output->writeln("Backup $targetFile to $targetPath.backup");
+            }
+
             file_put_contents($targetPath, $targetContent);
 
             $output->writeln("Copied $targetFile");
+        }
+
+        // create backup before writing to .env
+        $envFile = ROOTER_PROJECT_ROOT . "/.env";
+        if (is_file($envFile)) {
+            copy($envFile, "$envFile.backup");
+            $output->writeln("Backup $envFile to $envFile.backup");
         }
 
         // Init .env file
