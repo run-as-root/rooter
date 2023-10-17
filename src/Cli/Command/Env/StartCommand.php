@@ -115,6 +115,7 @@ class StartCommand extends Command
         return $isSuccess ? Command::SUCCESS : Command::FAILURE;
     }
 
+    /** @deprecated it was introduced as a fallback in the early stages*/
     private function followStartLegacy(OutputInterface $output): void
     {
         $pidFile = $this->devenvConfig->getPidFile();
