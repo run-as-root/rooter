@@ -6,8 +6,8 @@
     services.opensearch = {
         enable = true;
         settings = {
-            "http.port" = lib.strings.toInt ( config.env.DEVENV_ELASTICSEARCH_PORT);
-            "transport.port" = lib.strings.toInt ( config.env.DEVENV_ELASTICSEARCH_TCP_PORT );
+            "http.port" = lib.strings.toInt ( config.env.DEVENV_OPENSEARCH_PORT);
+            "transport.port" = lib.strings.toInt ( config.env.DEVENV_OPENSEARCH_TCP_PORT );
         };
     };
 ```
