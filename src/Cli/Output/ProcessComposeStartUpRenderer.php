@@ -54,9 +54,6 @@ class ProcessComposeStartUpRenderer
                 }
                 $message .= sprintf("process %s is %s (pid: %s)%s\n", $process['name'], $process['status'], $process['pid'], $exitCodeMsg);
 
-                if ($process['name'] === 'rabbitmq') { // RabbitMQ is not always detected running correctly
-                    continue;
-                }
                 $allRunning = $allRunning && $isRunning;
             }
             $section->overwrite($message);
