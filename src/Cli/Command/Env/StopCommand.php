@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use RunAsRoot\Rooter\Cli\Command\Traefik\RemoveTraefikConfigCommand;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Exception\FailedToStopProcessException;
 use RunAsRoot\Rooter\Exception\ProcessNotRunningException;
 use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -15,7 +17,8 @@ class StopCommand extends Command
 {
     public function __construct(
         private readonly DevenvConfig $devenvConfig,
-        private readonly ProcessManager $processManager
+        private readonly ProcessManager $processManager,
+        private readonly RemoveTraefikConfigCommand $removeTraefikConfigCommand,
     ) {
         parent::__construct();
     }
@@ -46,7 +49,9 @@ class StopCommand extends Command
             $result = false;
         }
 
-        return $result ? Command::SUCCESS : Command::FAILURE;
+        $resultTraefik = $this->removeTraefikConfigCommand->run(new ArrayInput([]), $output) === Command::SUCCESS;
+
+        return $result && $resultTraefik ? Command::SUCCESS : Command::FAILURE;
     }
 
 }
