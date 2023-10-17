@@ -25,6 +25,7 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
 fi
 # End Nix
 ```
+
 ## RabbitMQ
 
 RabbitMQ is not starting with an error similar to this:

@@ -34,3 +34,25 @@ in {
 }
 ```
 This approach can be applied for other packages and package sources as well.  
+
+## Composer required in a specific version
+
+modifiy your `devenv.nix` file to include the fetch for the composer phar in the version required and 
+create a shell script that takes precedence over the composer package in the nix store.
+
+```nix
+let
+    # …
+    composerPhar = builtins.fetchurl{
+        url = "https://github.com/composer/composer/releases/download/2.2.22/composer.phar";
+        sha256 = "1lmibmdlk2rsrf4zr7xk4yi5rhlmmi8f2g8h2izb8x4sik600dbx";
+    };
+    # …
+in {
+    # …
+    scripts.composer.exec = ''
+        php ${composerPhar} $@
+    '';
+    # …
+}
+```
