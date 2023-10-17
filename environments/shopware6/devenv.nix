@@ -17,9 +17,6 @@ in {
         DEVENV_DB_USER = "app";# shopware
         DEVENV_DB_PASS = "app";# shopware
 
-        DEVENV_AMQP_USER = builtins.getEnv "USER";
-        DEVENV_AMQP_PASS = "guest";
-
         # Shopware env variables
         APP_URL="http://127.0.0.1:${config.env.DEVENV_HTTP_PORT}";
         STOREFRONT_PROXY_URL = "http://${config.env.PROJECT_HOST}";

@@ -17,7 +17,7 @@ in {
         DEVENV_DB_USER = "app";
         DEVENV_DB_PASS = "app";
 
-        DEVENV_AMQP_USER = builtins.getEnv "USER";
+        DEVENV_AMQP_USER = "guest";
         DEVENV_AMQP_PASS = "guest";
     };
 
