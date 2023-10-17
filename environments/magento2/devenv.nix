@@ -2,6 +2,10 @@
 
 let
     rooterBin = if builtins.getEnv "ROOTER_BIN" != "" then builtins.getEnv "ROOTER_BIN" else "rooter";
+    composerPhar = builtins.fetchurl{
+        url = "https://github.com/composer/composer/releases/download/2.2.22/composer.phar";
+        sha256 = "1lmibmdlk2rsrf4zr7xk4yi5rhlmmi8f2g8h2izb8x4sik600dbx";
+    };
 in {
     dotenv.enable = true;
     env = {
@@ -28,8 +32,15 @@ in {
         pkgs.curl
         pkgs.yarn
         pkgs.gettext
+        pkgs.n98-magerun2
     ];
 
+    # Composer 2.2.x required by Magento2 <=2.4.6
+    scripts.composer.exec = ''
+        php ${composerPhar} $@
+    '';
+
+    # process-compose
     process.implementation="process-compose";
     process.process-compose={
         "port" = config.env.DEVENV_PROCESS_COMPOSE_PORT;
