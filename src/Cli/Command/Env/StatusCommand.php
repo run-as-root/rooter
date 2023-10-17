@@ -68,7 +68,13 @@ class StatusCommand extends Command
     {
         try {
             $this->processComposeApi->isAlive($envData);
+        } catch (\Exception $e) {
+            $output->writeln("environment seems to be stopped.");
+            $output->writeln("start environment to see process list.");
+            return;
+        }
 
+        try {
             $processData = $this->processComposeApi->getProcessList($envData);
         } catch (ApiException $e) {
             $output->writeln("<error>{$e->getMessage()}</error>");
