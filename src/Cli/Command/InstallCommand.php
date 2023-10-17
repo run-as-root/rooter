@@ -21,7 +21,6 @@ class InstallCommand extends Command
     public function __construct(
         private readonly RooterConfig $rooterConfig,
         private readonly CertConfig $certConfig,
-        private readonly InitCommand $initCommand,
         private readonly InitDnsmasqConfigCommand $initDnsmasq,
         private readonly InitTraefikConfigCommand $initTraefik,
     ) {
@@ -62,10 +61,6 @@ class InstallCommand extends Command
         if (!is_dir($rooterEnvDir) && !mkdir($rooterEnvDir, 0755, true) && !is_dir($rooterEnvDir)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterEnvDir));
         }
-
-        // Init executables
-        $output->writeln('==> Initialising executables');
-        $this->initCommand->run(new ArrayInput([]), $output);
 
         // Init dnsmasq
         $output->writeln('==> Initialising dnsmasq');
