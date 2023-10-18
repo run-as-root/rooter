@@ -56,3 +56,27 @@ in {
     # …
 }
 ```
+
+## Custom TLD
+
+First Generate certificates for `your-domain-name.test`
+```bash
+rooter certs:generate your-domain-name.test
+```
+
+Copy the file [templates/nginx/tld/nginx-template.conf](`/templates/nginx/tld/nginx-template.conf`) 
+to `PROJECT_ROOT/.rooter/nginx/nginx-template.conf`.  
+
+Open the file and replace all occurrences of `${PROJECT_TLD}` with `your-domain-name.test`.
+
+Finally add the following to your `.env` file
+```dotenv
+PROJECT_TLD=your-domain-name.test
+DEVENV_CONFIG_NGINX=.rooter/nginx
+```
+That's it. You can now start rooter and it will use your custom TLD.   
+``bash
+rooter env:start
+``
+Traefik config will be automatically registered. So you can open the traefik dashboard and check.  
+You can also verify `PROJECT_ROOT/.devenv/state/nginx/nginx.conf`, it should now contain your TLD.  
