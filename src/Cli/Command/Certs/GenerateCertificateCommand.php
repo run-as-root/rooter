@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Certs;
 
 use RunAsRoot\Rooter\Config\CertConfig;
-use RunAsRoot\Rooter\Config\RooterConfig;
 use RunAsRoot\Rooter\Service\GenerateCertificateService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
@@ -17,7 +16,6 @@ class GenerateCertificateCommand extends Command
     private GenerateCertificateService $generateCertificateService;
 
     public function __construct(
-        private readonly RooterConfig $rooterConfig,
         private readonly CertConfig $certConfig,
     ) {
         parent::__construct();
@@ -42,12 +40,7 @@ class GenerateCertificateCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (ROOTER_DIR !== getcwd()) {
-            $output->writeln("This command can only be executed in the rooter dir");
-            return 1;
-        }
-
-        // check if root cert is initalised
+        // check if root cert is initialised
         if (!file_exists($this->certConfig->getCaCertPemFile())) {
             $output->writeln('Private key for local root certificate is missing.');
             $output->writeln('Please run "rooter install" first.');
