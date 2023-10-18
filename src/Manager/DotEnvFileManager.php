@@ -17,7 +17,7 @@ class DotEnvFileManager
         // Clean array from variables prefixed with DEVENV_ or ROOTER_
         $envFileData = [];
         foreach ($lines as $line) {
-            if (!str_starts_with($line, 'DEVENV_') && !str_starts_with($line, 'ROOTER_')) {
+            if(!preg_match("/(#?(ROOTER_|DEVENV_).*)=/", $line)){
                 $envFileData[] = $line;
                 continue;
             }
@@ -25,7 +25,8 @@ class DotEnvFileManager
             $envVarReplaced = false;
             foreach ($envVariables as $varName => $varValue) {
                 if (preg_match("/$varName=.*/", $line)) {
-                    $envFileData[] = "$varName=$varValue" . PHP_EOL;
+                    $comment = str_starts_with($line, '#') ? "#" : ''; // Keep the line commented out
+                    $envFileData[] = "$comment$varName=$varValue" . PHP_EOL;
                     $envVarReplaced = true;
                     unset($variablesToAdd[$varName]);
                     break;
