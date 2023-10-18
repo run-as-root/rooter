@@ -17,6 +17,16 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class InitEnvCommand extends Command
 {
+    /**
+     * files to copy to project
+     * @todo this is hardcoded and has to be the same for all projects, could be dynamically configured per environment template
+     */
+    private array $files = [
+        ".envrc" => ".envrc",
+        "devenv.nix" => "devenv.nix",
+        "devenv.yaml" => "devenv.yaml",
+    ];
+
     public function __construct(
         private readonly RooterConfig $rooterConfig,
         private readonly EnvironmentsRenderer $environmentsRenderer,
@@ -50,9 +60,10 @@ class InitEnvCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
+        $projectName = $input->getOption('name') ?? basename(getcwd());
 
         // get environment type
-        $type = $input->getArgument('type');
+        $type = (string)$input->getArgument('type');
         if (empty($type)) {
             $question = new ChoiceQuestion('Please select the environment type:', $this->rooterConfig->getEnvironmentTypes());
             $question->setErrorMessage('environment type %s is unknown.');
@@ -62,32 +73,74 @@ class InitEnvCommand extends Command
         $output->writeln("Initialising environment of type: $type");
 
         // Verify environment template dir
-        $envTmplDir = "{$this->rooterConfig->getEnvironmentTemplatesDir()}/$type";
-        if (!is_dir($envTmplDir)) {
+        if (!is_dir($this->rooterConfig->getEnvironmentTemplatesDirForType($type))) {
             $output->writeln("<error>environment templates directory not found for type: $type</error>");
             $this->environmentsRenderer->render($input, $output);
             return Command::FAILURE;
         }
 
-        // files to copy to project
-        // @todo this is hardcoded and has to be the same for all projects, could be dynamically configured per environment template
-        $files = [
-            ".envrc" => ".envrc",
-            "devenv.nix" => "devenv.nix",
-            "devenv.yaml" => "devenv.yaml",
-        ];
+        // Ask for changes
+        [$filesToCopy, $filesToUpdate] = $this->askForChanges($input, $output);
 
-        // Check files
-        $filesToWrite = $this->askForOverwrite($files, $input, $output);
-
-        if (empty($filesToWrite)) {
-            $output->writeln('No files were changed');
+        if (empty($filesToCopy) && empty($filesToUpdate)) {
+            $output->writeln('No files created or updated.');
             return Command::SUCCESS;
         }
 
         // Copy files to project replacing placeholders
+        if (!empty($filesToCopy)) {
+            $this->copyFilesFromTemplate($filesToCopy, $type, $projectName, $output);
+        }
+
+        // Update .env file
+        if (array_key_exists('.env', $filesToUpdate)) {
+            $this->updateEnvFile($filesToUpdate['.env'], $type, $output);
+        }
+
+        return Command::SUCCESS;
+    }
+
+    private function askForChanges(InputInterface $input, OutputInterface $output): array
+    {
         $envBaseDir = getcwd();
-        $projectName = $input->getOption('name') ?? basename($envBaseDir);
+        $helper = $this->getHelper('question');
+
+        $isForce = (bool)$input->getOption('force');
+
+        // Files to copy
+        $filesToCopy = [];
+        foreach ($this->files as $sourceFile => $targetFile) {
+            $targetPath = $envBaseDir . "/$targetFile";
+
+            if (!$isForce && is_file($targetPath)) {
+                $question = new ConfirmationQuestion("Overwrite $targetFile ? (y/N): ", false);
+                if (!$helper->ask($input, $output, $question)) {
+                    continue;
+                }
+            }
+
+            $filesToCopy[$sourceFile] = $targetFile;
+        }
+
+        // Files to update
+        $filesToUpdate = [];
+        $envFile = ROOTER_PROJECT_ROOT . "/.env";
+        if (!$isForce && is_file($envFile)) {
+            $question = new ConfirmationQuestion("Update .env ? (y/N): ", false);
+            if ($helper->ask($input, $output, $question)) {
+                $filesToUpdate['.env'] = $envFile;
+            }
+        } else {
+            $filesToUpdate['.env'] = $envFile;
+        }
+
+        return [$filesToCopy, $filesToUpdate];
+    }
+
+    private function copyFilesFromTemplate(array $filesToWrite, string $type, string $projectName, OutputInterface $output): void
+    {
+        $envTmplDir = $this->rooterConfig->getEnvironmentTemplatesDirForType($type);
+        $envBaseDir = getcwd();
         foreach ($filesToWrite as $sourceFile => $targetFile) {
             $sourcePath = "$envTmplDir/$sourceFile";
             $targetPath = $envBaseDir . "/$targetFile";
@@ -110,23 +163,26 @@ class InitEnvCommand extends Command
 
             $output->writeln("Copied $targetFile");
         }
+    }
 
-        // create backup before writing to .env
-        $envFile = ROOTER_PROJECT_ROOT . "/.env";
+    /**
+     * @throws \Exception
+     */
+    private function updateEnvFile(string $envFile, string $type, OutputInterface $output): void
+    {
+        // Create backup
         if (is_file($envFile)) {
             copy($envFile, "$envFile.backup");
             $output->writeln("Backup $envFile to $envFile.backup");
         }
 
-        // Init .env file
+        // Create or Update env file
         $output->writeln('Writing ENV variables to .env');
         $envVars = array_merge(
             ['ROOTER_ENV_TYPE' => $type],
             $this->portManager->findFreePortsForRanges(true)
         );
         $this->dotEnvFileManager->write($envVars);
-
-        return Command::SUCCESS;
     }
 
     private function renderContent(string $projectName, string $sourceContent): string
@@ -144,29 +200,6 @@ class InitEnvCommand extends Command
         }
 
         return (string)str_replace($searchStrings, $replaceStrings, $sourceContent);
-    }
-
-    private function askForOverwrite(array $files, InputInterface $input, OutputInterface $output): array
-    {
-        $envBaseDir = getcwd();
-        $helper = $this->getHelper('question');
-
-        $isForce = (bool)$input->getOption('force');
-
-        $filesToWrite = [];
-        foreach ($files as $sourceFile => $targetFile) {
-            $targetPath = $envBaseDir . "/$targetFile";
-
-            if (!$isForce && is_file($targetPath)) {
-                $question = new ConfirmationQuestion("Overwrite $targetFile ? (y/n): ", false);
-                if (!$helper->ask($input, $output, $question)) {
-                    continue;
-                }
-            }
-
-            $filesToWrite[$sourceFile] = $targetFile;
-        }
-        return $filesToWrite;
     }
 
 }

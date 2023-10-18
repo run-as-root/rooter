@@ -24,6 +24,11 @@ class RooterConfig
         return $this->environmentTemplatesDir;
     }
 
+    public function getEnvironmentTemplatesDirForType(string $type): string
+    {
+        return "$this->environmentTemplatesDir/$type";
+    }
+
     public function getEnvironmentTypes(): array
     {
         $types = [];
