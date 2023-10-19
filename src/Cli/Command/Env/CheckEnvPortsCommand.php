@@ -41,18 +41,46 @@ class CheckEnvPortsCommand extends Command
         $envData = $this->envRepository->getByName($projectName);
 
         $rows = [];
-        $rows[] = ['HTTP', $envData['httpPort'], $this->portManager->isPortAvailable((int)$envData['httpPort'])];
-        $rows[] = ['HTTPS', $envData['httpsPort'], $this->portManager->isPortAvailable((int)$envData['httpsPort'])];
-        $rows[] = ['db', $envData['dbPort'], $this->portManager->isPortAvailable((int)$envData['dbPort'])];
-        $rows[] = ['Mail SMTP', $envData['mailSmtpPort'], $this->portManager->isPortAvailable((int)$envData['mailSmtpPort'])];
-        $rows[] = ['Mail UI', $envData['mailUiPort'], $this->portManager->isPortAvailable((int)$envData['mailUiPort'])];
-        $rows[] = ['db', $envData['dbPort'], $this->portManager->isPortAvailable((int)$envData['dbPort'])];
-        $rows[] = ['Redis', $envData['redisPort'], $this->portManager->isPortAvailable((int)$envData['redisPort'])];
-        $rows[] = ['AMQP', $envData['amqpPort'], $this->portManager->isPortAvailable((int)$envData['amqpPort'])];
-        $rows[] = ['AMQP Management', $envData['amqpManagementPort'], $this->portManager->isPortAvailable((int)$envData['amqpManagementPort'])];
-        $rows[] = ['Elastic', $envData['elasticsearchPort'], $this->portManager->isPortAvailable((int)$envData['elasticsearchPort'])];
-        $rows[] = ['Elastic TCP', $envData['elasticsearchTcpPort'], $this->portManager->isPortAvailable((int)$envData['elasticsearchTcpPort'])];
-        $rows[] = ['process-compose', $envData['processComposePort'], $this->portManager->isPortAvailable((int)$envData['processComposePort'])];
+        if (isset($envData['httpPort']) && $envData['httpPort'] > 0) {
+            $rows[] = ['HTTP', $envData['httpPort'], $this->portManager->isPortAvailable((int)$envData['httpPort'])];
+        }
+        if (isset($envData['httpsPort']) && $envData['httpsPort'] > 0) {
+            $rows[] = ['HTTPS', $envData['httpsPort'], $this->portManager->isPortAvailable((int)$envData['httpsPort'])];
+        }
+
+        if (isset($envData['mailSmtpPort']) && $envData['mailSmtpPort'] > 0) {
+            $rows[] = ['Mail SMTP', $envData['mailSmtpPort'], $this->portManager->isPortAvailable((int)$envData['mailSmtpPort'])];
+            $rows[] = ['Mail UI', $envData['mailUiPort'], $this->portManager->isPortAvailable((int)$envData['mailUiPort'])];
+        }
+
+        if (isset($envData['dbPort']) && $envData['dbPort'] > 0) {
+            $rows[] = ['db', $envData['dbPort'], $this->portManager->isPortAvailable((int)$envData['dbPort'])];
+        }
+
+        if (isset($envData['redisPort']) && $envData['redisPort'] > 0) {
+            $rows[] = ['Redis', $envData['redisPort'], $this->portManager->isPortAvailable((int)$envData['redisPort'])];
+        }
+
+        if (isset($envData['amqpPort']) && $envData['amqpPort'] > 0) {
+            $rows[] = ['AMQP', $envData['amqpPort'], $this->portManager->isPortAvailable((int)$envData['amqpPort'])];
+        }
+        if (isset($envData['amqpManagementPort']) && $envData['amqpManagementPort'] > 0) {
+            $amqpManagementPort = $envData['amqpManagementPort'];
+            $rows[] = ['AMQP Management', $amqpManagementPort, $this->portManager->isPortAvailable((int)$amqpManagementPort),];
+        }
+
+        if (isset($envData['elasticsearchPort']) && $envData['elasticsearchPort'] > 0) {
+            $rows[] = ['Elastic', $envData['elasticsearchPort'], $this->portManager->isPortAvailable((int)$envData['elasticsearchPort'])];
+        }
+        if (isset($envData['elasticsearchTcpPort']) && $envData['elasticsearchTcpPort'] > 0) {
+            $elasticsearchTcpPort = $envData['elasticsearchTcpPort'];
+            $rows[] = ['Elastic TCP', $elasticsearchTcpPort, $this->portManager->isPortAvailable((int)$elasticsearchTcpPort),];
+        }
+
+        if (isset($envData['processComposePort']) && $envData['processComposePort'] > 0) {
+            $processComposePort = $envData['processComposePort'];
+            $rows[] = ['process-compose', $processComposePort, $this->portManager->isPortAvailable((int)$processComposePort),];
+        }
 
         $table = new Table($output);
         $table->setStyle('box');

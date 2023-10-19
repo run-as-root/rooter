@@ -25,7 +25,7 @@ class InitEnvCommand extends Command
     public function configure()
     {
         $this->setName('env:init');
-        $this->setDescription('Initialise project for local environment');
+        $this->setDescription('Initialise local environment for an already configured rooter project');
         $this->addArgument('type', InputArgument::OPTIONAL, 'The environment type you want to initialise');
     }
 

@@ -17,7 +17,11 @@ class AmqpAdminCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $port = getenv('DEVENV_AMQP_MANAGEMENT_PORT'); # @todo check if set
+        $port = getenv('DEVENV_AMQP_MANAGEMENT_PORT');
+        if (empty($port)) {
+            $output->writeln("<error>DEVENV_AMQP_MANAGEMENT_PORT is not set.</error>");
+            return Command::FAILURE;
+        }
 
         shell_exec("open http://127.0.0.1:$port");
 

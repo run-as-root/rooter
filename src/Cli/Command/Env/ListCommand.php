@@ -26,6 +26,7 @@ class ListCommand extends Command
     public function configure()
     {
         $this->setName('list');
+        $this->setAliases(['ps']);
         $this->setDescription('list all projects');
         $this->addOption('ports', '', InputOption::VALUE_NONE, 'show all ports');
         $this->addOption('running', '', InputOption::VALUE_NONE, 'filter for running environments');
