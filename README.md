@@ -12,9 +12,12 @@ Alongside that is has a lot of commands to solve day-to-day repetitive tasks.
 This guide assumes you have successfully installed:
 - nix package manager https://nixos.org/download.html#nix-install-macos
 - devenv https://devenv.sh/getting-started/
-- direnv https://direnv.net/docs/installation.html
-  - you can use HomeBrew: https://formulae.brew.sh/formula/direnv#default
-  - make sure to hook it into your shell: https://direnv.net/docs/hook.html
+- direnv & nix-direnv 
+  - direnv https://direnv.net/docs/installation.html
+    - you can use [HomeBrew](https://formulae.brew.sh/formula/direnv#default): ```brew install direnv``` 
+    - or nix profile: ```nix profile install "nixpkgs#direnv"```
+    - make sure to hook it into your shell: https://direnv.net/docs/hook.html
+  - nix-direnv https://github.com/nix-community/nix-direnv#with-nix-profile
 
 What exactly is being installed on macOS is documented here: https://nixos.org/manual/nix/stable/installation/installing-binary.html#macos-installation.
 
