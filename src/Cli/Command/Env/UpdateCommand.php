@@ -8,14 +8,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class UpdateCommand extends Command
 {
     public function __construct(
         private readonly StopCommand $stopCommand,
         private readonly UpdateDevenvCommand $updateDevenvCommand,
-        private readonly InitEnvCommand $initEnvCommand,
+        private readonly CreateEnvCommand $initEnvCommand,
     ) {
         parent::__construct();
     }
@@ -40,13 +40,13 @@ class UpdateCommand extends Command
             return Command::FAILURE;
         }
 
-        $helper = $this->getHelper('question');
-        $output->writeln("This command will update devenv and re-initialise the environment config.");
-        $output->writeln("The config files will be overwritten and a backup is created.");
-        $question = new ConfirmationQuestion('Are you sure you want to continue? [y/N] ', false);
+        $io = new SymfonyStyle($input, $output);
+        $io->warning(
+            "This command will update devenv and re-initialise the environment config." . PHP_EOL .
+            "The config files will be overwritten and a backup is created."
+        );
 
-        $canContinue = $helper->ask($input, $output, $question);
-
+        $canContinue = $io->confirm("Are you sure you want to continue?", false);
         if (!$canContinue) {
             return Command::SUCCESS;
         }

@@ -12,10 +12,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
-class InitEnvCommand extends Command
+class CreateEnvCommand extends Command
 {
     /**
      * files to copy to project
@@ -38,7 +37,7 @@ class InitEnvCommand extends Command
 
     public function configure()
     {
-        $this->setName('env:init');
+        $this->setName('env:create');
         $this->setDescription('Initialise environment for current directory');
         $this->addArgument('type', InputArgument::OPTIONAL, 'The system you want to initialise');
         $this->addOption(
@@ -59,16 +58,13 @@ class InitEnvCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $helper = $this->getHelper('question');
         $projectName = $input->getOption('name') ?? basename(getcwd());
 
         // get environment type
         $type = (string)$input->getArgument('type');
         if (empty($type)) {
-            $question = new ChoiceQuestion('Please select the environment type:', $this->rooterConfig->getEnvironmentTypes());
-            $question->setErrorMessage('environment type %s is unknown.');
-
-            $type = $helper->ask($input, $output, $question);
+            $io = new SymfonyStyle($input, $output);
+            $type = $io->choice('Please select the environment type:', $this->rooterConfig->getEnvironmentTypes());
         }
         $output->writeln("Initialising environment of type: $type");
 
@@ -103,7 +99,7 @@ class InitEnvCommand extends Command
     private function askForChanges(InputInterface $input, OutputInterface $output): array
     {
         $envBaseDir = getcwd();
-        $helper = $this->getHelper('question');
+        $io = new SymfonyStyle($input, $output);
 
         $isForce = (bool)$input->getOption('force');
 
@@ -113,8 +109,7 @@ class InitEnvCommand extends Command
             $targetPath = $envBaseDir . "/$targetFile";
 
             if (!$isForce && is_file($targetPath)) {
-                $question = new ConfirmationQuestion("Overwrite $targetFile ? (y/N): ", false);
-                if (!$helper->ask($input, $output, $question)) {
+                if (!$io->confirm("Overwrite $targetFile ?", false)) {
                     continue;
                 }
             }
@@ -126,8 +121,7 @@ class InitEnvCommand extends Command
         $filesToUpdate = [];
         $envFile = ROOTER_PROJECT_ROOT . "/.env";
         if (!$isForce && is_file($envFile)) {
-            $question = new ConfirmationQuestion("Update .env ? (y/N): ", false);
-            if ($helper->ask($input, $output, $question)) {
+            if ($io->confirm("Update .env ?", false)) {
                 $filesToUpdate['.env'] = $envFile;
             }
         } else {

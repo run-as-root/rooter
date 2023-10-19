@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace RunAsRoot\Rooter\Cli\Command;
+namespace RunAsRoot\Rooter\Cli\Command\Services;
 
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Config\DnsmasqConfig;
@@ -30,7 +30,7 @@ class StopCommand extends Command
 
     public function configure()
     {
-        $this->setName('stop');
+        $this->setName('services:stop');
         $this->setDescription('stop rooter processes');
         $this->addOption('all', '', InputOption::VALUE_NONE, 'Stop all environments');
     }

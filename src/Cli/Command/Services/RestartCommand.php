@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace RunAsRoot\Rooter\Cli\Command;
+namespace RunAsRoot\Rooter\Cli\Command\Services;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
@@ -21,7 +21,7 @@ class RestartCommand extends Command
 
     public function configure()
     {
-        $this->setName('restart');
+        $this->setName('services:restart');
         $this->setDescription('restart rooter processes');
     }
 

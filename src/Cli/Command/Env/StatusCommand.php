@@ -5,20 +5,21 @@ namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Api\ProcessCompose\Exception\ApiException;
 use RunAsRoot\Rooter\Api\ProcessCompose\ProcessComposeApi;
+use RunAsRoot\Rooter\Cli\Output\EnvironmentConfigRenderer;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Manager\ProcessManager;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class StatusCommand extends Command
 {
     public function __construct(
-        private readonly ProcessManager $processManager,
-        private readonly DevenvConfig $devenvConfig,
         private readonly EnvironmentRepository $envRepository,
         private readonly ProcessComposeApi $processComposeApi,
     ) {
@@ -27,7 +28,8 @@ class StatusCommand extends Command
 
     public function configure()
     {
-        $this->setName('env:status');
+        $this->setName('status');
+        $this->setAliases(['env:status']);
         $this->setDescription('show status of env');
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the env');
     }
@@ -47,30 +49,26 @@ class StatusCommand extends Command
             return Command::FAILURE;
         }
 
-        $pid = $this->processManager->getPidFromFile($this->devenvConfig->getPidFile());
+        $styleName = $projectName;
+        $output->getFormatter()->setStyle($styleName, new OutputFormatterStyle('white', 'blue', ['bold', 'blink']));
+        $output->writeln('');
+        $output->writeln($this->getHelper('formatter')->formatBlock(sprintf("%s", $projectName), $styleName, true));
 
-        $status = $this->processManager->isRunningByPid($pid) ? 'running' : 'stopped';
+        $this->renderEnvironmentProcessList($envData, $input, $output);
 
-        $table = new Table($output);
-        $table->setStyle('box');
-        $table->setHeaders(['name', 'status', 'pid']);
-        $table->setRows([
-            ['devenv', $status, $pid],
-        ]);
-        $table->render();
-
-        $this->renderEnvironmentProcessList($envData, $output);
+        $environmentConfigRenderer = new EnvironmentConfigRenderer();
+        $environmentConfigRenderer->render($envData, $output);
 
         return Command::SUCCESS;
     }
 
-    private function renderEnvironmentProcessList(array $envData, OutputInterface $output): void
+    private function renderEnvironmentProcessList(array $envData, InputInterface $input, OutputInterface $output): void
     {
         try {
             $this->processComposeApi->isAlive($envData);
         } catch (\Exception $e) {
-            $output->writeln("environment seems to be stopped.");
-            $output->writeln("start environment to see process list.");
+            $io = new SymfonyStyle($input, $output);
+            $io->note("environment seems to be stopped." . PHP_EOL . "start environment to see process list.");
             return;
         }
 
@@ -89,8 +87,7 @@ class StatusCommand extends Command
 
         $table = new Table($output);
         $table->setStyle('box');
-        $table->setHeaderTitle('Process Overview');
-        $table->setHeaders(['Name', 'PID', 'uptime', 'Health', 'ExitCode', 'Status']);
+        $table->setHeaders(['process', 'PID', 'uptime', 'health', 'exit-code', 'status']);
 
         foreach ($processData as $process) {
             $table->addRow(

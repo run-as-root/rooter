@@ -20,8 +20,8 @@ class ShowEnvCommand extends Command
 
     protected function configure()
     {
-        $this->setName('env:show');
-        $this->setDescription('Show env settings');
+        $this->setName('env:config:show');
+        $this->setDescription('Show environment configuration');
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the env');
     }
 

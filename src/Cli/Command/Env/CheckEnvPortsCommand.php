@@ -55,8 +55,8 @@ class CheckEnvPortsCommand extends Command
         $rows[] = ['process-compose', $envData['processComposePort'], $this->portManager->isPortAvailable((int)$envData['processComposePort'])];
 
         $table = new Table($output);
-        $table->setHeaders(['name', 'port', 'status']);
         $table->setStyle('box');
+        $table->setHeaders(['name', 'port', 'status']);
         $table->addRows($rows);
         $table->render();
 

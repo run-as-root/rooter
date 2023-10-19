@@ -25,7 +25,8 @@ class StopCommand extends Command
 
     public function configure()
     {
-        $this->setName('env:stop');
+        $this->setName('stop');
+        $this->setAliases(['env:stop']);
         $this->setDescription('Stop environment');
     }
 

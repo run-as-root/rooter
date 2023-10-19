@@ -21,7 +21,8 @@ class RestartEnvCommand extends Command
 
     public function configure()
     {
-        $this->setName('env:restart');
+        $this->setName('restart');
+        $this->setAliases(['env:restart']);
         $this->setDescription('restart environment processes');
         $this->addOption('debug', '', InputOption::VALUE_NONE, 'activate debug mode');
     }

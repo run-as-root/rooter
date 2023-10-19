@@ -36,6 +36,7 @@ class InitNginxCommand extends Command
         $this->setName('nginx:init');
         $this->setDescription('Initialise nginx config for a provided environment type');
         $this->addArgument('type', InputArgument::OPTIONAL, 'The system you want to initialise');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

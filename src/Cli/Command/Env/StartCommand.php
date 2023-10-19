@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Cli\Command\Nginx\InitNginxCommand;
-use RunAsRoot\Rooter\Cli\Command\StartCommand as StartRooterCommand;
+use RunAsRoot\Rooter\Cli\Command\Services\StartCommand as StartRooterCommand;
 use RunAsRoot\Rooter\Cli\Output\LogFileRenderer;
 use RunAsRoot\Rooter\Cli\Output\ProcessComposeStartUpRenderer;
 use RunAsRoot\Rooter\Config\DevenvConfig;
@@ -34,7 +34,8 @@ class StartCommand extends Command
 
     public function configure()
     {
-        $this->setName('env:start');
+        $this->setName('start');
+        $this->setAliases(['env:start']);
         $this->setDescription('start environment process');
         $this->addOption('debug', '', InputOption::VALUE_NONE, 'activate debug mode');
     }

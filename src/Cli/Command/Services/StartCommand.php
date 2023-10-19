@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace RunAsRoot\Rooter\Cli\Command;
+namespace RunAsRoot\Rooter\Cli\Command\Services;
 
 use RunAsRoot\Rooter\Config\DnsmasqConfig;
 use RunAsRoot\Rooter\Config\TraefikConfig;
@@ -23,7 +23,7 @@ class StartCommand extends Command
 
     public function configure()
     {
-        $this->setName('start');
+        $this->setName('services:start');
         $this->setDescription('start rooter processes');
     }
 

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace RunAsRoot\Rooter\Cli\Command;
+namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,7 +12,7 @@ class ProcessComposeCommand extends Command
 {
     public function configure()
     {
-        $this->setName('process-compose');
+        $this->setName('env:process-compose');
         $this->setDescription('Attach to the process-compose instance of this environment');
     }
 

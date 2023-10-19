@@ -23,6 +23,7 @@ class RegisterEnvCommand extends Command
     {
         $this->setName('env:register');
         $this->setDescription('Register a project');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

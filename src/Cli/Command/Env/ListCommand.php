@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ListEnvCommand extends Command
+class ListCommand extends Command
 {
     public function __construct(
         private readonly DevenvConfig $devenvConfig,
@@ -25,10 +25,10 @@ class ListEnvCommand extends Command
 
     public function configure()
     {
-        $this->setName('env:list');
+        $this->setName('list');
         $this->setDescription('list all projects');
         $this->addOption('ports', '', InputOption::VALUE_NONE, 'show all ports');
-        $this->addOption('running', '', InputOption::VALUE_NONE, 'filter only running environments');
+        $this->addOption('running', '', InputOption::VALUE_NONE, 'filter for running environments');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -95,7 +95,7 @@ class ListEnvCommand extends Command
         $table->setRows($projects);
         $table->render();
 
-        return self::SUCCESS;
+        return Command::SUCCESS;
     }
 
 }

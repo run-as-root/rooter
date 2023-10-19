@@ -13,6 +13,7 @@ class UpdateDevenvCommand extends Command
     {
         $this->setName('devenv:update');
         $this->setDescription('run devenv update for the current environment');
+        $this->setHidden();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -11,8 +11,8 @@ class OpenEnvCommand extends Command
 {
     public function configure()
     {
-        $this->setName('env:open');
-        $this->setAliases(['env:launch']);
+        $this->setName('open');
+        $this->setAliases(['launch', 'env:open']);
         $this->setDescription('open the HTTP(s) environment in the browser');
     }
 
