@@ -12,7 +12,6 @@ class MailCommand extends Command
     public function configure()
     {
         $this->setName('mail');
-        $this->setAliases(['mailhog', 'mailpit']);
         $this->setDescription('launch mail http UI in browser');
     }
 

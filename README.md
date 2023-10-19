@@ -35,22 +35,22 @@ nix profile install --accept-flake-config "git+ssh://git@github.com/run-as-root/
 
 List of commands without explanation.
 ```bash
-rooter env:init <environment-type>
+rooter env:create <environment-type>
 direnv allow .
 rooter env:start --debug # once done cancel with CTRL+C
 rooter env:start
 ```
 
-### Initialise Environment
+### Create Environment
 
-To initialise a new enviroment for a project run
+To create a new enviroment for a project run
 ```bash
-rooter env:init <environment-type>
+rooter env:create <environment-type>
 ```
-This will copy the environment specific files to your current project and initialise them with default values.  
+This will copy the environment specific files to your current project and create them with default values.  
 You can provide a custom project name by adding the option `--name=<my-custom-name>`.
 ```bash
-rooter env:init magento2 --name="my-first-rooter-env"
+rooter env:create magento2 --name="my-first-rooter-env"
 ```
 Manually add `.devenv/` and `.env` to .gitignore
 
@@ -60,7 +60,7 @@ Ports will be selected from a range defined for each service type.
 
 ### Configure auto-initialisation
 
-With direnv it is possible to automatically initialise the environment when you enter the project directory.  
+With `direnv` it is possible to automatically initialise the environment when you enter the project directory.  
 To activate this feature, run the following command in your project directory.
 ```bash
 direnv allow .
@@ -117,18 +117,9 @@ This will result in the following domains being available for the project:
 Check the ports that have been prefilled in the .env file and adjust them to your local setup.  
 If you are not sure what ports you have used in other rooter projects, you can use the following command to get an overview.
 ```bash
-rooter env:list --ports
+rooter list --ports
 ```
 If you run this command for the very first time the list should be empty and show nothing.
-
-### Register Environment
-
-Register environment to rooter, so it is visible in various commands.  
-When using the `env:start` command, rooter will automatically register the environment.  
-
-```bash
-rooter env:register
-```
 
 ### Register Traefik
 
@@ -138,12 +129,11 @@ When using the `env:start` command, rooter will automatically register the traef
 rooter traefik:config:register
 ```
 
-### Start rooter
+### Start services
 
-To start rooter with dnsmasq and traefik in the background run:
-
+To start rooter services dnsmasq and traefik in the background run:
 ```bash
-rooter start
+rooter services:start
 ```
 
 ### TablePlus
@@ -220,11 +210,9 @@ export ROOTER_BIN="<path-to-rooter>/rooter/result/bin/rooterDev"
 
 For ease of use you can activate direnv for the rooter project.  
 By default it will refresh the `rooterDev` package and make it available in your shell.
-
 ```bash
 direnv allow .
 ```
-
 
 ### Commands while using dev version of rooter
 
