@@ -27,3 +27,9 @@ services:
   Twig\Environment:
     arguments:
       - '@Twig\Loader\FilesystemLoader'
+
+  Symfony\Component\Console\Formatter\OutputFormatter:
+    arguments:
+      $styles: {
+        title: '@RunAsRoot\Rooter\Cli\Output\Style\TitleOutputStyle'
+      }

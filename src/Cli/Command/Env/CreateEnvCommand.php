@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use Exception;
 use RunAsRoot\Rooter\Cli\Output\EnvironmentsRenderer;
 use RunAsRoot\Rooter\Config\RooterConfig;
 use RunAsRoot\Rooter\Manager\DotEnvFileManager;
@@ -54,7 +55,7 @@ class CreateEnvCommand extends Command
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -160,7 +161,7 @@ class CreateEnvCommand extends Command
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function updateEnvFile(string $envFile, string $type, OutputInterface $output): void
     {

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use JsonException;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -35,7 +36,7 @@ class ShowEnvCommand extends Command
 
         try {
             $envData = $this->envRepository->getByName($projectName);
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             $output->writeln("<error>Could not get environment config: invalid json {$e->getMessage()}</error>");
             return Command::FAILURE;
         }

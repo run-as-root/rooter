@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use Exception;
 use RunAsRoot\Rooter\Cli\Command\Traefik\RegisterTraefikConfigCommand;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
@@ -38,7 +39,7 @@ class RegisterEnvCommand extends Command
         // Register Environment
         try {
             $this->environmentRepository->register($projectName);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $output->writeln("<error>Failed to register environment: {$e->getMessage()}</error>");
             return Command::FAILURE;
         }

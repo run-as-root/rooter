@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use Exception;
 use RunAsRoot\Rooter\Cli\Command\Traefik\RemoveTraefikConfigCommand;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
@@ -41,7 +42,7 @@ class RemoveEnvCommand extends Command
             $this->removeTraefikConfigCommand->run(new ArrayInput([]), $output);
 
             $this->environmentRepository->delete($projectName);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $output->writeln("<error>Failed to remove environment: {$e->getMessage()}</error>");
             return Command::FAILURE;
         }

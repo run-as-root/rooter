@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use Exception;
+use JsonException;
 use RunAsRoot\Rooter\Api\ProcessCompose\Exception\ApiException;
 use RunAsRoot\Rooter\Api\ProcessCompose\ProcessComposeApi;
 use RunAsRoot\Rooter\Cli\Output\EnvironmentConfigRenderer;
-use RunAsRoot\Rooter\Config\DevenvConfig;
-use RunAsRoot\Rooter\Manager\ProcessManager;
+use RunAsRoot\Rooter\Cli\Output\Style\TitleOutputStyle;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,6 +19,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class StatusCommand extends Command
 {
+    private SymfonyStyle $io;
+
     public function __construct(
         private readonly EnvironmentRepository $envRepository,
         private readonly ProcessComposeApi $processComposeApi,
@@ -34,25 +36,29 @@ class StatusCommand extends Command
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the env');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+
+        $this->io = new SymfonyStyle($input, $output);
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $projectName = $input->getArgument('name') ?? getenv('PROJECT_NAME');
         if (!$projectName) {
-            $output->writeln("<error>Please provide a project-name or execute in a project context.</error>");
+            $this->io->error("Please provide a project-name or execute in a project context.");
             return Command::FAILURE;
         }
 
         try {
             $envData = $this->envRepository->getByName($projectName);
-        } catch (\JsonException $e) {
-            $output->writeln("<error>Could not get environment config: invalid json {$e->getMessage()}</error>");
+        } catch (JsonException $e) {
+            $this->io->error("Could not get environment config: invalid json {$e->getMessage()}");
             return Command::FAILURE;
         }
 
-        $styleName = $projectName;
-        $output->getFormatter()->setStyle($styleName, new OutputFormatterStyle('white', 'blue', ['bold', 'blink']));
-        $output->writeln('');
-        $output->writeln($this->getHelper('formatter')->formatBlock(sprintf("%s", $projectName), $styleName, true));
+        $this->io->block((string)$projectName, null, TitleOutputStyle::NAME, '  ', true);
 
         $this->renderEnvironmentProcessList($envData, $input, $output);
 
@@ -66,22 +72,21 @@ class StatusCommand extends Command
     {
         try {
             $this->processComposeApi->isAlive($envData);
-        } catch (\Exception $e) {
-            $io = new SymfonyStyle($input, $output);
-            $io->note("environment seems to be stopped." . PHP_EOL . "start environment to see process list.");
+        } catch (Exception $e) {
+            $this->io->note("environment seems to be stopped." . PHP_EOL . "start environment to see process list.");
             return;
         }
 
         try {
             $processData = $this->processComposeApi->getProcessList($envData);
         } catch (ApiException $e) {
-            $output->writeln("<error>{$e->getMessage()}</error>");
+            $this->io->error($e->getMessage());
             return;
-        } catch (\JsonException $e) {
-            $output->writeln("<error>Could not parse json. Invalid json response from process-compose: {$e->getMessage()}</error>");
+        } catch (JsonException $e) {
+            $this->io->error("Could not parse json. Invalid json response from process-compose: {$e->getMessage()}");
             return;
-        } catch (\Exception $e) {
-            $output->writeln("<error>Error fetching data from process-compose: {$e->getMessage()}</error>");
+        } catch (Exception $e) {
+            $this->io->error("Error fetching data from process-compose: {$e->getMessage()}");
             return;
         }
 

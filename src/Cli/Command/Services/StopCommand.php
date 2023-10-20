@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Services;
 
+use Exception;
+use JsonException;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Config\DnsmasqConfig;
 use RunAsRoot\Rooter\Config\TraefikConfig;
@@ -37,7 +39,7 @@ class StopCommand extends Command
 
     /**
      * @throws ExceptionInterface
-     * @throws \JsonException
+     * @throws JsonException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -79,7 +81,7 @@ class StopCommand extends Command
         } catch (FailedToStopProcessException $e) {
             $output->writeln("<error>$name could not be stopped: {$e->getMessage()}</error>");
             $result = false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $output->writeln("<error>$name unknown error: {$e->getMessage()}</error>");
             $result = false;
         }

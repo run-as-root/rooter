@@ -8,6 +8,7 @@ use RunAsRoot\Rooter\Cli\Command\Traefik\InitTraefikConfigCommand;
 use RunAsRoot\Rooter\Config\CertConfig;
 use RunAsRoot\Rooter\Config\RooterConfig;
 use RunAsRoot\Rooter\Service\GenerateCertificateService;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -53,13 +54,13 @@ class InstallCommand extends Command
         $rooterHomeBinDir = $this->rooterConfig->getBinDir();
         $output->writeln('==> Creating bin directory');
         if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir, 0755, true) && !is_dir($rooterHomeBinDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
         }
 
         $rooterEnvDir = $this->rooterConfig->getEnvironmentDir();
         $output->writeln('==> Creating environments directory');
         if (!is_dir($rooterEnvDir) && !mkdir($rooterEnvDir, 0755, true) && !is_dir($rooterEnvDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $rooterEnvDir));
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $rooterEnvDir));
         }
 
         // Init dnsmasq

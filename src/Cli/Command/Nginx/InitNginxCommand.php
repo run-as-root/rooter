@@ -5,6 +5,7 @@ namespace RunAsRoot\Rooter\Cli\Command\Nginx;
 
 use RunAsRoot\Rooter\Cli\Output\EnvironmentsRenderer;
 use RunAsRoot\Rooter\Config\RooterConfig;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -86,7 +87,7 @@ class InitNginxCommand extends Command
 
         $nginxTmpDir = $nginxStateDir . "/tmp";
         if (!is_dir($nginxTmpDir) && !mkdir($nginxTmpDir, 0755, true) && !is_dir($nginxTmpDir)) {
-            throw new \RuntimeException("Directory '$nginxTmpDir' was not created");
+            throw new RuntimeException("Directory '$nginxTmpDir' was not created");
         }
 
         $nginxTmplDir = getenv("DEVENV_CONFIG_NGINX") ?: $this->rooterConfig->getEnvironmentTemplatesDir() . "/$envType/nginx";

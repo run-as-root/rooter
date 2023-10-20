@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command;
 
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,7 +27,7 @@ class TablePlusCommand extends Command
             $tablePlusBin = '/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus';
         }
         if (!is_file($tablePlusBin)) {
-            throw new \RuntimeException('no valid TablePlus installation found in /Application or /Application/Setapp');
+            throw new RuntimeException('no valid TablePlus installation found in /Application or /Application/Setapp');
         }
 
         $user = getenv('DEVENV_DB_USER');

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use Exception;
 use RunAsRoot\Rooter\Cli\Command\Traefik\RemoveTraefikConfigCommand;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Exception\FailedToStopProcessException;
@@ -45,7 +46,7 @@ class StopCommand extends Command
         } catch (FailedToStopProcessException $e) {
             $output->writeln("<error>environment could not be stopped: {$e->getMessage()}</error>");
             $result = false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $output->writeln("<error>environment unknown error: {$e->getMessage()}</error>");
             $result = false;
         }

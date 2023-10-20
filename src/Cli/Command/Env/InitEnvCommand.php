@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use Exception;
 use RunAsRoot\Rooter\Config\RooterConfig;
 use RunAsRoot\Rooter\Manager\DotEnvFileManager;
 use RunAsRoot\Rooter\Manager\PortManager;
@@ -30,14 +31,14 @@ class InitEnvCommand extends Command
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
         $envFile = ROOTER_PROJECT_ROOT . "/.env";
-        if(is_file($envFile)) {
+        if (is_file($envFile)) {
             $io->info("Environment already initialised.");
             return Command::FAILURE;
         }

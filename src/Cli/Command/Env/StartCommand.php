@@ -10,6 +10,7 @@ use RunAsRoot\Rooter\Cli\Output\ProcessComposeStartUpRenderer;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Manager\ProcessManager;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -54,7 +55,7 @@ class StartCommand extends Command
 
         if (!is_dir(ROOTER_PROJECT_DIR)
             && !mkdir(ROOTER_PROJECT_DIR, 0755, true) && !is_dir(ROOTER_PROJECT_DIR)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', ROOTER_PROJECT_DIR));
+            throw new RuntimeException(sprintf('Directory "%s" was not created', ROOTER_PROJECT_DIR));
         }
 
         $debug = $input->getOption('debug');
@@ -116,7 +117,7 @@ class StartCommand extends Command
         return $isSuccess ? Command::SUCCESS : Command::FAILURE;
     }
 
-    /** @deprecated it was introduced as a fallback in the early stages*/
+    /** @deprecated it was introduced as a fallback in the early stages */
     private function followStartLegacy(OutputInterface $output): void
     {
         $pidFile = $this->devenvConfig->getPidFile();

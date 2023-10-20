@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
+use Exception;
 use RunAsRoot\Rooter\Manager\DotEnvFileManager;
 use RunAsRoot\Rooter\Manager\PortManager;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -30,7 +31,7 @@ class InitEnvPortsCommand extends Command
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Traefik;
 
 use RunAsRoot\Rooter\Config\TraefikConfig;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -60,7 +61,7 @@ class InitTraefikConfigCommand extends Command
     {
         if (!is_dir($dirname)
             && !mkdir($dirname, 0755, true) && !is_dir($dirname)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dirname));
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $dirname));
         }
     }
 }

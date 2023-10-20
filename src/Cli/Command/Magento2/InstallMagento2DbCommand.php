@@ -99,7 +99,7 @@ class InstallMagento2DbCommand extends Command
         $command = "$this->phpBin bin/magento setup:upgrade";
         $this->runCommand($command);
 
-        if($importConfigData) {
+        if ($importConfigData) {
             $output->writeln('Importing config data from files with config:data:import');
             // @todo make configurable were data is fetched from, arg or env?
             $command = "$this->phpBin bin/magento config:data:import config/store dev/rooter";
