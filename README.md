@@ -24,7 +24,7 @@ What exactly is being installed on macOS is documented here: https://nixos.org/m
 ## Installation via flake
 
 ```bash
-nix profile install --accept-flake-config "github:run-as-root/rooter?ref=main"
+nix profile install --accept-flake-config "github:run-as-root/rooter?ref=main#rooter"
 ```
 
 ## Project setup
