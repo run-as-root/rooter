@@ -65,7 +65,7 @@
         in
           pkgs.writeShellScriptBin "rooterDev" ''
             export ROOTER_APP_MODE=develop
-            export ROOTER_VERSION=develop
+            export ROOTER_VERSION="develop@${rooterVersion}"
             ${envConfig}
             ${phpDev}/bin/php ${PROJECT_ROOT}/rooter.php "$@"
           '';
@@ -86,13 +86,13 @@
               ";
               installPhase = ''
                 mkdir -p $out/bin;
-                install -t $out/bin rooter.phar;
+                install -t $out/bin build/output/rooter.phar;
               '';
           };
         in
           pkgs.writeShellScriptBin "rooterDevPhar" ''
               export ROOTER_APP_MODE=develop
-              export ROOTER_VERSION=develop-phar
+              export ROOTER_VERSION="develop-phar@${rooterVersion}"
               ${envConfig}
               ${phpDev}/bin/php ${rooterPharLocal}/bin/rooter.phar "$@"
           '';
