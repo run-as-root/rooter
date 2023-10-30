@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Traefik;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use RunAsRoot\Rooter\Config\TraefikConfig;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
@@ -11,8 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InitTraefikConfigCommand extends Command
 {
-    public function __construct(private readonly TraefikConfig $traefikConfig)
-    {
+    public function __construct(
+        private readonly TraefikConfig $traefikConfig,
+        private readonly RooterConfig $rooterConfig
+    ) {
         parent::__construct();
     }
 
@@ -35,7 +38,7 @@ class InitTraefikConfigCommand extends Command
 
         $tmplVars = array_merge(
             $_ENV,
-            ['ROOTER_HOME_DIR' => ROOTER_HOME_DIR]
+            ['ROOTER_HOME_DIR' => $this->rooterConfig->getRooterHomeDir()]
         );
 
         $traefikTmpl = file_get_contents($this->traefikConfig->getConfTmpl());

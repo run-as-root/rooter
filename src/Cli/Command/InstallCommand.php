@@ -17,13 +17,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InstallCommand extends Command
 {
-    private GenerateCertificateService $generateCertificateService;
-
     public function __construct(
         private readonly RooterConfig $rooterConfig,
         private readonly CertConfig $certConfig,
         private readonly InitDnsmasqConfigCommand $initDnsmasq,
         private readonly InitTraefikConfigCommand $initTraefik,
+        private GenerateCertificateService $generateCertificateService,
     ) {
         parent::__construct();
     }
@@ -34,23 +33,11 @@ class InstallCommand extends Command
         $this->setDescription('Main installation of rooter');
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-
-        $this->generateCertificateService = new GenerateCertificateService($output);
-    }
-
     /**
      * @throws ExceptionInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (ROOTER_DIR !== getcwd()) {
-            $output->writeln("This command can only be executed in the rooter dir");
-            return 1;
-        }
-
         $rooterHomeBinDir = $this->rooterConfig->getBinDir();
         $output->writeln('==> Creating bin directory');
         if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir, 0755, true) && !is_dir($rooterHomeBinDir)) {
@@ -101,7 +88,7 @@ class InstallCommand extends Command
         if (!file_exists($caCertPemFile)) {
             $hostname = gethostname();
             $output->writeln("==> Signing root certificate 'ROOTER Proxy Local CA ('$hostname')'");
-            $rootCaConf = ROOTER_DIR . "/etc/openssl/rootca.conf";
+            $rootCaConf = $this->rooterConfig->getRooterDir() . "/etc/openssl/rootca.conf";
             $subject = "/C=US/O=rooter.run-as-root.sh/CN=ROOTER Proxy Local CA ($hostname)";
             $command = "openssl req -new -x509 -days 7300 -sha256 -extensions v3_ca -config $rootCaConf -key $caKeyPemFile -out $caCertPemFile -subj \"$subject\"";
             exec($command);
@@ -129,7 +116,7 @@ class InstallCommand extends Command
         }
 
         // Generate Certs
-        $this->generateCertificateService->generate($this->certConfig->getCertificateName(), $this->certConfig);
+        $this->generateCertificateService->generate($this->certConfig->getCertificateName(), $this->certConfig, $output);
     }
 
 }

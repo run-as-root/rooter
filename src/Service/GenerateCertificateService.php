@@ -4,16 +4,17 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Service;
 
 use RunAsRoot\Rooter\Config\CertConfig;
+use RunAsRoot\Rooter\Config\RooterConfig;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateCertificateService
 {
 
-    public function __construct(private readonly OutputInterface $output)
+    public function __construct(private readonly RooterConfig $rooterConfig)
     {
     }
 
-    public function generate(string $certificateName, CertConfig $certConfig): void
+    public function generate(string $certificateName, CertConfig $certConfig, OutputInterface $output): void
     {
         $rootCaDir = $certConfig->getRootCaDir();
         $caKeyPemFile = $certConfig->getCaKeyPemFile();
@@ -28,17 +29,18 @@ class GenerateCertificateService
         $certificateCsrPemFile = "$certsDir/$certificateName.csr.pem";
         $certificatePemFile = "$certsDir/$certificateName.crt.pem";
         if (file_exists($certificateKeyPemFile)) {
-            $this->output->writeln("<comment>Warning: Certificate for $certificateName already exists! Overwriting...</comment>");
+            $output->writeln("<comment>Warning: Certificate for $certificateName already exists! Overwriting...</comment>");
         }
 
         $certificateSanList = "DNS.1:$certificateName,DNS.2:*.$certificateName";
 
-        $this->output->writeln("==> Generating private key $certificateName.key.pem");
+        $output->writeln("==> Generating private key $certificateName.key.pem");
         exec("openssl genrsa -out $certificateKeyPemFile 2048");
 
-        $this->output->writeln("==> Generating signing req $certificateName.crt.pem");
+        $output->writeln("==> Generating signing req $certificateName.crt.pem");
 
-        $opensslConfig = file_get_contents(ROOTER_DIR . "/etc/openssl/certificate.conf");
+        $opensslCertificateConf = $this->rooterConfig->getRooterDir() . "/etc/openssl/certificate.conf";
+        $opensslConfig = file_get_contents($opensslCertificateConf);
         $opensslConfig .= "\nextendedKeyUsage = serverAuth,clientAuth\nsubjectAltName = $certificateSanList";
         $subject = "/C=US/O=rooter.run-as-root.sh/CN=$certificateName";
 
@@ -48,7 +50,7 @@ class GenerateCertificateService
         $command = "openssl req -new -sha256 -config '$tmpConfigFile' -key $certificateKeyPemFile -out $certificateCsrPemFile -subj $subject";
         exec($command);
 
-        $this->output->writeln("==> Generating certificate $certificateName.crt.pem");
+        $output->writeln("==> Generating certificate $certificateName.crt.pem");
         $command = "openssl x509 -req -days 365 -sha256 -extensions v3_req -extfile $tmpConfigFile -CA $caCertPemFile -CAkey $caKeyPemFile -CAserial $rootCaDir/serial -in $certificateCsrPemFile -out $certificatePemFile";
         exec($command);
 

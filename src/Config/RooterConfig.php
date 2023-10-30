@@ -5,9 +5,21 @@ namespace RunAsRoot\Rooter\Config;
 
 class RooterConfig
 {
+    private string $rooterDir = ROOTER_DIR;
+    private string $rooterHomeDir = ROOTER_HOME_DIR;
     private string $binDir = ROOTER_HOME_DIR . '/bin';
     private string $environmentDir = ROOTER_HOME_DIR . '/environments';
     private string $environmentTemplatesDir = ROOTER_DIR . '/environments';
+
+    public function getRooterDir(): string
+    {
+        return $this->rooterDir;
+    }
+
+    public function getRooterHomeDir(): string
+    {
+        return $this->rooterHomeDir;
+    }
 
     public function getBinDir(): string
     {

@@ -13,10 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateCertificateCommand extends Command
 {
-    private GenerateCertificateService $generateCertificateService;
-
     public function __construct(
         private readonly CertConfig $certConfig,
+        private readonly GenerateCertificateService $generateCertificateService,
     ) {
         parent::__construct();
     }
@@ -26,13 +25,6 @@ class GenerateCertificateCommand extends Command
         $this->setName('certs:generate');
         $this->setDescription('Generate a cert for a custom domain other than the default rooter.test');
         $this->addArgument('domain', InputArgument::REQUIRED, 'The domain to generate a cert for');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        parent::initialize($input, $output);
-
-        $this->generateCertificateService = new GenerateCertificateService($output);
     }
 
     /**
@@ -47,7 +39,7 @@ class GenerateCertificateCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->generateCertificateService->generate($input->getArgument('domain'), $this->certConfig);
+        $this->generateCertificateService->generate($input->getArgument('domain'), $this->certConfig, $output);
 
         return Command::SUCCESS;
     }

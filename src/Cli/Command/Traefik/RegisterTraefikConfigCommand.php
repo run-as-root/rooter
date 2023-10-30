@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Traefik;
 
+use RunAsRoot\Rooter\Config\RooterConfig;
 use RunAsRoot\Rooter\Config\TraefikConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,8 +13,11 @@ use Twig\Environment as TwigEnvironment;
 class RegisterTraefikConfigCommand extends Command
 {
 
-    public function __construct(private readonly TraefikConfig $traefikConfig, private readonly TwigEnvironment $twig)
-    {
+    public function __construct(
+        private readonly TraefikConfig $traefikConfig,
+        private readonly TwigEnvironment $twig,
+        private readonly RooterConfig $rooterConfig
+    ) {
         parent::__construct();
     }
 
@@ -48,8 +52,8 @@ class RegisterTraefikConfigCommand extends Command
         $tmplVars = array_merge(
             $_ENV,
             [
-                'ROOTER_DIR' => ROOTER_DIR,
-                'ROOTER_HOME_DIR' => ROOTER_HOME_DIR,
+                'ROOTER_DIR' => $this->rooterConfig->getRooterDir(),
+                'ROOTER_HOME_DIR' => $this->rooterConfig->getRooterHomeDir(),
                 'ROOTER_PROJECT_HOST' => $fqdnRooterLocal,
                 'TRAEFIK_HTTP_RULE' => $this->getTraefikHttpRule($projectName),
                 'hasHttp' => $hasHttp,
