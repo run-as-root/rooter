@@ -18,7 +18,7 @@ class TablePlusCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $tablePlusBin = getenv('TABLEPLUS_BIN');
+        $tablePlusBin = getenv('TABLEPLUS_BIN') ?: '';
 
         if (!is_file($tablePlusBin)) {
             $tablePlusBin = '/Applications/TablePlus.app/Contents/MacOS/TablePlus';
