@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Services;
 
+use RunAsRoot\Rooter\Cli\Output\Style\TitleGrayOutputStyle;
 use RunAsRoot\Rooter\Config\DnsmasqConfig;
 use RunAsRoot\Rooter\Config\TraefikConfig;
 use RunAsRoot\Rooter\Manager\ProcessManager;
@@ -11,9 +12,12 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
-class StatusCommand extends Command
+class StatusServicesCommand extends Command
 {
+    private SymfonyStyle $io;
+
     public function __construct(
         private readonly ProcessManager $processManager,
         private readonly DnsmasqConfig $dnsmasqConfig,
@@ -28,6 +32,12 @@ class StatusCommand extends Command
         $this->setDescription('show status of rooter');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $dnsmasqPid = $this->processManager->getPidFromFile($this->dnsmasqConfig->getPidFile());
@@ -36,9 +46,10 @@ class StatusCommand extends Command
         $traefikPid = $this->processManager->getPidFromFile($this->traefikConfig->getPidFile());
         $traefikStatus = $this->processManager->isRunningByPid($traefikPid) ? 'running' : 'stopped';
 
+        $this->io->block('services', null, TitleGrayOutputStyle::NAME, '  ', true);
+
         $table = new Table($output);
         $table->setStyle('box');
-        $table->setHeaderTitle('rooter');
         $table->setHeaders(['name', 'status', 'pid']);
         $table->setRows([
             ['dnsmasq', $dnsmasqStatus, $dnsmasqPid],

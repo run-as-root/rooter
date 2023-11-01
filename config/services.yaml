@@ -31,7 +31,8 @@ services:
   Symfony\Component\Console\Formatter\OutputFormatter:
     arguments:
       $styles: {
-        title: '@RunAsRoot\Rooter\Cli\Output\Style\TitleOutputStyle'
+        title: '@RunAsRoot\Rooter\Cli\Output\Style\TitleOutputStyle',
+        title-gray: '@RunAsRoot\Rooter\Cli\Output\Style\TitleGrayOutputStyle'
       }
 
   # RooterConfig

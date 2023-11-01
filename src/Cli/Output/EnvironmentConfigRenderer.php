@@ -13,6 +13,7 @@ class EnvironmentConfigRenderer
     {
         $table = new Table($output);
         $table->setStyle('box');
+        $table->setHeaders(['setting', 'value']);
         $table->setRows([
             ['type', $envData['type']],
             ['path', $envData['path']],

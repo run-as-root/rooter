@@ -7,11 +7,13 @@ use Exception;
 use JsonException;
 use RunAsRoot\Rooter\Api\ProcessCompose\Exception\ApiException;
 use RunAsRoot\Rooter\Api\ProcessCompose\ProcessComposeApi;
+use RunAsRoot\Rooter\Cli\Command\Services\StatusServicesCommand;
 use RunAsRoot\Rooter\Cli\Output\EnvironmentConfigRenderer;
 use RunAsRoot\Rooter\Cli\Output\Style\TitleOutputStyle;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -24,6 +26,7 @@ class StatusCommand extends Command
     public function __construct(
         private readonly EnvironmentRepository $envRepository,
         private readonly ProcessComposeApi $processComposeApi,
+        private readonly StatusServicesCommand $statusServicesCommand,
     ) {
         parent::__construct();
     }
@@ -57,6 +60,8 @@ class StatusCommand extends Command
             $this->io->error("Could not get environment config: invalid json {$e->getMessage()}");
             return Command::FAILURE;
         }
+
+        $this->statusServicesCommand->run(new ArrayInput([]), $output);
 
         $this->io->block((string)$projectName, null, TitleOutputStyle::NAME, '  ', true);
 
