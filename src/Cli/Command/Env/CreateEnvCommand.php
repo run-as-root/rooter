@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use Exception;
-use RunAsRoot\Rooter\Cli\Output\EnvironmentsRenderer;
+use RunAsRoot\Rooter\Cli\Output\EnvironmentTypesRenderer;
 use RunAsRoot\Rooter\Config\RooterConfig;
 use RunAsRoot\Rooter\Manager\DotEnvFileManager;
 use RunAsRoot\Rooter\Manager\PortManager;
@@ -29,7 +29,7 @@ class CreateEnvCommand extends Command
 
     public function __construct(
         private readonly RooterConfig $rooterConfig,
-        private readonly EnvironmentsRenderer $environmentsRenderer,
+        private readonly EnvironmentTypesRenderer $environmentsRenderer,
         private readonly PortManager $portManager,
         private readonly DotEnvFileManager $dotEnvFileManager
     ) {

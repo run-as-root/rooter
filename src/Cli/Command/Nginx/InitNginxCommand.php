@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Nginx;
 
-use RunAsRoot\Rooter\Cli\Output\EnvironmentsRenderer;
+use RunAsRoot\Rooter\Cli\Output\EnvironmentTypesRenderer;
 use RunAsRoot\Rooter\Config\RooterConfig;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
@@ -27,7 +27,7 @@ class InitNginxCommand extends Command
 
     public function __construct(
         private readonly RooterConfig $rooterConfig,
-        private readonly EnvironmentsRenderer $environmentsRenderer
+        private readonly EnvironmentTypesRenderer $environmentsRenderer
     ) {
         parent::__construct();
     }
