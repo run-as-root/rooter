@@ -19,18 +19,10 @@ class RooterBootstrap
 
         $rooterEnvDir = self::getRooterProjectRoot($baseDir);
 
-        \define('ROOTER_DIR', $baseDir);
-        \define('ROOTER_HOME_DIR', getenv("HOME") . "/.rooter");
-        \define('ROOTER_SSL_DIR', ROOTER_HOME_DIR . "/ssl");
-        \define('ROOTER_PROJECT_ROOT', $rooterEnvDir);
-        \define('ROOTER_PROJECT_DIR', $rooterEnvDir . "/.rooter");
-
         $parameterBag = new EnvPlaceholderParameterBag([
-            'rooter.dir' => ROOTER_DIR,
-            'rooter.home_dir' => ROOTER_HOME_DIR,
-            'rooter.ssl_dir' => ROOTER_SSL_DIR,
-            'rooter.project_root' => ROOTER_PROJECT_ROOT,
-            'rooter.project_dir' => ROOTER_PROJECT_DIR,
+            'rooter.dir' => $baseDir,
+            'rooter.home_dir' => getenv("HOME") . "/.rooter",
+            'rooter.environment_root' => $rooterEnvDir,
         ]);
 
         $container = new ContainerBuilder($parameterBag);

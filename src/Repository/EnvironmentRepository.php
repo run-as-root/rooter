@@ -18,7 +18,7 @@ class EnvironmentRepository
      */
     public function getByName(string $projectName): array
     {
-        $jsonData = file_get_contents("{$this->rooterConfig->getEnvironmentDir()}/$projectName.json");
+        $jsonData = file_get_contents("{$this->rooterConfig->getEnvironmentsDir()}/$projectName.json");
 
         return json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
     }
@@ -28,7 +28,7 @@ class EnvironmentRepository
      */
     public function getList(): array
     {
-        $jsonFiles = glob("{$this->rooterConfig->getEnvironmentDir()}/*.json");
+        $jsonFiles = glob("{$this->rooterConfig->getEnvironmentsDir()}/*.json");
 
         $jsonFiles = $jsonFiles === false ? [] : $jsonFiles;
 
@@ -52,7 +52,7 @@ class EnvironmentRepository
         $data = [
             'name' => $projectName,
             'type' => getenv('ROOTER_ENV_TYPE') ?? '',
-            'path' => ROOTER_PROJECT_ROOT,
+            'path' => $this->rooterConfig->getEnvironmentRootDir(),
             'host' => getenv('PROJECT_HOST') ?? '',
             'httpPort' => getenv('DEVENV_HTTP_PORT') ?? '',
             'httpsPort' => getenv('DEVENV_HTTPS_PORT') ?? '',
@@ -81,7 +81,7 @@ class EnvironmentRepository
             throw new \RuntimeException('error during json encode', $e->getCode(), $e);
         }
 
-        $envConfigFile = "{$this->rooterConfig->getEnvironmentDir()}/{$data['name']}.json";
+        $envConfigFile = "{$this->rooterConfig->getEnvironmentsDir()}/{$data['name']}.json";
         file_put_contents($envConfigFile, $configAsString);
 
         if (file_get_contents($envConfigFile) === false) {
@@ -91,7 +91,7 @@ class EnvironmentRepository
 
     public function delete(string $projectName): void
     {
-        $envConfigFile = "{$this->rooterConfig->getEnvironmentDir()}/$projectName.json";
+        $envConfigFile = "{$this->rooterConfig->getEnvironmentsDir()}/$projectName.json";
         if (!is_file($envConfigFile)) {
             throw new \RuntimeException("file does not exist '$envConfigFile'");
         }

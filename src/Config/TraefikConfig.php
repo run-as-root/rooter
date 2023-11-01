@@ -3,25 +3,25 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Config;
 
-class TraefikConfig
+readonly class TraefikConfig
 {
-    private string $traefikBin = ROOTER_HOME_DIR . "/bin/traefik";
-    private string $traefikHomeDir = ROOTER_HOME_DIR . '/traefik';
-    private string $pidFile = ROOTER_HOME_DIR . '/traefik/traefik.pid';
-    private string $traefikConf = ROOTER_HOME_DIR . '/traefik/traefik.yml';
-    private string $traefikLog = ROOTER_HOME_DIR . '/traefik/logs/traefik.log';
-    private string $confDir = ROOTER_HOME_DIR . '/traefik/conf.d';
-    private string $logDir = ROOTER_HOME_DIR . '/traefik/logs';
-    private string $confTmpl = ROOTER_DIR . '/etc/traefik/traefik.yml';
-    private string $endpointTmpl = ROOTER_DIR . '/etc/traefik/conf.d/endpoint-tmpl.yml';
-    private string $endpointDefault = ROOTER_DIR . '/etc/traefik/conf.d/default.yml';
+    public function __construct(
+        private string $traefikBin,
+        private string $traefikHomeDir,
+        private string $pidFile,
+        private string $traefikConf,
+        private string $traefikLog,
+        private string $confDir,
+        private string $logDir,
+        private string $confTmpl,
+        private string $endpointDefault,
+        private string $endpointTmpl
+    ) {
+    }
 
     public function getTraefikCommand(): string
     {
-        $traefikConf = $this->getTraefikConf();
-        $TRAEFIK_BIN = $this->getTraefikBin();
-
-        return "$TRAEFIK_BIN --configfile=$traefikConf";
+        return "{$this->getTraefikBin()} --configfile={$this->getTraefikConf()}";
     }
 
     public function getTraefikBin(): string
@@ -59,14 +59,14 @@ class TraefikConfig
         return $this->getConfDir() . "/$envName.yml";
     }
 
-    public function getEndpointTmpl(): string
-    {
-        return $this->endpointTmpl;
-    }
-
     public function getLogDir(): string
     {
         return $this->logDir;
+    }
+
+    public function getEndpointTmpl(): string
+    {
+        return $this->endpointTmpl;
     }
 
     public function getConfTmpl(): string

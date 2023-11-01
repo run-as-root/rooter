@@ -44,7 +44,7 @@ class InstallCommand extends Command
             throw new RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
         }
 
-        $rooterEnvDir = $this->rooterConfig->getEnvironmentDir();
+        $rooterEnvDir = $this->rooterConfig->getEnvironmentsDir();
         $output->writeln('==> Creating environments directory');
         if (!is_dir($rooterEnvDir) && !mkdir($rooterEnvDir, 0755, true) && !is_dir($rooterEnvDir)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $rooterEnvDir));

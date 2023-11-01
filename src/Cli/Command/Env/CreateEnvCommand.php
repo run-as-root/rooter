@@ -120,7 +120,7 @@ class CreateEnvCommand extends Command
 
         // Files to update
         $filesToUpdate = [];
-        $envFile = ROOTER_PROJECT_ROOT . "/.env";
+        $envFile = $this->rooterConfig->getEnvironmentEnvFile();
         if (!$isForce && is_file($envFile)) {
             if ($io->confirm("Update .env ?", false)) {
                 $filesToUpdate['.env'] = $envFile;

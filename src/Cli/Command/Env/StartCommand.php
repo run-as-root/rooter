@@ -53,11 +53,6 @@ class StartCommand extends Command
             return Command::FAILURE;
         }
 
-        if (!is_dir(ROOTER_PROJECT_DIR)
-            && !mkdir(ROOTER_PROJECT_DIR, 0755, true) && !is_dir(ROOTER_PROJECT_DIR)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', ROOTER_PROJECT_DIR));
-        }
-
         $debug = $input->getOption('debug');
         $output->writeln("Starting environment $projectName");
 

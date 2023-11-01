@@ -37,7 +37,7 @@ class InitEnvCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $envFile = ROOTER_PROJECT_ROOT . "/.env";
+        $envFile = $this->rooterConfig->getEnvironmentEnvFile();
         if (is_file($envFile)) {
             $io->info("Environment already initialised.");
             return Command::FAILURE;

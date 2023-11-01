@@ -5,11 +5,18 @@ namespace RunAsRoot\Rooter\Config;
 
 class RooterConfig
 {
-    private string $rooterDir = ROOTER_DIR;
-    private string $rooterHomeDir = ROOTER_HOME_DIR;
-    private string $binDir = ROOTER_HOME_DIR . '/bin';
-    private string $environmentDir = ROOTER_HOME_DIR . '/environments';
-    private string $environmentTemplatesDir = ROOTER_DIR . '/environments';
+    private string $binDir = 'bin';
+    private string $envFile = '.env';
+    private string $environmentsDir = 'environments';
+    private string $environmentTemplatesDir = 'environments';
+
+    public function __construct(
+        private readonly string $rooterDir,
+        private readonly string $rooterHomeDir,
+        private readonly string $rooterSslDir,
+        private readonly string $environmentRootDir
+    ) {
+    }
 
     public function getRooterDir(): string
     {
@@ -21,24 +28,41 @@ class RooterConfig
         return $this->rooterHomeDir;
     }
 
-    public function getBinDir(): string
+    public function getRooterSslDir(): string
     {
-        return $this->binDir;
+        return $this->rooterSslDir;
     }
 
-    public function getEnvironmentDir(): string
+    /** @deprecated */
+    public function getBinDir(): string
     {
-        return $this->environmentDir;
+        return $this->rooterHomeDir . '/' . $this->binDir;
+    }
+
+    public function getEnvironmentRootDir(): string
+    {
+        return $this->environmentRootDir;
+    }
+
+    public function getEnvironmentEnvFile(): string
+    {
+        return $this->environmentRootDir . '/' . $this->envFile;
+    }
+
+    /** get the Path to environment storage */
+    public function getEnvironmentsDir(): string
+    {
+        return $this->rooterHomeDir . '/' . $this->environmentsDir;
     }
 
     public function getEnvironmentTemplatesDir(): string
     {
-        return $this->environmentTemplatesDir;
+        return $this->rooterDir . '/' . $this->environmentTemplatesDir;
     }
 
     public function getEnvironmentTemplatesDirForType(string $type): string
     {
-        return "$this->environmentTemplatesDir/$type";
+        return "{$this->getEnvironmentTemplatesDir()}/$type";
     }
 
     public function getEnvironmentTypes(): array

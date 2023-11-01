@@ -64,7 +64,7 @@ class RegisterTraefikConfigCommand extends Command
             ]
         );
 
-        $traefikYml = $this->twig->render('traefik/endpoint.yml.twig', $tmplVars);
+        $traefikYml = $this->twig->render($this->traefikConfig->getEndpointTmpl(), $tmplVars);
 
         $targetFile = $this->traefikConfig->getEndpointConfPath($projectName);
 

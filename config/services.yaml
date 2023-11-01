@@ -11,7 +11,7 @@ services:
 
   _instanceof:
     Symfony\Component\Console\Command\Command:
-      tags: ['command']
+      tags: [ 'command' ]
 
   RunAsRoot\Rooter\:
     resource: '%rooter.dir%/src'
@@ -33,3 +33,48 @@ services:
       $styles: {
         title: '@RunAsRoot\Rooter\Cli\Output\Style\TitleOutputStyle'
       }
+
+  # RooterConfig
+  RunAsRoot\Rooter\Config\RooterConfig:
+    arguments:
+      $rooterDir: '%rooter.dir%'
+      $rooterHomeDir: '%rooter.home_dir%'
+      $rooterSslDir: '%rooter.home_dir%/ssl'
+      $environmentRootDir: '%rooter.environment_root%'
+
+  # TraefikConfig
+  RunAsRoot\Rooter\Config\TraefikConfig:
+    arguments:
+      $traefikBin: '%rooter.home_dir%/bin/traefik'
+      $traefikHomeDir: '%rooter.home_dir%/traefik'
+      $pidFile: '%rooter.home_dir%/traefik/traefik.pid'
+      $traefikConf: '%rooter.home_dir%/traefik/traefik.yml'
+      $traefikLog: '%rooter.home_dir%/traefik/logs/traefik.log'
+      $confDir: '%rooter.home_dir%/traefik/conf.d'
+      $logDir: '%rooter.home_dir%/traefik/logs'
+      $confTmpl: '%rooter.dir%/etc/traefik/traefik.yml'
+      $endpointDefault: '%rooter.dir%/etc/traefik/conf.d/default.yml'
+      $endpointTmpl: 'traefik/endpoint.yml.twig'
+
+  # DnsmasqConfig
+  RunAsRoot\Rooter\Config\DnsmasqConfig:
+    arguments:
+      $dnsmasqBin: '%rooter.home_dir%/bin/dnsmasq'
+      $homeDir: '%rooter.home_dir%/dnsmasq'
+      $pidFile: '%rooter.home_dir%/dnsmasq/dnsmasq.pid'
+      $logDir: '%rooter.home_dir%/dnsmasq/logs'
+      $dnsmasqConf: '%rooter.home_dir%/dnsmasq/dnsmasq.conf'
+      $confTmpl: '%rooter.dir%/etc/dnsmasq/dnsmasq.conf'
+      $resolverTmpl: '%rooter.dir%/etc/resolver/rooter.test'
+      $resolverConf: '/etc/resolver/rooter.test'
+
+  # DevenvConfig
+  RunAsRoot\Rooter\Config\DevenvConfig:
+    arguments:
+      $environmentRootDir: '%rooter.environment_root%'
+
+  # CertConfig
+  RunAsRoot\Rooter\Config\CertConfig:
+    arguments:
+      $rootCaDir: '%rooter.home_dir%/ssl/rootca'
+      $certsDir: '%rooter.home_dir%/ssl/certs'

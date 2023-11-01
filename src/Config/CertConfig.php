@@ -5,11 +5,17 @@ namespace RunAsRoot\Rooter\Config;
 
 class CertConfig
 {
-    private string $rootCaDir = ROOTER_SSL_DIR . "/rootca";
-    private string $certsDir = ROOTER_SSL_DIR . "/certs";
-    private string $caKeyPemFile = "private/ca.key.pem";
-    private string $caCertPemFile = "certs/ca.cert.pem";
-    private string $certificateName = 'rooter.test';
+    public function __construct(
+        private readonly string $rootCaDir,
+        private readonly string $certsDir,
+        private ?string $caKeyPemFile = null,
+        private ?string $caCertPemFile = null,
+        private ?string $certificateName = null,
+    ) {
+        $this->caKeyPemFile = $caKeyPemFile ?? "$rootCaDir/private/ca.key.pem";
+        $this->caCertPemFile = $caCertPemFile ?? "$rootCaDir/certs/ca.cert.pem";
+        $this->certificateName = $certificateName ?? 'rooter.test';
+    }
 
     public function getRootCaDir(): string
     {
@@ -18,12 +24,12 @@ class CertConfig
 
     public function getCaKeyPemFile(): string
     {
-        return $this->rootCaDir . '/' . $this->caKeyPemFile;
+        return $this->caKeyPemFile;
     }
 
     public function getCaCertPemFile(): string
     {
-        return  $this->rootCaDir . '/' .$this->caCertPemFile;
+        return $this->caCertPemFile;
     }
 
     public function getCertificateName(): string
