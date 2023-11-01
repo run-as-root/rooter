@@ -46,7 +46,7 @@ class StatusServicesCommand extends Command
         $traefikPid = $this->processManager->getPidFromFile($this->traefikConfig->getPidFile());
         $traefikStatus = $this->processManager->isRunningByPid($traefikPid) ? 'running' : 'stopped';
 
-        $this->io->block('services', null, TitleGrayOutputStyle::NAME, '  ', true);
+        $this->io->block(messages: 'services', style: TitleGrayOutputStyle::NAME, prefix: '  ', padding: true);
 
         $table = new Table($output);
         $table->setStyle('box');

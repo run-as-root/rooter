@@ -3,19 +3,18 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
-use Exception;
 use JsonException;
-use RunAsRoot\Rooter\Api\ProcessCompose\Exception\ApiException;
-use RunAsRoot\Rooter\Api\ProcessCompose\ProcessComposeApi;
 use RunAsRoot\Rooter\Cli\Command\Services\StatusServicesCommand;
 use RunAsRoot\Rooter\Cli\Output\EnvironmentConfigRenderer;
+use RunAsRoot\Rooter\Cli\Output\EnvironmentListRenderer;
+use RunAsRoot\Rooter\Cli\Output\EnvironmentProcessListRenderer;
 use RunAsRoot\Rooter\Cli\Output\Style\TitleOutputStyle;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -25,8 +24,9 @@ class StatusCommand extends Command
 
     public function __construct(
         private readonly EnvironmentRepository $envRepository,
-        private readonly ProcessComposeApi $processComposeApi,
         private readonly StatusServicesCommand $statusServicesCommand,
+        private readonly EnvironmentProcessListRenderer $environmentProcessListRenderer,
+        private readonly EnvironmentListRenderer $environmentListRenderer,
     ) {
         parent::__construct();
     }
@@ -37,6 +37,9 @@ class StatusCommand extends Command
         $this->setAliases(['env:status']);
         $this->setDescription('show status of env');
         $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the env');
+        $this->addOption('all', '', InputOption::VALUE_NONE, 'show status for all environments');
+        $this->addOption('ports', '', InputOption::VALUE_NONE, 'show all: with ports');
+        $this->addOption('running', '', InputOption::VALUE_NONE, 'show all: filter for running environments');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -48,7 +51,26 @@ class StatusCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $projectName = $input->getArgument('name') ?? getenv('PROJECT_NAME');
+        $this->statusServicesCommand->run(new ArrayInput([]), $output);
+
+        if ($input->getOption('all')) {
+            $this->environmentListRenderer->render(
+                environments: $this->envRepository->getList(),
+                input: $input,
+                output: $output,
+                onlyRunning: $input->getOption('running'),
+                showPorts: $input->getOption('ports'),
+            );
+            $result = Command::SUCCESS;
+        } else {
+            $projectName = $input->getArgument('name') ?? getenv('PROJECT_NAME');
+            $result = $this->renderEnvironment($projectName, $input, $output);
+        }
+        return $result;
+    }
+
+    private function renderEnvironment(string $projectName, InputInterface $input, OutputInterface $output): int
+    {
         if (!$projectName) {
             $this->io->error("Please provide a project-name or execute in a project context.");
             return Command::FAILURE;
@@ -61,57 +83,13 @@ class StatusCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->statusServicesCommand->run(new ArrayInput([]), $output);
+        $this->io->block(messages: $projectName, style: TitleOutputStyle::NAME, prefix: '  ', padding: true);
 
-        $this->io->block((string)$projectName, null, TitleOutputStyle::NAME, '  ', true);
-
-        $this->renderEnvironmentProcessList($envData, $input, $output);
+        $this->environmentProcessListRenderer->render($envData, $input, $output);
 
         $environmentConfigRenderer = new EnvironmentConfigRenderer();
         $environmentConfigRenderer->render($envData, $output);
 
         return Command::SUCCESS;
-    }
-
-    private function renderEnvironmentProcessList(array $envData, InputInterface $input, OutputInterface $output): void
-    {
-        try {
-            $this->processComposeApi->isAlive($envData);
-        } catch (Exception $e) {
-            $this->io->note("environment seems to be stopped." . PHP_EOL . "start environment to see process list.");
-            return;
-        }
-
-        try {
-            $processData = $this->processComposeApi->getProcessList($envData);
-        } catch (ApiException $e) {
-            $this->io->error($e->getMessage());
-            return;
-        } catch (JsonException $e) {
-            $this->io->error("Could not parse json. Invalid json response from process-compose: {$e->getMessage()}");
-            return;
-        } catch (Exception $e) {
-            $this->io->error("Error fetching data from process-compose: {$e->getMessage()}");
-            return;
-        }
-
-        $table = new Table($output);
-        $table->setStyle('box');
-        $table->setHeaders(['process', 'PID', 'uptime', 'health', 'exit-code', 'status']);
-
-        foreach ($processData as $process) {
-            $table->addRow(
-                [
-                    $process['name'],
-                    $process['pid'],
-                    $process['system_time'],
-                    $process['is_ready'],
-                    $process['exit_code'],
-                    $process['status'],
-                ]
-            );
-        }
-
-        $table->render();
     }
 }
