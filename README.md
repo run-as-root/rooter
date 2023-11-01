@@ -35,8 +35,8 @@ List of commands without explanation.
 ```bash
 rooter env:create <environment-type>
 direnv allow .
-rooter env:start --debug # once done cancel with CTRL+C
-rooter env:start
+rooter start --debug # once done cancel with CTRL+C
+rooter start
 ```
 
 ### Create Environment
@@ -72,12 +72,12 @@ Once you have completed the above steps you can start the environment for the fi
 For the first run we suggest to start it in the foreground since this might take a while to fetch all dependencies.  
 
 ```bash
-rooter env:start --debug
+rooter start --debug
 ```
 
 For all subsequent starts you can run it in the background with
 ```bash
-rooter env:start
+rooter start
 ```
 
 ## Usage
@@ -133,6 +133,7 @@ To start rooter services dnsmasq and traefik in the background run:
 ```bash
 rooter services:start
 ```
+Note: They will be started automatically when you start an environment.
 
 ### TablePlus
 
