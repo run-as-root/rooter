@@ -9,12 +9,12 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class RestartCommand extends Command
+class RestartServicesCommand extends Command
 {
 
     public function __construct(
-        private readonly StartCommand $startCommand,
-        private readonly StopCommand $stopCommand,
+        private readonly StartServicesCommand $startCommand,
+        private readonly StopServicesCommand $stopCommand,
     ) {
         parent::__construct();
     }

@@ -4,13 +4,12 @@ declare(strict_types=1);
 namespace RunAsRoot\Rooter\Cli\Command\Env;
 
 use RunAsRoot\Rooter\Cli\Command\Nginx\InitNginxCommand;
-use RunAsRoot\Rooter\Cli\Command\Services\StartCommand as StartRooterCommand;
+use RunAsRoot\Rooter\Cli\Command\Services\StartServicesCommand;
 use RunAsRoot\Rooter\Cli\Output\LogFileRenderer;
 use RunAsRoot\Rooter\Cli\Output\ProcessComposeStartUpRenderer;
 use RunAsRoot\Rooter\Config\DevenvConfig;
 use RunAsRoot\Rooter\Manager\ProcessManager;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
-use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -23,7 +22,7 @@ class StartCommand extends Command
     public function __construct(
         private readonly ProcessManager $processManager,
         private readonly DevenvConfig $devenvConfig,
-        private readonly StartRooterCommand $startRooterCommand,
+        private readonly StartServicesCommand $startRooterCommand,
         private readonly RegisterEnvCommand $registerEnvCommand,
         private readonly InitNginxCommand $initNginxCommand,
         private readonly EnvironmentRepository $environmentRepository,
