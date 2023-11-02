@@ -4,7 +4,8 @@
     "datetime": "release-date",
     "files": [
         "src/RooterBootstrap.php",
-        "vendor/composer/installed.php"
+        "vendor/composer/installed.php",
+        "VERSION"
     ],
     "force-autodiscovery": true,
     "directories": [
