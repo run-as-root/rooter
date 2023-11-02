@@ -22,7 +22,7 @@ class SelfUpdateCommand extends Command
             return Command::FAILURE;
         }
 
-        shell_exec('nix profile upgrade ".*.rooter"');
+        shell_exec('nix profile upgrade ".*.rooter" --tarball-ttl 0');
 
         return Command::SUCCESS;
     }
