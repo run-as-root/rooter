@@ -18,8 +18,8 @@ class UpdateDevenvCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        shell_exec("devenv update");
+        $result = shell_exec("devenv update");
 
-        return Command::SUCCESS;
+        return $result === false ? Command::FAILURE : Command::SUCCESS;
     }
 }
