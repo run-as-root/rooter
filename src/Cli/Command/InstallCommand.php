@@ -13,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class InstallCommand extends Command
@@ -31,6 +32,7 @@ class InstallCommand extends Command
     {
         $this->setName('install');
         $this->setDescription('Main installation of rooter');
+        $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Force installation and overwrite existing files');
     }
 
     /**
@@ -38,80 +40,81 @@ class InstallCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $rooterHomeBinDir = $this->rooterConfig->getBinDir();
-        $output->writeln('==> Creating bin directory');
-        if (!is_dir($rooterHomeBinDir) && !mkdir($rooterHomeBinDir, 0755, true) && !is_dir($rooterHomeBinDir)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $rooterHomeBinDir));
-        }
+        $force = $input->getOption('force');
 
-        $rooterEnvDir = $this->rooterConfig->getEnvironmentsDir();
+        $output->writeln('==> Creating bin directory');
+        $this->ensureDir($this->rooterConfig->getBinDir());
         $output->writeln('==> Creating environments directory');
-        if (!is_dir($rooterEnvDir) && !mkdir($rooterEnvDir, 0755, true) && !is_dir($rooterEnvDir)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $rooterEnvDir));
-        }
+        $this->ensureDir($this->rooterConfig->getEnvironmentsDir());
 
         // Init dnsmasq
         $output->writeln('==> Initialising dnsmasq');
-        $this->initDnsmasq->run(new ArrayInput([]), $output);
+        $this->initDnsmasq->run(new ArrayInput(['--force' => $force]), $output);
 
         // Init traefik
         $output->writeln('==> Initialising traefik');
         $this->initTraefik->run(new ArrayInput([]), $output);
 
         // Generate ROOT CA and trust ROOT CA
-        $this->generateCertificates($output);
+        $this->generateCertificates($output, $force);
 
         return 0;
     }
 
-    private function generateCertificates(OutputInterface $output): void
+    private function generateCertificates(OutputInterface $output, bool $force = false): void
     {
         $osType = php_uname('s');
         $rootCaDir = $this->certConfig->getRootCaDir();
         $caKeyPemFile = $this->certConfig->getCaKeyPemFile();
         $caCertPemFile = $this->certConfig->getCaCertPemFile();
 
-        if (!is_dir($rootCaDir)) {
-            mkdir("$rootCaDir/certs", 0755, true);
-            mkdir("$rootCaDir/crl", 0755, true);
-            mkdir("$rootCaDir/newcerts", 0755, true);
-            mkdir("$rootCaDir/private", 0700, true);
+        if ($force === true || !is_dir($rootCaDir)) {
+            $this->ensureDir("$rootCaDir/certs");
+            $this->ensureDir("$rootCaDir/crl");
+            $this->ensureDir("$rootCaDir/newcerts");
+            $this->ensureDir("$rootCaDir/private", 0700);
             touch("$rootCaDir/index.txt");
             file_put_contents("$rootCaDir/serial", '1000');
         }
 
-        if (!file_exists($caKeyPemFile)) {
+        if ($force === true || !file_exists($caKeyPemFile)) {
             $output->writeln('==> Generating private key for local root certificate');
-            exec("openssl genrsa -out $caKeyPemFile 2048");
+            $this->execOrFail("openssl genrsa -out $caKeyPemFile 2048");
         }
 
-        if (!file_exists($caCertPemFile)) {
+        if ($force === true || !file_exists($caCertPemFile)) {
             $hostname = gethostname();
             $output->writeln("==> Signing root certificate 'ROOTER Proxy Local CA ('$hostname')'");
-            $rootCaConf = $this->rooterConfig->getRooterDir() . "/etc/openssl/rootca.conf";
+
+            // Create temp file for phar execution
+            $tmpRootCaConf = tempnam(sys_get_temp_dir(), 'rooter_rootca_conf');
+            file_put_contents($tmpRootCaConf, file_get_contents("{$this->rooterConfig->getRooterDir()}/etc/openssl/rootca.conf"));
+
             $subject = "/C=US/O=rooter.run-as-root.sh/CN=ROOTER Proxy Local CA ($hostname)";
-            $command = "openssl req -new -x509 -days 7300 -sha256 -extensions v3_ca -config $rootCaConf -key $caKeyPemFile -out $caCertPemFile -subj \"$subject\"";
-            exec($command);
+            $command = "openssl req -new -x509 -days 7300 -sha256 -extensions v3_ca -config $tmpRootCaConf -key $caKeyPemFile -out $caCertPemFile -subj \"$subject\"";
+            $this->execOrFail($command);
+
+            unlink($tmpRootCaConf);
         }
 
         if (str_starts_with($osType, 'Linux')) {
             if (is_dir('/etc/pki/ca-trust/source/anchors')
-                && !file_exists('/etc/pki/ca-trust/source/anchors/rooter-proxy-local-ca.cert.pem')
+                && ($force === true || !file_exists('/etc/pki/ca-trust/source/anchors/rooter-proxy-local-ca.cert.pem'))
             ) {
                 $output->writeln('==> Trusting root certificate (requires sudo privileges)');
-                exec("sudo cp $caCertPemFile /etc/pki/ca-trust/source/anchors/rooter-proxy-local-ca.cert.pem");
-                exec('sudo update-ca-trust');
+                $this->execOrFail("sudo cp $caCertPemFile /etc/pki/ca-trust/source/anchors/rooter-proxy-local-ca.cert.pem");
+                $this->execOrFail('sudo update-ca-trust');
             } elseif (is_dir('/usr/local/share/ca-certificates')
-                && !file_exists('/usr/local/share/ca-certificates/rooter-proxy-local-ca.crt')
+                && ($force === true || !file_exists('/usr/local/share/ca-certificates/rooter-proxy-local-ca.crt'))
             ) {
                 $output->writeln('==> Trusting root certificate (requires sudo privileges)');
-                exec("sudo cp $caCertPemFile /usr/local/share/ca-certificates/rooter-proxy-local-ca.crt");
-                exec('sudo update-ca-certificates');
+                $this->execOrFail("sudo cp $caCertPemFile /usr/local/share/ca-certificates/rooter-proxy-local-ca.crt");
+                $this->execOrFail('sudo update-ca-certificates');
             }
         } elseif (str_starts_with($osType, 'Darwin')) {
-            if (!exec('security dump-trust-settings -d | grep "ROOTER Proxy Local CA"')) {
+            if ($force === true || !exec('security dump-trust-settings -d | grep "ROOTER Proxy Local CA"')) {
                 $output->writeln('==> Trusting root certificate (requires sudo privileges)');
-                exec("sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $caCertPemFile");
+                $this->execOrFail("sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $caCertPemFile");
             }
         }
 
@@ -119,4 +122,23 @@ class InstallCommand extends Command
         $this->generateCertificateService->generate($this->certConfig->getCertificateName(), $this->certConfig, $output);
     }
 
+    /** @throws RuntimeException */
+    private function execOrFail(string $command): void
+    {
+        $output = $resultCode = null;
+        exec($command, $output, $resultCode);
+        if ($resultCode !== 0) {
+            throw new \RuntimeException("Failed to execute: '$command'");
+        }
+    }
+
+    private function ensureDir(string $dirname, int $permissions = 0755): void
+    {
+        if (!is_dir($dirname)
+            && !mkdir($dirname, $permissions, true)
+            && !is_dir($dirname)
+        ) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $dirname));
+        }
+    }
 }

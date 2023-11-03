@@ -5,6 +5,7 @@ namespace RunAsRoot\Rooter\Service;
 
 use RunAsRoot\Rooter\Config\CertConfig;
 use RunAsRoot\Rooter\Config\RooterConfig;
+use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateCertificateService
@@ -21,9 +22,7 @@ class GenerateCertificateService
         $caCertPemFile = $certConfig->getCaCertPemFile();
         $certsDir = $certConfig->getCertsDir();
 
-        if (!is_dir($certsDir)) {
-            mkdir($certsDir, 0755, true);
-        }
+        $this->ensureDir($certsDir);
 
         $certificateKeyPemFile = "$certsDir/$certificateName.key.pem";
         $certificateCsrPemFile = "$certsDir/$certificateName.csr.pem";
@@ -35,7 +34,7 @@ class GenerateCertificateService
         $certificateSanList = "DNS.1:$certificateName,DNS.2:*.$certificateName";
 
         $output->writeln("==> Generating private key $certificateName.key.pem");
-        exec("openssl genrsa -out $certificateKeyPemFile 2048");
+        $this->execOrFail("openssl genrsa -out $certificateKeyPemFile 2048");
 
         $output->writeln("==> Generating signing req $certificateName.crt.pem");
 
@@ -48,12 +47,32 @@ class GenerateCertificateService
         file_put_contents($tmpConfigFile, $opensslConfig);
 
         $command = "openssl req -new -sha256 -config '$tmpConfigFile' -key $certificateKeyPemFile -out $certificateCsrPemFile -subj $subject";
-        exec($command);
+        $this->execOrFail($command);
 
         $output->writeln("==> Generating certificate $certificateName.crt.pem");
         $command = "openssl x509 -req -days 365 -sha256 -extensions v3_req -extfile $tmpConfigFile -CA $caCertPemFile -CAkey $caKeyPemFile -CAserial $rootCaDir/serial -in $certificateCsrPemFile -out $certificatePemFile";
-        exec($command);
+        $this->execOrFail($command);
 
         unlink($tmpConfigFile);
+    }
+
+    /** @throws RuntimeException */
+    private function execOrFail(string $command): void
+    {
+        $output = $resultCode = null;
+        exec($command, $output, $resultCode);
+        if ($resultCode !== 0) {
+            throw new \RuntimeException("Failed to execute: '$command'");
+        }
+    }
+
+    private function ensureDir(string $dirname, int $permissions = 0755): void
+    {
+        if (!is_dir($dirname)
+            && !mkdir($dirname, $permissions, true)
+            && !is_dir($dirname)
+        ) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $dirname));
+        }
     }
 }
