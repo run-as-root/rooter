@@ -100,7 +100,7 @@
       packages.default = self.packages.${system}.rooter;
 
       devShells.default = pkgs.mkShell {
-        buildInputs = with pkgs; [phpDev traefik dnsmasq pv gzip packages.rooterDev];
+        buildInputs = with pkgs; [phpDev traefik dnsmasq pv gzip just packages.rooterDev];
       };
     });
 }
