@@ -56,6 +56,7 @@ class InstallCommand extends Command
         $this->initTraefik->run(new ArrayInput([]), $output);
 
         // Generate ROOT CA and trust ROOT CA
+        $output->writeln('==> Initialising Certificates');
         $this->generateCertificates($output, $force);
 
         return 0;
@@ -77,11 +78,13 @@ class InstallCommand extends Command
             file_put_contents("$rootCaDir/serial", '1000');
         }
 
+        // Generate ROOT CA
         if ($force === true || !file_exists($caKeyPemFile)) {
             $output->writeln('==> Generating private key for local root certificate');
             $this->execOrFail("openssl genrsa -out $caKeyPemFile 2048");
         }
 
+        // Sign ROOT CA
         if ($force === true || !file_exists($caCertPemFile)) {
             $hostname = gethostname();
             $output->writeln("==> Signing root certificate 'ROOTER Proxy Local CA ('$hostname')'");
@@ -97,6 +100,7 @@ class InstallCommand extends Command
             unlink($tmpRootCaConf);
         }
 
+        // Trust ROOT CA
         if (str_starts_with($osType, 'Linux')) {
             if (is_dir('/etc/pki/ca-trust/source/anchors')
                 && ($force === true || !file_exists('/etc/pki/ca-trust/source/anchors/rooter-proxy-local-ca.cert.pem'))
@@ -125,8 +129,8 @@ class InstallCommand extends Command
     /** @throws RuntimeException */
     private function execOrFail(string $command): void
     {
-        $output = $resultCode = null;
-        exec($command, $output, $resultCode);
+        $resultCode = null;
+        exec(command: $command, result_code: $resultCode);
         if ($resultCode !== 0) {
             throw new \RuntimeException("Failed to execute: '$command'");
         }
@@ -134,9 +138,7 @@ class InstallCommand extends Command
 
     private function ensureDir(string $dirname, int $permissions = 0755): void
     {
-        if (!is_dir($dirname)
-            && !mkdir($dirname, $permissions, true)
-            && !is_dir($dirname)
+        if (!is_dir($dirname) && !mkdir($dirname, $permissions, true) && !is_dir($dirname)
         ) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $dirname));
         }

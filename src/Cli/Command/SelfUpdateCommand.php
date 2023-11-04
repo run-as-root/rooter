@@ -22,6 +22,7 @@ class SelfUpdateCommand extends Command
             return Command::FAILURE;
         }
 
+        // forces a re-download of the phar by setting ttl to 0
         shell_exec('nix profile upgrade ".*.rooter" --tarball-ttl 0');
 
         return Command::SUCCESS;

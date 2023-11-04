@@ -10,7 +10,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateCertificateService
 {
-
     public function __construct(private readonly RooterConfig $rooterConfig)
     {
     }
@@ -59,8 +58,8 @@ class GenerateCertificateService
     /** @throws RuntimeException */
     private function execOrFail(string $command): void
     {
-        $output = $resultCode = null;
-        exec($command, $output, $resultCode);
+        $resultCode = null;
+        exec(command: $command, result_code: $resultCode);
         if ($resultCode !== 0) {
             throw new \RuntimeException("Failed to execute: '$command'");
         }
@@ -68,9 +67,7 @@ class GenerateCertificateService
 
     private function ensureDir(string $dirname, int $permissions = 0755): void
     {
-        if (!is_dir($dirname)
-            && !mkdir($dirname, $permissions, true)
-            && !is_dir($dirname)
+        if (!is_dir($dirname) && !mkdir($dirname, $permissions, true) && !is_dir($dirname)
         ) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $dirname));
         }

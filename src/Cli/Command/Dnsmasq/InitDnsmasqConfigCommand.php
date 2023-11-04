@@ -83,8 +83,8 @@ class InitDnsmasqConfigCommand extends Command
     /** @throws \RuntimeException */
     private function execOrFail(string $command): void
     {
-        $output = $resultCode = null;
-        exec($command, $output, $resultCode);
+        $resultCode = null;
+        exec(command: $command, result_code: $resultCode);
         if ($resultCode !== 0) {
             throw new \RuntimeException("Failed to execute: '$command'");
         }
@@ -92,8 +92,7 @@ class InitDnsmasqConfigCommand extends Command
 
     private function ensureDir(string $dirname): void
     {
-        if (!is_dir($dirname)
-            && !mkdir($dirname, 0755, true) && !is_dir($dirname)) {
+        if (!is_dir($dirname) && !mkdir($dirname, 0755, true) && !is_dir($dirname)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $dirname));
         }
     }

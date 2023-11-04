@@ -62,8 +62,7 @@ class InitTraefikConfigCommand extends Command
 
     private function ensureDir(string $dirname): void
     {
-        if (!is_dir($dirname)
-            && !mkdir($dirname, 0755, true) && !is_dir($dirname)) {
+        if (!is_dir($dirname) && !mkdir($dirname, 0755, true) && !is_dir($dirname)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $dirname));
         }
     }
