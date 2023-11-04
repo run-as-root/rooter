@@ -97,8 +97,6 @@
               ${phpDev}/bin/php ${rooterPharLocal}/bin/rooter.phar "$@"
           '';
 
-      packages.default = self.packages.${system}.rooter;
-
       devShells.default = pkgs.mkShell {
         buildInputs = with pkgs; [phpDev traefik dnsmasq pv gzip just packages.rooterDev];
       };
