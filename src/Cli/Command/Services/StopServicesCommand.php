@@ -13,6 +13,7 @@ use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StopServicesCommand extends Command
@@ -50,12 +51,14 @@ class StopServicesCommand extends Command
     private function stopProcess(string $pidFile, string $name, OutputInterface $output): bool
     {
         $result = true;
+        /** @var ConsoleSectionOutput $section */
+        $section = $output->section();
         try {
-            $output->writeln("$name stopping");
+            $section->writeln("$name stopping");
             $this->processManager->stop($pidFile);
-            $output->writeln("<info>$name was stopped</info>");
+            $section->overwrite("<info>$name stopped</info>");
         } catch (ProcessNotRunningException $e) {
-            $output->writeln("$name already stopped");
+            $section->overwrite("$name already stopped");
         } catch (FailedToStopProcessException $e) {
             $output->writeln("<error>$name could not be stopped: {$e->getMessage()}</error>");
             $result = false;

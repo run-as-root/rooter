@@ -40,7 +40,7 @@ class RemoveTraefikConfigCommand extends Command
         }
         unlink($targetFile);
 
-        $output->writeln("$projectName traefik configuration removed");
+        $output->writeln("$projectName traefik configuration removed", OutputInterface::VERBOSITY_VERBOSE);
 
         return Command::SUCCESS;
     }

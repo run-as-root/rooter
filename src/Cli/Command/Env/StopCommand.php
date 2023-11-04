@@ -16,6 +16,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StopCommand extends Command
@@ -83,12 +84,14 @@ class StopCommand extends Command
     private function stopEnvironment(string $pidFile, string $name, OutputInterface $output): bool
     {
         $result = true;
+        /** @var ConsoleSectionOutput $section */
+        $section = $output->section();
         try {
-            $output->writeln("$name stopping ...");
+            $section->writeln("$name stopping ...");
             $this->processManager->stop($pidFile);
-            $output->writeln("<info>$name stopped</info>");
+            $section->overwrite("<info>$name stopped</info>");
         } catch (ProcessNotRunningException $e) {
-            $output->writeln("$name already stopped");
+            $section->overwrite("$name already stopped");
         } catch (FailedToStopProcessException $e) {
             $output->writeln("<error>$name could not be stopped: {$e->getMessage()}</error>");
             $result = false;
