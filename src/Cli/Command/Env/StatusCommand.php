@@ -51,9 +51,11 @@ class StatusCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $projectName = $input->getArgument('name') ?? getenv('PROJECT_NAME');
+
         $this->statusServicesCommand->run(new ArrayInput([]), $output);
 
-        if ($input->getOption('all')) {
+        if (empty($projectName) || $input->getOption('all')) {
             $this->environmentListRenderer->render(
                 environments: $this->envRepository->getList(),
                 input: $input,
@@ -63,7 +65,6 @@ class StatusCommand extends Command
             );
             $result = Command::SUCCESS;
         } else {
-            $projectName = $input->getArgument('name') ?? getenv('PROJECT_NAME');
             $result = $this->renderEnvironment($projectName, $input, $output);
         }
         return $result;
