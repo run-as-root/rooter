@@ -27,6 +27,15 @@ What exactly is being installed on macOS is documented here: https://nixos.org/m
 nix profile install --accept-flake-config "github:run-as-root/rooter?ref=main#rooter"
 ```
 
+## Initial setup
+
+rooter needs to place some configurations, initialise directories, ssl certs, etc.  
+To start the installation run:
+```bash
+./rooter install
+```
+After that rooter is setup and ready to use for your projects.
+
 ## Project setup
 
 ### Quickstart
