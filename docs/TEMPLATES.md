@@ -57,6 +57,17 @@ in {
 }
 ```
 
+## Custom nginx config
+
+rooter supports a per environment nginx config, different from the default one from the environment templates.  
+To use it, copy the nginx directory from the [environment templates](/environments) to `PROJECT_ROOT/.rooter/nginx` or any other directory you prefer.  
+Make sure you copy and keep all the files from the nxginx directory. Then customize the nginx config to your needs.  
+Finally add the following to your `.env` file, to point rooter to your custom nginx config:  
+```dotenv
+DEVENV_CONFIG_NGINX=.rooter/nginx
+```
+After you have done that, stop and start the environment again.
+
 ## Custom TLD
 
 First Generate certificates for `your-domain-name.test`
