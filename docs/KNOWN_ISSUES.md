@@ -9,13 +9,14 @@ nix-env -if https://github.com/cachix/devenv/tarball/latest
 ```
 
 After that per environment you need to run
+
 ```bash
 devenv update
 ```
 
 ## macOS Upgrade breaks nix installation
 
-- check `/etc/zshrc` 
+- check `/etc/zshrc`
 - it should include the following peace of code
 
 ```sh
@@ -29,8 +30,10 @@ fi
 ## RabbitMQ
 
 RabbitMQ is not starting with an error similar to this:
+
 ```
 Protocol 'inet_tcp': register/listen error: eaddrinuse
 ```
 
-For some reason RabbitMQ opens a connection to a port already in use, even though they are not configured in `.env / devenv.nix`
+For some reason RabbitMQ opens a connection to a port already in use, even though they are not configured
+in `.env / devenv.nix`
