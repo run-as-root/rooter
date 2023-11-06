@@ -54,7 +54,9 @@ class InstallMagento2DbCommand extends Command
 
         # remove settings
         $output->writeln('Removing app/etc/env.php');
-        $this->runCommand("rm app/etc/env.php");
+        if (file_exists('app/etc/env.php')) {
+            unlink("app/etc/env.php");
+        }
 
         ## Magento setup:install
         $output->writeln('Running magento setup:install');
