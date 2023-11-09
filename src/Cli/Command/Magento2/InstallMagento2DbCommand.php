@@ -3,17 +3,18 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Magento2;
 
+use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class InstallMagento2DbCommand extends Command
 {
-    private string $phpBin;
-    private string $phpIniScanDir;
+    public function __construct(private readonly ProcessManager $processManager)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
@@ -21,13 +22,6 @@ class InstallMagento2DbCommand extends Command
         $this->setDescription('Initialise fresh database');
         $this->addOption('config-data-import', '', InputOption::VALUE_NONE, 'import config data after installation');
         $this->addOption('skip-reindex', '', InputOption::VALUE_NONE, 'skip reindex after importing the dump');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        $phpBin = exec('which php');
-        $this->phpBin = realpath($phpBin);
-        $this->phpIniScanDir = dirname($this->phpBin, 2) . "/lib";
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -60,7 +54,7 @@ class InstallMagento2DbCommand extends Command
 
         ## Magento setup:install
         $output->writeln('Running magento setup:install');
-        $command = "$this->phpBin bin/magento setup:install \
+        $command = "bin/magento setup:install \
                 --db-host=127.0.0.1:$DEVENV_DB_PORT --db-name=$DEVENV_DB_NAME --db-user=$DEVENV_DB_USER --db-password=$DEVENV_DB_PASS \
                 --admin-email=admin@run-as-root.sh --admin-firstname=Admin --admin-lastname=Admin --admin-password=admin123 --admin-user=admin \
                 --backend-frontname=admin  \
@@ -78,7 +72,7 @@ class InstallMagento2DbCommand extends Command
                 --page-cache=redis \
                 --page-cache-redis-server=127.0.0.1 \
                 --page-cache-redis-db=1 \
-                --page-cache-redis-port=$DEVENV_REDIS_PORT  ";
+                --page-cache-redis-port=$DEVENV_REDIS_PORT ";
 
         if ($DEVENV_AMQP_PORT) {
             $command .= " \
@@ -94,40 +88,24 @@ class InstallMagento2DbCommand extends Command
                 --opensearch-host=\"127.0.0.1\" --opensearch-port=\"$DEVENV_OPENSEARCH_PORT\" --opensearch-username=\"\" --opensearch-password=\"\"";
         }
 
-        $this->runCommand($command);
+        $this->processManager->run($command, true);
 
         # Magento setup:upgrade
         $output->writeln('Running magento setup:upgrade');
-        $command = "$this->phpBin bin/magento setup:upgrade";
-        $this->runCommand($command);
+        $this->processManager->run("bin/magento setup:upgrade", true);
 
         if ($importConfigData) {
             $output->writeln('Importing config data from files with config:data:import');
             // @todo make configurable were data is fetched from, arg or env?
-            $command = "$this->phpBin bin/magento config:data:import config/store dev/rooter";
-            $this->runCommand($command);
+            $this->processManager->run("bin/magento config:data:import config/store dev/rooter", true);
         }
 
         // Reindex so Elasticsearch gets the updated data
         if (!$skipReindex) {
             $output->writeln('Running magento indexer:reindex');
-            $command = "$this->phpBin bin/magento indexer:reindex";
-            $this->runCommand($command);
+            $this->processManager->run("bin/magento indexer:reindex", true);
         }
 
         return 0;
-    }
-
-    private function runCommand(string $command): int
-    {
-        // We need to preserve the env from the project and not use rooter env
-        $envVars = ['PHP_BIN' => $this->phpBin, 'PHP_INI_SCAN_DIR' => $this->phpIniScanDir];
-        $process = Process::fromShellCommandline($command, getcwd(), $envVars);
-        $result = $process->setTty(true)->run();
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $result;
     }
 }
