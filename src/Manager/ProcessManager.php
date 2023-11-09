@@ -61,9 +61,9 @@ class ProcessManager
 
     private function preservePhpContext(string $command): string
     {
-        $phpBin = exec('which php');
-        $phpBin = realpath($phpBin);
-        $phpIniScanDir = dirname($phpBin, 2) . "/lib";
+        $profileDir = getenv('DEVENV_PROFILE');
+        $phpBin = "$profileDir/bin/php";
+        $phpIniScanDir = "$profileDir/lib";
 
         // ROOTER uses a specific PHP version which may not match the one from the env
         // here me make sure that the correct PHP_BIN and PHP_INI_SCAN_DIR is set

@@ -53,6 +53,7 @@ class EnvironmentRepository
             'name' => $projectName,
             'type' => getenv('ROOTER_ENV_TYPE') ?? '',
             'path' => $this->rooterConfig->getEnvironmentRootDir(),
+            'devenvProfile' => getenv('DEVENV_PROFILE') ?? '',
             'host' => getenv('PROJECT_HOST') ?? '',
             'httpPort' => getenv('DEVENV_HTTP_PORT') ?? '',
             'httpsPort' => getenv('DEVENV_HTTPS_PORT') ?? '',
