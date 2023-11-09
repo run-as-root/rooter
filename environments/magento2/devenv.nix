@@ -6,6 +6,10 @@ let
         url = "https://github.com/composer/composer/releases/download/2.2.22/composer.phar";
         sha256 = "1lmibmdlk2rsrf4zr7xk4yi5rhlmmi8f2g8h2izb8x4sik600dbx";
     };
+    magerun2Phar = builtins.fetchurl{
+        url = "https://github.com/netz98/n98-magerun2/releases/download/7.2.0/n98-magerun2.phar";
+        sha256 = "0z1dkxz69r9r9gf8xm458zysa51f1592iymcp478wjx87i6prvn3";
+    };
 in {
     dotenv.enable = true;
     env = {
@@ -35,10 +39,8 @@ in {
         pkgs.n98-magerun2
     ];
 
-    # Composer 2.2.x required by Magento2 <=2.4.6
-    scripts.composer.exec = ''
-        php ${composerPhar} $@
-    '';
+    scripts.composer.exec = ''php ${composerPhar} $@''; # Composer 2.2.x required by Magento2 <=2.4.6
+    scripts.magerun2.exec = ''php ${magerun2Phar} $@''; # magerun2 without hardlock to php8.2
 
     # process-compose
     process.implementation="process-compose";
