@@ -104,8 +104,6 @@ rooter start
 
 ## Usage
 
-### Print Help
-
 ```bash
 rooter --help
 rooter --help <command>
@@ -113,83 +111,16 @@ rooter --help <command>
 
 ## Configuration
 
-### Domains and Subdomains
-
-By default, rooter will use the project name as the domain.
-
-The following subdomains are available by default if the project is named foobar: `*.foobar.rooter.test`
-
-Using `DEVENV_HTTP_SUBDOMAINS` you can define a list of subdomains that should be used for the project.  
-Add the following line to your .env file and adjust the subdomains to your needs.
-
-```dotenv
-DEVENV_HTTP_SUBDOMAINS=my-project,de-project
-```
-
-This will result in the following domains being available for the project:
-
-- `my-project.rooter.test`
-- `de-project.rooter.test`
+rooter can be configured via environment variables.  
+To find out more about the available options and how to use them,
+please refer to the [configuration options](docs/CONFIGURATION.md).
 
 ## COMMANDS
 
-### Check Ports
-
-Check the ports that have been prefilled in the .env file and adjust them to your local setup.  
-If you are not sure what ports you have used in other rooter projects, you can use the following command to get an
-overview.
-
-```bash
-rooter list --ports
-```
-
-If you run this command for the very first time the list should be empty and show nothing.
-
-### Register Traefik
-
-Register the nginx of the project to traefik so traefik can route requests.
-When using the `env:start` command, rooter will automatically register the traefik config.
-
-```bash
-rooter traefik:config:register
-```
-
-### Start services
-
-To start rooter services dnsmasq and traefik in the background run:
-
-```bash
-rooter services:start
-```
-> [!NOTE]  
-> They will be started automatically when you start an environment.
-
-### TablePlus
-
-TablePlus can be started for a project with
-
-```bash
-rooter tableplus
-```
-
-It will take the information from the ENV variables that have been set through .env or devenv.
-
-In case you have installed TablePlus at a custom location you can use the ENV variable ```TABLEPLUS_BIN```.
-
-In .env
-
-```
-TABLEPLUS_BIN=/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus
-```
-
-Or Globally in .zshrc or .bashrc
-
-```
-export TABLEPLUS_BIN=/Applications/Setapp/TablePlus.app/Contents/MacOS/TablePlus
-```
+To find out more about the available commands and how to use them, please refer to the [commands](docs/COMMANDS.md).
 
 ## FURTHER DOCUMENTATION
 
-- [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md)
-- [TEMPLATES.md](docs/TEMPLATES.md)
-- [DEVELOPMENT.md](docs/DEVELOPMENT.md)
+- [TEMPLATES](docs/TEMPLATES.md)
+- [KNOWN ISSUES](docs/KNOWN_ISSUES.md)
+- [DEVELOPMENT & CONTRIBUTION](docs/DEVELOPMENT.md)
