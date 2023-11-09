@@ -36,7 +36,6 @@ in {
         pkgs.curl
         pkgs.yarn
         pkgs.gettext
-        pkgs.n98-magerun2
     ];
 
     scripts.composer.exec = ''php ${composerPhar} $@''; # Composer 2.2.x required by Magento2 <=2.4.6
