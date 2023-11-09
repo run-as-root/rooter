@@ -115,11 +115,11 @@ rooter can be configured via environment variables.
 To find out more about the available options and how to use them,
 please refer to the [configuration options](docs/CONFIGURATION.md).
 
-## COMMANDS
+## Commands
 
 To find out more about the available commands and how to use them, please refer to the [commands](docs/COMMANDS.md).
 
-## FURTHER DOCUMENTATION
+## Further documentation
 
 - [TEMPLATES](docs/TEMPLATES.md)
 - [KNOWN ISSUES](docs/KNOWN_ISSUES.md)
