@@ -3,40 +3,36 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Magento2;
 
+use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class RefreshMagento2DbCommand extends Command
 {
-    private string $phpBin;
-    private string $phpIniScanDir;
+    public function __construct(private readonly ProcessManager $processManager)
+    {
+        parent::__construct();
+    }
 
     public function configure()
     {
         $this->setName('magento2:db-refresh');
         $this->setDescription('Refresh database from dump');
         $this->addArgument('dump-file', InputArgument::REQUIRED, 'path to db dump');
+        $this->addOption('config-data-import', '', InputOption::VALUE_NONE, 'import config data after installation');
         $this->addOption('skip-reindex', '', InputOption::VALUE_NONE, 'skip reindex after importing the dump');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        $phpBin = exec('which php');
-        $this->phpBin = realpath($phpBin);
-        $this->phpIniScanDir = dirname($this->phpBin, 2) . "/lib";
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $dbDumpFile = $input->getArgument('dump-file');
+        $importConfigData = $input->getOption('config-data-import');
         $skipReindex = $input->getOption('skip-reindex');
 
-        $MAGERUN2_BIN = getenv('MAGERUN2_BIN') ?: 'n98-magerun2';
+        $MAGERUN2_BIN = getenv('MAGERUN2_BIN') ?: 'magerun2';
         $DEVENV_DB_USER = getenv('DEVENV_DB_USER');
         $DEVENV_DB_PASS = getenv('DEVENV_DB_PASS');
         $DEVENV_DB_PORT = getenv('DEVENV_DB_PORT');
@@ -44,41 +40,37 @@ class RefreshMagento2DbCommand extends Command
 
         $mysqlParams = "-u$DEVENV_DB_USER -p$DEVENV_DB_PASS --host=localhost --port=$DEVENV_DB_PORT";
 
+        $output->writeln('Dropping and recreating database');
         exec("mysql $mysqlParams -e \"DROP DATABASE IF EXISTS $DEVENV_DB_NAME; CREATE DATABASE IF NOT EXISTS $DEVENV_DB_NAME;\"");
 
+        $output->writeln("Importing database dump $dbDumpFile to $DEVENV_DB_NAME");
         exec("mysql $mysqlParams --database=$DEVENV_DB_NAME < $dbDumpFile");
 
-        $command = "$this->phpBin bin/magento setup:upgrade";
-        $this->runCommand($command);
+        $output->writeln('Running magento setup:upgrade');
+        $this->processManager->run("bin/magento setup:upgrade", true);
 
-        $command = "$this->phpBin bin/magento config:data:import config/store dev/rooter";
-        $this->runCommand($command);
+        if ($importConfigData) {
+            $output->writeln('Importing config data from files with config:data:import');
+            // @todo make configurable were data is fetched from, arg or env?
+            $this->processManager->run("bin/magento config:data:import config/store dev/rooter", true);
+        }
 
-        $command = "$MAGERUN2_BIN admin:user:delete -f -n admin";
-        $this->runCommand($command);
+        $output->writeln('Remove existing admin user');
+        $this->processManager->run("$MAGERUN2_BIN admin:user:delete -f -n admin", true);
 
-        $command = "$MAGERUN2_BIN admin:user:create --admin-user=admin --admin-password=admin123 --admin-email=admin@run-as-root.sh --admin-firstname=Admin --admin-lastname=Admin";
-        $this->runCommand($command);
+        $output->writeln('Create default admin user');
+        $this->processManager->run(
+            "$MAGERUN2_BIN admin:user:create --admin-user=admin --admin-password=admin123 --admin-email=admin@run-as-root.sh --admin-firstname=Admin --admin-lastname=Admin",
+            true
+        );
 
         // Reindex so Elasticsearch gets the updated data
         if (!$skipReindex) {
-            $command = "$this->phpBin bin/magento indexer:reindex";
-            $this->runCommand($command);
+            $output->writeln('Running magento indexer:reindex');
+            $this->processManager->run("bin/magento indexer:reindex", true);
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
-    private function runCommand(string $command): int
-    {
-        // We need to preserve the env from the project and not use rooter env
-        $envVars = ['PHP_BIN' => $this->phpBin, 'PHP_INI_SCAN_DIR' => $this->phpIniScanDir];
-        $process = Process::fromShellCommandline($command, getcwd(), $envVars);
-        $result = $process->setTty(true)->run();
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        return $result;
-    }
 }
