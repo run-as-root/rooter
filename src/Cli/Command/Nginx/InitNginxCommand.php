@@ -63,9 +63,7 @@ class InitNginxCommand extends Command
         }
 
         $vars = [];
-
-        $vars['NGINX_DIR_SSL_CERTS'] = getenv('NGINX_DIR_SSL_CERTS') ?: '$HOME/.rooter/ssl/certs';
-
+        $vars['NGINX_DIR_SSL_CERTS'] = getenv('NGINX_DIR_SSL_CERTS') ?: "{$this->rooterConfig->getRooterSslDir()}/certs";
         foreach ($this->envVarsAllowed as $variable) {
             $vars[$variable] = getenv($variable);
         }
