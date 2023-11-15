@@ -40,6 +40,35 @@ in {
 
 This approach can be applied for other packages and package sources as well.
 
+## Switch all packages to stable
+
+1. edit devenv.yaml by adding the following block to the end of the file:
+    ```yaml
+    nixpkgs-unstable:
+      url: github:NixOS/nixpkgs/nixpkgs-unstable
+    ```
+2. change default nixpkgs entry to:
+```yaml
+nixpkgs:
+  url: github:NixOS/nixpkgs/nixos-23.05
+```
+
+3. edit devenv.nix by adding the following line to `let` section
+```nix
+let
+    pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+in {
+    #…
+}
+```
+replace `pkgs.mailpit` with `pkgs-unstable.mailpit` in the whole file
+(mailpit is not yet available in the stable channel of 23.05).  
+
+> [!NOTE]  
+> You might need to cleanup the state of some of the packages e.g. redis : `.devenv/state/redis` 
+> With switching to stable packages sources, some packages can be downgraded to an older version,
+> which is not compatible with state stored in `.devenv/state/`.
+
 ## Composer required in a specific version
 
 modifiy your `devenv.nix` file to include the fetch for the composer phar in the version required and
@@ -61,3 +90,26 @@ in {
     # …
 }
 ```
+
+## Blackfire
+
+Add Blackfire to the list of php extensions to install:
+```nix
+    languages.php = {
+        enable = true;
+        package = inputs.phps.packages.${builtins.currentSystem}.php81.buildEnv {
+            extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl blackfire ];
+        };
+    };    
+```
+Enable blackfire service:
+```nix
+    services.blackfire = {
+        enable = true;
+        client-id = "<insert-your-client-id>";
+        client-token = "<insert-your-client-token>";
+        server-id = "<insert-your-server-id>";
+        server-token = "<insert-your-server-token>";
+    };
+```
+Finally, stop the rooter environment, make sure the environment re-initialises, start the rooter environment again.
