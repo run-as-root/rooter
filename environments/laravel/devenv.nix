@@ -37,7 +37,7 @@ in {
     # PHP
     languages.php = {
         enable = true;
-        package = inputs.phps.packages.${builtins.currentSystem}.php81.buildEnv {
+        package = inputs.phps.packages.${builtins.currentSystem}.php83.buildEnv {
             extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
             extraConfig = ''
               memory_limit = -1
@@ -72,7 +72,7 @@ in {
     # JS
     languages.javascript = {
         enable = true;
-        package = pkgs.nodejs-18_x;
+        package = pkgs.nodejs_20;
     };
 
     # nginx
@@ -84,7 +84,7 @@ in {
     # DATABASE
     services.mysql = {
         enable = true;
-        package = pkgs.mariadb_106;
+        package = pkgs.mariadb_110;
         settings = {
             mysqld = {
                 port = config.env.DEVENV_DB_PORT;
@@ -104,6 +104,12 @@ in {
                 ensurePermissions = { "${config.env.DEVENV_DB_NAME}.*" = "ALL PRIVILEGES"; };
             }
         ];
+    };
+
+    # Redis
+    services.redis = {
+        enable = true;
+        port = lib.strings.toInt ( config.env.DEVENV_REDIS_PORT );
     };
 
     # mailpit
