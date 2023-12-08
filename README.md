@@ -12,6 +12,11 @@ Alongside that is has a lot of commands to solve day-to-day repetitive tasks.
 This guide assumes you have successfully installed:
 
 - nix package manager https://nixos.org/download.html#nix-install-macos
+  - enable flakes https://nixos.wiki/wiki/Flakes  
+    add the following to `~/.config/nix/nix.conf` or `/etc/nix/nix.conf` 
+    ```ini
+    experimental-features = nix-command flakes
+    ```
 - devenv https://devenv.sh/getting-started/
 - direnv & nix-direnv
     - direnv https://direnv.net/docs/installation.html
