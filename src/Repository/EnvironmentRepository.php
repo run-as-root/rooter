@@ -18,7 +18,13 @@ class EnvironmentRepository
      */
     public function getByName(string $projectName): array
     {
-        $jsonData = file_get_contents("{$this->rooterConfig->getEnvironmentsDir()}/$projectName.json");
+        $envFilePath = "{$this->rooterConfig->getEnvironmentsDir()}/$projectName.json";
+
+        if(!is_file($envFilePath)) {
+            throw new \RuntimeException("environment '$projectName' is not registered.");
+        }
+
+        $jsonData = file_get_contents($envFilePath);
 
         return json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
     }
@@ -94,7 +100,7 @@ class EnvironmentRepository
     {
         $envConfigFile = "{$this->rooterConfig->getEnvironmentsDir()}/$projectName.json";
         if (!is_file($envConfigFile)) {
-            throw new \RuntimeException("file does not exist '$envConfigFile'");
+            throw new \RuntimeException("environment does not exist '$envConfigFile'");
         }
 
         unlink($envConfigFile);
