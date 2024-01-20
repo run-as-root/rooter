@@ -52,7 +52,7 @@ in {
     # PHP
     languages.php = {
         enable = true;
-        package = inputs.phps.packages.${builtins.currentSystem}.php81.buildEnv {
+        package = inputs.phps.packages.${builtins.currentSystem}.php82.buildEnv {
             extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
             extraConfig = ''
                 memory_limit = -1
@@ -87,7 +87,7 @@ in {
     # JS
     languages.javascript = {
         enable = true;
-        package = pkgs.nodejs-16_x;
+        package = pkgs.nodejs_20;
     };
 
     # nginx
