@@ -22,6 +22,7 @@ class InitNginxCommand extends Command
         'NGINX_PKG_ROOT',
         'PROJECT_NAME',
         'PROJECT_HOST',
+        'PROJECT_TLD',
         'HOME',
     ];
 
