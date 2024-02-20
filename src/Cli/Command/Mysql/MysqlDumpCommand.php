@@ -28,7 +28,7 @@ class MysqlDumpCommand extends Command
 
         $output->writeln($command);
 
-        $exitCode = Process::fromShellCommandline($command)->setTty(true)->run();
+        $exitCode = Process::fromShellCommandline(command: $command, timeout: 120)->setTty(true)->run();
 
         $output->writeln("dumped to $dumpFile");
 
