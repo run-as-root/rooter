@@ -45,7 +45,9 @@ class StartCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $type = getenv('ROOTER_ENV_TYPE') ?? '';
         $projectName = getenv('PROJECT_NAME');
+        $devenvProfile = getenv('DEVENV_PROFILE');
 
         if ($this->processManager->isRunning($this->devenvConfig->getPidFile())) {
             $output->writeln("environment $projectName is already running");
@@ -58,12 +60,17 @@ class StartCommand extends Command
         // Start rooter
         $this->startRooterCommand->run(new ArrayInput([]), $output);
 
+        if (empty($projectName) || empty($devenvProfile)) {
+            $output->writeln("<error>It seems the project is not initialised or setup correctly.</error>");
+            $output->writeln("Did you run direnv allow .?");
+            return Command::FAILURE;
+        }
+
         // Register Environment Config
         $this->registerEnvCommand->run(new ArrayInput([]), $output);
 
         // Nginx init
-        $type = getenv('ROOTER_ENV_TYPE') ?? '';
-        if ($type) {
+        if (!empty($type)) {
             $initNginx = $this->initNginxCommand;
             $initNginx->run(new ArrayInput(['type' => $type]), $output);
         }
@@ -86,7 +93,6 @@ class StartCommand extends Command
 
         $this->processManager->start($command, true);
 
-        $projectName = getenv('PROJECT_NAME');
         $envData = $this->environmentRepository->getByName($projectName);
 
         $processComposePort = $envData['processComposePort'];
