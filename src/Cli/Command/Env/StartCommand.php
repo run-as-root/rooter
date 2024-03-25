@@ -76,57 +76,36 @@ class StartCommand extends Command
         }
 
         // Start devenv environment
-        $command = "devenv up";
-        if (!$debug) {
-            $command = sprintf('%s > %s 2>&1', $command, $this->devenvConfig->getLogFile());
-        }
+        $background = $debug ? '' : '--detach';
+        $command = "devenv processes up $background";
         $command = "export ROOTER_INIT_SKIP=1 && " . $command;
 
-        $output->writeln("environment initialising ...");
+        $output->writeln("environment processes starting …");
 
         // Launch the process
+        $this->processManager->run($command, true);
+
         if ($debug) {
             // We are done in debug mode, since the process is running in foreground
-            $this->processManager->run($command, true);
             return Command::SUCCESS;
         }
-
-        $this->processManager->start($command, true);
 
         $envData = $this->environmentRepository->getByName($projectName);
-
-        $processComposePort = $envData['processComposePort'];
-        if (empty($processComposePort)) {
-            $this->followStartLegacy($output);
-            return Command::SUCCESS;
-        }
 
         $isSuccess = $this->processComposeStartUpRenderer->render($envData, $output);
 
         $pid = $this->processManager->getPidFromFile($this->devenvConfig->getPidFile());
 
         $output->writeln("devenv is running with PID: $pid");
-        $output->writeln("process-compose is running on port: $processComposePort");
+        $output->writeln("process-compose is running on port: {$envData['processComposePort']}" );
         if (!$isSuccess) {
             $output->writeln(
-                "<comment>not all processes started correctly, run `rooter process-compose` or `rooter env:status` to see details</comment>"
+                "<comment>not all processes started correctly, run `rooter env:process-compose` or `rooter env:status` to see details</comment>"
             );
         }
         $output->writeln("<info>environment started</info>");
 
         return $isSuccess ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    /** @deprecated it was introduced as a fallback in the early stages */
-    private function followStartLegacy(OutputInterface $output): void
-    {
-        $pidFile = $this->devenvConfig->getPidFile();
-        // Taking the pid from devenv file here, since the one returned from symfony process is only the spawning process
-        while (!$this->processManager->hasPid($pidFile)) {
-            usleep(500000); // Sleep for 0.5 seconds
-        }
-
-        $this->logFileRenderer->render($this->devenvConfig->getLogFile(), $output);
     }
 
 }

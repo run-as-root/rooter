@@ -17,11 +17,10 @@ class ProcessComposeStartUpRenderer
 
     public function render(array $envData, OutputInterface $output): bool
     {
-
         $linebreakCounter = 0;
         /** @var ConsoleSectionOutput $sectionWaiting */
         $sectionWaiting = $output->section();
-        $sectionWaiting->write("process-compose starting ");
+        $sectionWaiting->write("environment processes verification ");
         while ($this->isProcessComposeAlive($envData) === false) {
             ++$linebreakCounter % self::CLI_LINE_WIDTH === 0 ? $sectionWaiting->writeln(".") : $sectionWaiting->write(".");
             usleep(500000);

@@ -5,8 +5,8 @@ namespace RunAsRoot\Rooter\Config;
 
 class DevenvConfig
 {
-    private const DEVENV_STATE_DEVENV_PID = '%s/.devenv/state/devenv.pid';
-    private const DEVENV_STATE_DEVENV_LOG = '%s/.devenv/state/devenv.log';
+    private const DEVENV_STATE_DEVENV_PID = '%s/.devenv/processes.pid';
+    private const DEVENV_STATE_DEVENV_LOG = '%s/.devenv/processes.log';
 
     public function __construct(private readonly string $environmentRootDir)
     {

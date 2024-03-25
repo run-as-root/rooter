@@ -52,7 +52,7 @@ in {
     # PHP
     languages.php = {
         enable = true;
-        package = inputs.phps.packages.${builtins.currentSystem}.php82.buildEnv {
+        package = inputs.phps.packages.${pkgs.stdenv.system}.php81.buildEnv {
             extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
             extraConfig = ''
                 memory_limit = -1
@@ -134,11 +134,13 @@ in {
         port = lib.strings.toInt ( config.env.DEVENV_REDIS_PORT );
     };
 
-    # ElasticSearch
-    services.elasticsearch = {
+    # OpenSearch
+    services.opensearch = {
         enable = true;
-        port = lib.strings.toInt ( config.env.DEVENV_ELASTICSEARCH_PORT );
-        tcp_port = lib.strings.toInt ( config.env.DEVENV_ELASTICSEARCH_TCP_PORT );
+        settings = {
+            "http.port" = lib.strings.toInt ( config.env.DEVENV_OPENSEARCH_PORT);
+            "transport.port" = lib.strings.toInt ( config.env.DEVENV_OPENSEARCH_TCP_PORT );
+        };
     };
 
     # RabbitMQ

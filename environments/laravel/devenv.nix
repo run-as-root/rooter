@@ -37,7 +37,7 @@ in {
     # PHP
     languages.php = {
         enable = true;
-        package = inputs.phps.packages.${builtins.currentSystem}.php83.buildEnv {
+        package = inputs.phps.packages.${pkgs.stdenv.system}.php83.buildEnv {
             extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
             extraConfig = ''
               memory_limit = -1
