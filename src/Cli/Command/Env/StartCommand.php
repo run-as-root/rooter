@@ -97,7 +97,7 @@ class StartCommand extends Command
         $pid = $this->processManager->getPidFromFile($this->devenvConfig->getPidFile());
 
         $output->writeln("devenv is running with PID: $pid");
-        $output->writeln("process-compose is running on port: {$envData['processComposePort']}" );
+        $output->writeln("process-compose is running with socket: {$envData['processComposeSocket']}" );
         if (!$isSuccess) {
             $output->writeln(
                 "<comment>not all processes started correctly, run `rooter env:process-compose` or `rooter env:status` to see details</comment>"

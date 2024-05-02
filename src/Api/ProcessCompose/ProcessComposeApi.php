@@ -21,13 +21,19 @@ readonly class ProcessComposeApi
     /** @throws ApiException|\JsonException */
     public function isAlive(array $envData): void
     {
-        if (!array_key_exists('processComposePort', $envData)) {
-            throw new ApiException('processComposePort not found in envData');
+        if (!array_key_exists('processComposeSocket', $envData)) {
+            throw new ApiException(
+                'processComposeSocket not found in envData, please update the devenv.nix file. ' .
+                'devenv >= 1.0.5 does not support port based communication anymore.' .
+                'devenv >= 1.0.5 requires a socket based communication.'
+            );
         }
 
         try {
-            $processComposePort = $envData['processComposePort'];
-            $response = $this->client->get("127.0.0.1:$processComposePort/live");
+            $processComposeSocket = $envData['processComposeSocket'];
+            $response = $this->client->get(
+                "http://127.0.0.1/live", ['curl' => [CURLOPT_UNIX_SOCKET_PATH => $processComposeSocket,],]
+            );
         } catch (GuzzleException $e) {
             throw new ConnectionException("could not connect to process-compose: {$e->getMessage()}", 0, $e);
         }
@@ -48,8 +54,10 @@ readonly class ProcessComposeApi
     public function getProcessList(array $envData): array
     {
         try {
-            $processComposePort = $envData['processComposePort'];
-            $response = $this->client->get("127.0.0.1:$processComposePort/processes");
+            $processComposeSocket = $envData['processComposeSocket'];
+            $response = $this->client->get(
+                "http://127.0.0.1/processes", ['curl' => [CURLOPT_UNIX_SOCKET_PATH => $processComposeSocket,],]
+            );
         } catch (GuzzleException $e) {
             throw new ConnectionException("could not connect to process-compose: {$e->getMessage()}", 0, $e);
         }

@@ -19,7 +19,7 @@ class EnvironmentConfigRenderer
             ['path', $envData['path']],
             ['host', $envData['host']],
             new TableSeparator(),
-            ['process-compose', $envData['processComposePort']],
+            ['process-compose', $envData['processComposeSocket']],
             ['httpd', "http:{$envData['httpPort']} (https:{$envData['httpsPort']})"],
             ['db', $envData['dbPort']],
             ['redis', $envData['redisPort']],

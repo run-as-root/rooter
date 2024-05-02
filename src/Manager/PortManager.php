@@ -23,8 +23,8 @@ class PortManager
         'REDIS' => [6379, 6779],
         'AMQP' => [5672, 5999],
         'AMQP_MANAGEMENT' => [15672, 19672],
-        'ELASTICSEARCH' => [9200, 9299],
-        'ELASTICSEARCH_TCP' => [9300, 9399],
+        'OPENSEARCH' => [9200, 9299],
+        'OPENSEARCH_TCP' => [9300, 9399],
         'PROCESS_COMPOSE' => [9900, 9999],
     ];
 

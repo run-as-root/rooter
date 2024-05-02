@@ -8,6 +8,8 @@ in {
         PROJECT_NAME = "${PROJECT_NAME}";
         PROJECT_HOST = "${PROJECT_HOST}";
 
+        PC_SOCKET_PATH = "${config.env.DEVENV_STATE}/process-compose.sock";
+
         NGINX_PKG_ROOT = pkgs.nginx;
         DEVENV_STATE_NGINX = "${config.env.DEVENV_STATE}/nginx";
 
@@ -22,7 +24,7 @@ in {
         STOREFRONT_PROXY_URL = "http://${config.env.PROJECT_HOST}";
         MAILER_DSN = lib.mkDefault "smtp://127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}";
         DATABASE_URL = lib.mkDefault "mysql://${config.env.DEVENV_DB_USER}:${config.env.DEVENV_DB_PASS}@127.0.0.1:${config.env.DEVENV_DB_PORT}/${config.env.DEVENV_DB_NAME}";
-        OPENSEARCH_URL="http://127.0.0.1:${config.env.DEVENV_ELASTICSEARCH_PORT}";
+        OPENSEARCH_URL="http://127.0.0.1:${config.env.DEVENV_OPENSEARCH_PORT}";
     };
 
     # PACKAGES
@@ -36,11 +38,6 @@ in {
     ];
 
     process.implementation="process-compose";
-    process.process-compose={
-        "port" = config.env.DEVENV_PROCESS_COMPOSE_PORT;
-        "tui" = "false";
-        "version" = "0.5";
-    };
 
     # PHP
     languages.php = {
