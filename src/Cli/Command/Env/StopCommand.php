@@ -6,10 +6,6 @@ namespace RunAsRoot\Rooter\Cli\Command\Env;
 use Exception;
 use RunAsRoot\Rooter\Cli\Command\Services\StopServicesCommand;
 use RunAsRoot\Rooter\Cli\Command\Traefik\RemoveTraefikConfigCommand;
-use RunAsRoot\Rooter\Config\DevenvConfig;
-use RunAsRoot\Rooter\Exception\FailedToStopProcessException;
-use RunAsRoot\Rooter\Exception\ProcessNotRunningException;
-use RunAsRoot\Rooter\Manager\ProcessManager;
 use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -18,12 +14,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
 
 class StopCommand extends Command
 {
     public function __construct(
-        private readonly DevenvConfig $devenvConfig,
-        private readonly ProcessManager $processManager,
         private readonly EnvironmentRepository $envRepository,
         private readonly RemoveTraefikConfigCommand $removeTraefikConfigCommand,
         private readonly StopServicesCommand $stopServicesCommand,
@@ -67,36 +62,44 @@ class StopCommand extends Command
     {
         $result = true;
         foreach ($environments as $envData) {
-            $name = $envData['name'];
-            $path = $envData['path'];
+            $resultEnv = $this->stopEnvironment($envData, $output);
 
-            $pidFile = $this->devenvConfig->getPidFile($path);
+            $input = new ArrayInput(['name' => $envData['name']]);
 
-            $resultEnv = $this->stopEnvironment($pidFile, $name, $output);
-
-            $resultTraefik = $this->removeTraefikConfigCommand->run(new ArrayInput(['name' => $name]), $output) === Command::SUCCESS;
+            $resultTraefik = $this->removeTraefikConfigCommand->run($input, $output) === Command::SUCCESS;
 
             $result = $result && $resultEnv && $resultTraefik;
         }
         return $result;
     }
 
-    private function stopEnvironment(string $pidFile, string $name, OutputInterface $output): bool
+    private function stopEnvironment(array $envData, OutputInterface $output): bool
     {
         $result = true;
+        $name = $envData['name'];
+        $path = $envData['path'];
         /** @var ConsoleSectionOutput $section */
         $section = $output->section();
         try {
             $section->writeln("$name stopping ...");
-            $this->processManager->stop($pidFile);
-            $section->overwrite("<info>$name stopped</info>");
-        } catch (ProcessNotRunningException $e) {
-            $section->overwrite("$name already stopped");
-        } catch (FailedToStopProcessException $e) {
-            $output->writeln("<error>$name could not be stopped: {$e->getMessage()}</error>");
-            $result = false;
+
+            $process = Process::fromShellCommandline("devenv processes down", $path);
+            $process->disableOutput();
+            $process->setTimeout(0);
+            $process->setOptions(['create_new_console' => 1]);
+            $process->setTty(true);
+            $process->run();
+
+            $exitCode = $process->getExitCode();
+
+            $msg = 'stopped';
+            if ($exitCode === 1) {
+                $msg = "No processes running";
+            }
+
+            $section->overwrite("<info>$name stopped</info> ($exitCode: $msg)");
         } catch (Exception $e) {
-            $output->writeln("<error>$name unknown error: {$e->getMessage()}</error>");
+            $output->writeln("<error>$name error: {$e->getMessage()}</error>");
             $result = false;
         }
         return $result;

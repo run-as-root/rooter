@@ -9,6 +9,8 @@ in {
         PROJECT_NAME = "${PROJECT_NAME}";
         PROJECT_HOST = "${PROJECT_HOST}";
 
+        PC_SOCKET_PATH = "${config.env.DEVENV_STATE}/process-compose.sock";
+
         NGINX_PKG_ROOT = pkgs.nginx;
         DEVENV_STATE_NGINX = "${config.env.DEVENV_STATE}/nginx";
 
@@ -28,16 +30,11 @@ in {
     ];
 
     process.implementation="process-compose";
-    process.process-compose={
-        "port" = config.env.DEVENV_PROCESS_COMPOSE_PORT;
-        "tui" = "false";
-        "version" = "0.5";
-    };
 
     # PHP
     languages.php = {
         enable = true;
-        package = inputs.phps.packages.${builtins.currentSystem}.php74.buildEnv {
+        package = inputs.phps.packages.${pkgs.stdenv.system}.php74.buildEnv {
             extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
             extraConfig = ''
               memory_limit = -1

@@ -65,7 +65,6 @@ readonly class EnvironmentListRenderer
                 $project['Redis'] = sprintf("%s", $envData['redisPort'] ?? '');
                 $project['AMQP'] = $amqpStr;
                 $project['Elastic'] = sprintf("%s", $envData['elasticsearchPort'] ?? '');
-                $project['ProcessCompose'] = sprintf("%s", $envData['processComposePort'] ?? '');
             }
 
             if (count($projects) > 0) {
@@ -77,7 +76,7 @@ readonly class EnvironmentListRenderer
 
         $headers = ['Name', 'Type', 'Host', 'Status'];
         if ($showPorts) {
-            $headers = array_merge($headers, ['HTTP', 'db', 'Mail', 'Redis', 'AMQP', 'Elastic', 'ProcessCompose',]);
+            $headers = array_merge($headers, ['HTTP', 'db', 'Mail', 'Redis', 'AMQP', 'Elastic',]);
         }
 
         $table = new Table($output);

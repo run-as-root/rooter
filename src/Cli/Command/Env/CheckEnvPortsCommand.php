@@ -77,11 +77,6 @@ class CheckEnvPortsCommand extends Command
             $rows[] = ['Elastic TCP', $elasticsearchTcpPort, $this->portManager->isPortAvailable((int)$elasticsearchTcpPort),];
         }
 
-        if (isset($envData['processComposePort']) && $envData['processComposePort'] > 0) {
-            $processComposePort = $envData['processComposePort'];
-            $rows[] = ['process-compose', $processComposePort, $this->portManager->isPortAvailable((int)$processComposePort),];
-        }
-
         $table = new Table($output);
         $table->setStyle('box');
         $table->setHeaders(['name', 'port', 'status']);
