@@ -18,9 +18,9 @@ class ProcessComposeCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $port = getenv('DEVENV_PROCESS_COMPOSE_PORT');
+        $socket = getenv('PC_SOCKET_PATH');
 
-        $command = "process-compose -p $port attach";
+        $command = "process-compose -u $socket attach";
 
         return Process::fromShellCommandline($command)->setTty(true)->run();
     }
