@@ -17,7 +17,8 @@ class DotEnvFileManager
         $variablesToAdd = $envVariables; // copy to have a list of remaining variables to add
 
         $envFile = $envFile ?: $this->rooterConfig->getEnvironmentEnvFile();
-        $lines = is_file($envFile) ? file($envFile) : [];
+
+        $lines = $this->read($envFile);
 
         // Clean array from variables prefixed with DEVENV_ or ROOTER_
         $envFileData = [];
@@ -49,6 +50,26 @@ class DotEnvFileManager
         }
 
         file_put_contents($envFile, implode('', $envFileData));
+    }
+
+    public function read(string $envFile): array
+    {
+        return is_file($envFile) ? file($envFile) : [];
+    }
+
+    public function hasEnvVariable(string $envVariable, string $envFile = ''): bool
+    {
+        $envFile = $envFile ?: $this->rooterConfig->getEnvironmentEnvFile();
+
+        $lines = $this->read($envFile);
+
+        foreach ($lines as $line) {
+            if (preg_match("/$envVariable=.*/", $line)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
