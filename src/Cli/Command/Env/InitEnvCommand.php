@@ -37,10 +37,15 @@ class InitEnvCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $envFile = $this->rooterConfig->getEnvironmentEnvFile();
-        if (is_file($envFile)) {
-            $io->info("Environment already initialised.");
-            return Command::FAILURE;
+        if (is_file($this->rooterConfig->getEnvironmentEnvFile())) {
+            $output->writeln("<info>.env file already exists</info>");
+            $output->writeln("<info>checking ROOTER variables</info>");
+
+            if ($this->dotEnvFileManager->hasEnvVariable('ROOTER_ENV_TYPE')) {
+                $output->writeln("<comment>ROOTER_ENV_TYPE variable set in .env file, environment already initialised.</comment>");
+                return Command::FAILURE;
+            }
+            $output->writeln("<info>ROOTER_ENV_TYPE is not set, continuing …</info>");
         }
 
         // get environment type
