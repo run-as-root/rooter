@@ -7,7 +7,7 @@ in {
         PROJECT_NAME = "${PROJECT_NAME}";
         PROJECT_HOST = "${PROJECT_HOST}";
 
-        PC_SOCKET_PATH = "${config.env.DEVENV_STATE}/process-compose.sock";
+        PC_SOCKET_PATH = "${config.devenv.runtime}/pc.sock";
     };
 
     # PACKAGES

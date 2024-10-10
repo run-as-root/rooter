@@ -16,7 +16,7 @@ in {
         PROJECT_NAME = "${PROJECT_NAME}";
         PROJECT_HOST = "${PROJECT_HOST}";
 
-        PC_SOCKET_PATH = "${config.env.DEVENV_STATE}/process-compose.sock";
+        PC_SOCKET_PATH = "${config.devenv.runtime}/pc.sock";
 
         NGINX_PKG_ROOT = pkgs.nginx;
         DEVENV_STATE_NGINX = "${config.env.DEVENV_STATE}/nginx";
@@ -40,7 +40,7 @@ in {
         pkgs.gettext
     ];
 
-    scripts.composer.exec = ''php ${composerPhar} $@''; # Composer 2.2.x required by Magento2 <=2.4.6
+    scripts.composer2.exec = ''php ${composerPhar} $@''; # Composer 2.2.x required by Magento2 <=2.4.6
     scripts.magerun2.exec = ''php ${magerun2Phar} $@''; # magerun2 without hardlock to php8.2
 
     # process-compose
@@ -49,7 +49,7 @@ in {
     # PHP
     languages.php = {
         enable = true;
-        package = inputs.phps.packages.${pkgs.stdenv.system}.php81.buildEnv {
+        package = inputs.phps.packages.${pkgs.stdenv.system}.php82.buildEnv {
             extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
             extraConfig = ''
                 memory_limit = -1

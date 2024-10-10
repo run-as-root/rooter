@@ -9,7 +9,7 @@ in {
         PROJECT_NAME = "${PROJECT_NAME}";
         PROJECT_HOST = "${PROJECT_HOST}";
 
-        PC_SOCKET_PATH = "${config.env.DEVENV_STATE}/process-compose.sock";
+        PC_SOCKET_PATH = "${config.devenv.runtime}/pc.sock";
 
         NGINX_PKG_ROOT = pkgs.nginx;
         DEVENV_STATE_NGINX = "${config.env.DEVENV_STATE}/nginx";
