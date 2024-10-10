@@ -47,7 +47,7 @@
           inherit (pkgs) stdenv lib;
           rooterPhar = builtins.fetchurl {
             url = "https://github.com/run-as-root/rooter/releases/download/${rooterVersion}/rooter.phar";
-            sha256 = "0fwh08xm3x4painpvlnsa8sc2ay3c4ry6bmbr1838hsgdl4srhnd";
+            sha256 = "1dyp5gviprj4p7p2pfxvqkj3xnaxlj9ppcbnvbyy2zdmdd7jb6v1";
           };
         in
           pkgs.writeScriptBin "rooter" ''
