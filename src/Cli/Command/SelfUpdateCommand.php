@@ -22,8 +22,15 @@ class SelfUpdateCommand extends Command
             return Command::FAILURE;
         }
 
+        $nixVersion = shell_exec('nix --version');
+        $nixVersion = preg_match('/nix .* ([0-9.]+\.[0-9.]+\.[0-9.]+)/', $nixVersion, $matches) ? $matches[1] : 'unknown';
+
         // forces a re-download of the phar by setting ttl to 0
-        shell_exec('nix profile upgrade ".*.rooter" --tarball-ttl 0');
+        if (version_compare($nixVersion, '2.20.0', '<')) {
+            shell_exec('nix profile upgrade ".*.rooter" --tarball-ttl 0');
+        } else {
+            shell_exec('nix profile upgrade rooter --tarball-ttl 0');
+        }
 
         return Command::SUCCESS;
     }
