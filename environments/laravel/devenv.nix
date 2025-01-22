@@ -29,7 +29,7 @@ in {
         pkgs.yarn
     ];
 
-    process.implementation="process-compose";
+    process.manager.implementation="process-compose";
 
     # PHP
     languages.php = {

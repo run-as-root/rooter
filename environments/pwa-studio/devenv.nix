@@ -20,7 +20,7 @@ in {
     ];
 
     # process-compose
-    process.implementation="process-compose";
+    process.manager.implementation="process-compose";
 
     # JS
     languages.javascript = {

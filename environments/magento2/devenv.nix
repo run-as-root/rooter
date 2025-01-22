@@ -44,7 +44,7 @@ in {
     scripts.magerun2.exec = ''php ${magerun2Phar} $@''; # magerun2 without hardlock to php8.2
 
     # process-compose
-    process.implementation="process-compose";
+    process.manager.implementation="process-compose";
 
     # PHP
     languages.php = {
