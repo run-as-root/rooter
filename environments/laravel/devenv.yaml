@@ -2,8 +2,3 @@ allowUnfree: true
 inputs:
   nixpkgs:
     url: github:cachix/devenv-nixpkgs/rolling
-  phps:
-    url: github:fossar/nix-phps
-    inputs:
-      nixpkgs:
-        follows: nixpkgs

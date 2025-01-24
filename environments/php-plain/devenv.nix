@@ -20,17 +20,16 @@ in {
     # PHP
     languages.php = {
         enable = true;
-        package = inputs.phps.packages.${pkgs.stdenv.system}.php82.buildEnv {
-            extensions = { all, enabled }: with all; enabled ++ [ redis xdebug xsl ];
-            extraConfig = ''
-                memory_limit = -1
-                error_reporting=E_ALL
-                xdebug.mode = coverage,debug
-                sendmail_path = ${pkgs.mailpit}/bin/mailpit sendmail -S 127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}
-                display_errors = On
-                display_startup_errors = On
-            '';
-        };
+        version= "8.3";
+        extensions = [ "redis" "xdebug" "xsl" ];
+        ini= ''
+            memory_limit = -1
+            display_errors = On
+            display_startup_errors = On
+            error_reporting=E_ALL
+            xdebug.mode = coverage,debug
+            sendmail_path = ${pkgs.mailpit}/bin/mailpit sendmail -S 127.0.0.1:${config.env.DEVENV_MAIL_SMTP_PORT}
+        '';
     };
 
     # mailpit
