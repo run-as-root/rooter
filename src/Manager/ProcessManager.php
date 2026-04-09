@@ -44,7 +44,7 @@ class ProcessManager
         file_put_contents($pidFile, $process->getPid());
     }
 
-    public function run(string $command, bool $preservePhpContext = false): Process
+    public function run(string $command, bool $preservePhpContext = false, bool $useTty = true, ?callable $callback = null): Process
     {
         if ($preservePhpContext) {
             $command = $this->preservePhpContext($command);
@@ -53,10 +53,23 @@ class ProcessManager
         $process = Process::fromShellCommandline($command, getcwd());
         $process->setTimeout(0);
         $process->setOptions(['create_new_console' => 1]);
-        $process->setTty(true);
-        $process->run();
+        if ($useTty) {
+            $process->setTty(true);
+        }
+        $process->run($callback);
 
         return $process;
+    }
+
+    public function passthru(string $command, bool $preservePhpContext = false): int
+    {
+        if ($preservePhpContext) {
+            $command = $this->preservePhpContext($command);
+        }
+
+        passthru($command, $exitCode);
+
+        return $exitCode;
     }
 
     private function preservePhpContext(string $command): string

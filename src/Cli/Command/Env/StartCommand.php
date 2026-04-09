@@ -82,13 +82,11 @@ class StartCommand extends Command
 
         $output->writeln("environment processes starting …");
 
-        // Launch the process
-        $this->processManager->run($command, true);
-
         if ($debug) {
-            // We are done in debug mode, since the process is running in foreground
-            return Command::SUCCESS;
+            return $this->processManager->passthru($command, true) === 0 ? Command::SUCCESS : Command::FAILURE;
         }
+
+        $this->processManager->run($command, true, false);
 
         $envData = $this->environmentRepository->getByName($projectName);
 

@@ -40,7 +40,7 @@ class ProcessComposeStartUpRenderer
             $hasExitedProcess = false;
             $message = '';
             foreach ($processList as $process) {
-                $isRunning = (bool)$process['IsRunning'];
+                $isRunning = (bool)($process['is_running'] ?? $process['IsRunning'] ?? false);
                 $exitCode = $process['exit_code'];
                 $exitCodeMsg = '';
                 if ($exitCode > 0) {
