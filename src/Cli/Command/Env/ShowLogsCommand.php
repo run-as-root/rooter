@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
+/** @deprecated use ProcessComposeCommand to attach and see logs */
 class ShowLogsCommand extends Command
 {
     public function __construct(private readonly DevenvConfig $devenvConfig)
@@ -20,7 +21,7 @@ class ShowLogsCommand extends Command
     protected function configure()
     {
         $this->setName('env:log');
-        $this->setDescription('Show env logs');
+        $this->setDescription('Show env logs (deprecated)');
         $this->addOption('lines', 'l', InputOption::VALUE_OPTIONAL, 'Number of lines to display');
         $this->addOption('follow', 'f', InputOption::VALUE_NONE, 'follow logs continuously');
     }
@@ -30,16 +31,25 @@ class ShowLogsCommand extends Command
         $lines = $input->getOption('lines');
         $follow = $input->getOption('follow');
 
+        $logFile = $this->devenvConfig->getLogFile();
+
         if ($lines && $follow) {
             $output->writeln('You cannot have both lines and follow');
-            return 1;
+            return Command::FAILURE;
+        }
+
+        if (!file_exists($logFile)) {
+            $output->writeln('No log file found at ' . $logFile);
+            $output->writeln('Try attaching to process-compose with env:process-compose');
+            return Command::FAILURE;
         }
 
         $flags = ' ';
         $flags .= $follow ? '-f' : '';
         $flags .= $lines ? "-n $lines" : '';
 
-        $command = sprintf('tail %s %s', $flags, $this->devenvConfig->getLogFile());
+
+        $command = sprintf('tail %s %s', $flags, $logFile);
 
         $process = Process::fromShellCommandline($command);
         $process->setTimeout(0)->setTty(true)->run();

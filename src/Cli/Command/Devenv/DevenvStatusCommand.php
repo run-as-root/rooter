@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Command\Devenv;
 
-use RunAsRoot\Rooter\Config\DevenvConfig;
-use RunAsRoot\Rooter\Manager\ProcessManager;
+use RunAsRoot\Rooter\Api\ProcessCompose\ProcessComposeApi;
+use RunAsRoot\Rooter\Repository\EnvironmentRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,8 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DevenvStatusCommand extends Command
 {
     public function __construct(
-        private readonly ProcessManager $processManager,
-        private readonly DevenvConfig $devenvConfig,
+        private readonly EnvironmentRepository $environmentRepository,
+        private readonly ProcessComposeApi $processComposeApi
     ) {
         parent::__construct();
     }
@@ -35,19 +35,28 @@ class DevenvStatusCommand extends Command
             return Command::FAILURE;
         }
 
-        $pid = $this->processManager->getPidFromFile($this->devenvConfig->getPidFile());
+        $envData = $this->environmentRepository->getByName($projectName);
 
-        $status = $this->processManager->isRunningByPid($pid) ? 'running' : 'stopped';
+        $status = $this->isEnvRunning($envData) ? 'running' : 'stopped';
 
         $table = new Table($output);
         $table->setStyle('box');
-        $table->setHeaders(['name', 'status', 'pid']);
+        $table->setHeaders(['name', 'status', 'socket']);
         $table->setRows([
-            ['devenv', $status, $pid],
+            ['devenv', $status, $envData['processComposeSocket']],
         ]);
         $table->render();
 
         return Command::SUCCESS;
     }
 
+    private function isEnvRunning(array $envData): bool
+    {
+        try {
+            $this->processComposeApi->isAlive($envData);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }

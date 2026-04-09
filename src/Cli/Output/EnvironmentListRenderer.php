@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace RunAsRoot\Rooter\Cli\Output;
 
+use RunAsRoot\Rooter\Api\ProcessCompose\ProcessComposeApi;
 use RunAsRoot\Rooter\Cli\Output\Style\TitleGrayOutputStyle;
-use RunAsRoot\Rooter\Config\DevenvConfig;
-use RunAsRoot\Rooter\Manager\ProcessManager;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,8 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 readonly class EnvironmentListRenderer
 {
     public function __construct(
-        private DevenvConfig $devenvConfig,
-        private ProcessManager $processManager
+        private ProcessComposeApi $processComposeApi
     ) {
     }
 
@@ -32,8 +30,7 @@ readonly class EnvironmentListRenderer
 
         $projects = [];
         foreach ($environments as $envData) {
-            $pidFile = $this->devenvConfig->getPidFile($envData['path']);
-            $status = $this->processManager->isRunning($pidFile) ? 'running' : 'stopped';
+            $status = $this->isEnvRunning($envData) ? 'running' : 'stopped';
             if ($status !== 'running' && $onlyRunning) {
                 continue;
             }
@@ -86,4 +83,13 @@ readonly class EnvironmentListRenderer
         $table->render();
     }
 
+    private function isEnvRunning(array $envData): bool
+    {
+        try {
+            $this->processComposeApi->isAlive($envData);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }
