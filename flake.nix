@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
     utils.url = "github:numtide/flake-utils";
   };
 
@@ -10,11 +11,13 @@
     self,
     utils,
     nixpkgs,
+    nixpkgs-stable,
     ...
   } @ inputs:
     utils.lib.eachDefaultSystem (system:
     let
       pkgs = nixpkgs.legacyPackages.${system};
+      pkgs-stable = nixpkgs-stable.legacyPackages.${system};
       rooterVersion = (builtins.readFile ./VERSION);
       # @todo adapt PHP version if required
       php = pkgs.php82.buildEnv {
@@ -31,14 +34,14 @@
         '';
       };
       envConfig = ''
-        export ROOTER_TRAEFIK_BIN=${pkgs.traefik}/bin/traefik
+        export ROOTER_TRAEFIK_BIN=${pkgs-stable.traefik}/bin/traefik
         export ROOTER_DNSMASQ_BIN=${pkgs.dnsmasq}/bin/dnsmasq
         export ROOTER_GZIP_BIN=${pkgs.gzip}/bin/gzip
         export ROOTER_PV_BIN=${pkgs.pv}/bin/pv
         '';
     in rec {
       packages.php = php;
-      packages.traefik = pkgs.traefik;
+      packages.traefik = pkgs-stable.traefik;
       packages.dnsmasq = pkgs.dnsmasq;
       packages.pv = pkgs.pv;
       packages.gzip = pkgs.gzip;
@@ -74,8 +77,8 @@
         let
           inherit (pkgs) stdenv lib;
           box = builtins.fetchurl {
-            url = "https://github.com/box-project/box/releases/download/4.3.8/box.phar";
-            sha256 = "061vrxjvmqxy4yyi6j6i28kwl6ixfwhc743b6lw7bjgc4kdkvml3";
+            url = "https://github.com/box-project/box/releases/download/4.7.0/box.phar";
+            sha256 = "0llddzrb9d428kzkhpr9psv5qmycc16aby43zsc80a1kxkm0wf9x";
           };
           rooterPharLocal = pkgs.stdenv.mkDerivation {
               name = "rooterPharBin";
@@ -98,7 +101,7 @@
           '';
 
       devShells.default = pkgs.mkShell {
-        buildInputs = with pkgs; [phpDev traefik dnsmasq pv gzip just packages.rooterDev];
+        buildInputs = with pkgs; [phpDev dnsmasq pv gzip just packages.rooterDev] ++ [pkgs-stable.traefik];
       };
     });
 }
