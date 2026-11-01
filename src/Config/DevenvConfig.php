@@ -12,13 +12,13 @@ class DevenvConfig
     {
     }
 
-    public function getPidFile(string $path = null): string
+    public function getPidFile(?string $path = null): string
     {
         $path = $path ?? $this->environmentRootDir;
         return sprintf(self::DEVENV_STATE_DEVENV_PID, $path);
     }
 
-    public function getLogFile(string $path = null): string
+    public function getLogFile(?string $path = null): string
     {
         $path = $path ?? $this->environmentRootDir;
         return sprintf(self::DEVENV_STATE_DEVENV_LOG, $path);

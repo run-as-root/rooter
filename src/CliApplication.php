@@ -29,7 +29,7 @@ class CliApplication extends BaseApplication
         $this->outputFormatter = $outputFormatter;
     }
 
-    public function run(InputInterface $input = null, OutputInterface $output = null): int
+    public function run(?InputInterface $input = null, ?OutputInterface $output = null): int
     {
         $output ??= new ConsoleOutput(OutputInterface::VERBOSITY_NORMAL, null, $this->outputFormatter);
 

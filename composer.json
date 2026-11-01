@@ -9,6 +9,7 @@
         }
     ],
     "require": {
+        "php": "^8.4",
         "ext-posix": "*",
         "guzzlehttp/guzzle": "^7.8",
         "symfony/config": "^6.3",

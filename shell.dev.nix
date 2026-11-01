@@ -2,7 +2,7 @@
   pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/refs/heads/master.tar.gz") {},
 }:
 let
-    php_custom = pkgs.php82.buildEnv {
+    php_custom = pkgs.php84.buildEnv {
       extensions = { all, enabled }: with all; enabled ++ [ xdebug xsl ];
       extraConfig = ''
         memory_limit=-1

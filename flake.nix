@@ -20,13 +20,13 @@
       pkgs-stable = nixpkgs-stable.legacyPackages.${system};
       rooterVersion = (builtins.readFile ./VERSION);
       # @todo adapt PHP version if required
-      php = pkgs.php82.buildEnv {
+      php = pkgs.php84.buildEnv {
         extensions = { all, enabled }: with all; enabled;
         extraConfig = ''
             memory_limit=-1
         '';
       };
-      phpDev = pkgs.php82.buildEnv {
+      phpDev = pkgs.php84.buildEnv {
         extensions = { all, enabled }: with all; enabled ++ [ xdebug ];
         extraConfig = ''
             memory_limit=-1
@@ -84,8 +84,8 @@
               name = "rooterPharBin";
               src = self;
               buildPhase = "
-                ${pkgs.php82Packages.composer}/bin/composer install
-                ${phpDev}/bin/php ${box} compile --composer-bin=${pkgs.php82Packages.composer}/bin/composer
+                ${pkgs.php84Packages.composer}/bin/composer install
+                ${phpDev}/bin/php ${box} compile --composer-bin=${pkgs.php84Packages.composer}/bin/composer
               ";
               installPhase = ''
                 mkdir -p $out/bin;
